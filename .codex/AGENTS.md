@@ -163,6 +163,14 @@ Well-known open-source tools commonly preferred when present in the repo:
 - lint-staged
 - Knip
 
+### Context7 For Library And API Guidance
+
+Context7 is the default source for library and framework documentation.
+
+- Always use the `context7` tool when you need library or API documentation.
+- Always use the `context7` tool when you need code generation, setup instructions, or configuration steps.
+- Do not rely on internal knowledge for library versions or APIs; verify with Context7 first.
+
 ### Shell Search Tools
 
 Prefer modern CLI tools for file and content searches:
