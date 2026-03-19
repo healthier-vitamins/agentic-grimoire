@@ -154,6 +154,14 @@ When these tools already exist in the repo, prefer them over introducing alterna
 - lint-staged
 - Knip
 
+## Context7
+
+Context7 is the default source for library and framework documentation.
+
+- Always use the `context7` tool when you need library or API documentation.
+- Always use the `context7` tool when you need code generation, setup instructions, or configuration steps.
+- Do not rely on internal knowledge for library versions or APIs; verify with Context7 first.
+
 ## Shell Tool Preferences
 
 Prefer modern CLI search tools for efficiency:
