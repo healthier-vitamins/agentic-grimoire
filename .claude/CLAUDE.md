@@ -154,6 +154,18 @@ When these tools already exist in the repo, prefer them over introducing alterna
 - lint-staged
 - Knip
 
+## Shell Tool Preferences
+
+Prefer modern CLI search tools for efficiency:
+
+- Use `fd` instead of `find` for file searches.
+- Use `rg` (ripgrep) instead of `grep` for content searches.
+
+If either tool is missing, do not silently fall back — instead, inform the user and ask permission before running the install command:
+
+- Install `fd`: `brew install fd` (macOS) / `apt install fd-find` (Linux)
+- Install `rg`: `brew install ripgrep` (macOS) / `apt install ripgrep` (Linux)
+
 ## Expected End-Of-Task Summary
 
 For code tasks, end with:

@@ -163,6 +163,18 @@ Well-known open-source tools commonly preferred when present in the repo:
 - lint-staged
 - Knip
 
+### Shell Search Tools
+
+Prefer modern CLI tools for file and content searches:
+
+- Use `fd` instead of `find`.
+- Use `rg` (ripgrep) instead of `grep`.
+
+If either tool is not available, do not silently fall back — ask the user for permission before running the install command:
+
+- Install `fd`: `brew install fd` (macOS) / `apt install fd-find` (Linux)
+- Install `rg`: `brew install ripgrep` (macOS) / `apt install ripgrep` (Linux)
+
 ## Final Response Format For Coding Tasks
 
 End with a compact validation summary including:
