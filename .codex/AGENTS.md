@@ -16,6 +16,7 @@ Reference the following shared skill documents when relevant:
 - `./.shared-agents/skills/preserve-ui-behavior/SKILL.md`
 - `./.shared-agents/skills/dry-simple-code/SKILL.md`
 - `./.shared-agents/skills/comment-transformations/SKILL.md`
+- `./.shared-agents/common/skills/coexistance/SKILL.md`
 
 ## Core Engineering Principles
 

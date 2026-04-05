@@ -27,5 +27,3 @@ Example:
 const firstTwo = value.split(",").slice(0, 2);
 // output: ["alpha", "beta"]
 ```
-
-D
