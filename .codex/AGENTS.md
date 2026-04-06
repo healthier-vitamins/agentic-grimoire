@@ -2,144 +2,112 @@
 
 Project-wide instructions for Codex and similar coding agents.
 
-Codex must read and follow this file before making any changes.
+Codex must read and follow this file before making changes.
 
 ## Source Of Truth
 
 Shared repository rules live here and must be followed:
 
 - `./.shared-agents/linting.md`
-
-Reference the following shared skill documents when relevant:
-
-- `./.shared-agents/skills/refactor-safely/SKILL.md`
-- `./.shared-agents/skills/preserve-ui-behavior/SKILL.md`
-- `./.shared-agents/skills/dry-simple-code/SKILL.md`
-- `./.shared-agents/skills/comment-transformations/SKILL.md`
 - `./.shared-agents/common/skills/coexistance/SKILL.md`
 
 ## Core Engineering Principles
 
-### 1) Keep code DRY
+### Reuse first
 
 - Reuse existing helpers, hooks, services, utils, types, constants, and UI components before creating new ones.
-- Extract duplication only when it genuinely improves readability and maintainability.
-- Do not create abstractions too early.
-- Avoid “DRY at all costs”; duplicated code is acceptable temporarily if abstraction would make the code harder to understand.
+- Search for existing validators, mappers, API clients, hooks, and shared UI patterns before adding code.
+- Prefer extending an existing module over adding a new one when responsibility stays clear.
+- Extract helpers only when reuse is real and naming is obvious.
+- If an abstraction makes the code harder to read, keep the logic inline.
 
-### 2) Prefer the simplest working code
+### Keep code DRY and simple
 
-- The simplest correct solution is preferred over a clever one.
-- Prefer straightforward control flow, readable names, and small functions.
-- Minimize nesting.
-- Prefer boring, maintainable code over over-engineered patterns.
+- Prefer the simplest correct solution over a clever one.
+- Use straightforward control flow, readable names, and small focused functions.
+- Minimize nesting and avoid compressed one-liners when branching would be clearer.
+- Duplicated code is acceptable temporarily if abstraction would reduce clarity.
+- Avoid generic utilities or new patterns unless the repo clearly needs them.
 
-### 3) Advanced logic must be explained with transformation comments
+### Comment dense transformations
 
-For code that is not immediately obvious, include short comments showing:
-
-- the important input
-- the transformation being applied
-- the expected output shape or example output
-
-Example:
+For non-obvious logic, add short comments that show the input and output shape.
 
 ```ts
-// input: "hellohello"
-const value = string.slice(0, 4);
-// output: "hell"
-
-// input: "hellohello"
-const value2 = string.replace(/hello/g, "he");
-// output: "hehe"
+// input: "alpha,beta,gamma"
+const firstTwo = value.split(",").slice(0, 2);
+// output: ["alpha", "beta"]
 ```
 
 Rules:
 
-- Only add these comments for logic that is non-obvious, compact, or easy to misread.
-- Keep comments accurate and short.
-- Do not add noisy comments for trivial code.
+- Add these comments only for dense string/array/object transforms, regex logic, parsing, mapping, filtering, or normalization.
+- Keep comments short, accurate, and specific to the tricky part.
+- Do not add comments for obvious code.
 
 ## Change Safety Rules
 
 Do not break existing functionality, behavior, or UI.
 
-When touching existing code, default to the smallest safe change.
+- Default to the smallest safe change.
+- Understand current behavior before editing old code.
+- Preserve public interfaces unless the task explicitly requires change.
+- Preserve API contracts, component prop contracts, and side effects callers depend on.
+- Keep data flow explicit and keep side effects where callers expect them.
+- Do not mix unrelated cleanup into the same diff.
 
-Changes to old code are allowed when they clearly improve the codebase, such as:
+Changes to existing code are encouraged when they clearly improve the codebase, such as:
 
-- fixing a bug
-- reducing code smell
-- improving readability or maintainability
-- improving performance without changing expected behavior
-- improving accessibility
-- improving UI/UX
-- reducing duplication
-- strengthening typing
+- fixing bugs
+- reducing duplication or code smell
+- improving readability, maintainability, or typing
+- simplifying risky or confusing logic
+- improving accessibility or UI/UX
 - removing dead code
-- simplifying overly complex code
-
-### Guardrails for touching existing code
-
-Before changing old code:
-
-- understand current behavior first
-- preserve public interfaces unless the task requires otherwise
-- preserve API contracts
-- preserve component props contracts
-- preserve side effects that callers depend on
-- preserve existing styling and interaction patterns unless intentionally improving them
-
-### UI guardrails
-
-Any UI change must:
-
-- preserve layout intent unless improvement is required
-- preserve responsive behavior
-- preserve accessibility
-- avoid visual regressions
-- avoid changing copy, spacing, focus behavior, keyboard behavior, or loading states unless necessary
-
-If a UI improvement is made:
-
-- keep it minimal
-- avoid unrelated redesign
-- do not change multiple interaction patterns without need
+- improving performance without changing expected behavior
 
 ## Refactoring Rules
 
-Refactor only when one of these is true:
-
-- the current code is buggy
-- the current code is hard to understand
-- the current code is unnecessarily duplicated
-- the current code is risky to maintain
-- the current code blocks a needed feature
-- the current code causes UI/UX issues
-- the current code has weak typing or unclear data flow
-- the current code creates repeated defects
+Refactor only when the current code is buggy, duplicated, confusing, risky, or blocking necessary work.
 
 When refactoring:
 
-- preserve behavior first
-- prefer incremental refactors over sweeping rewrites
-- keep diffs focused
-- do not mix unrelated cleanup into feature work unless it is in the exact touched area and clearly safe
+1. Identify current behavior first.
+2. Identify what is duplicated, fragile, confusing, or risky.
+3. Refactor only the touched area unless expansion is necessary.
+4. Preserve behavior with tests or strong local reasoning.
+5. Re-run validation after the change.
 
-## Reuse-First Policy
+Avoid:
 
-Before creating anything new, search for:
+- sweeping rewrites
+- hidden behavior changes
+- silent API contract changes
+- opportunistic redesign
 
-- existing helper utilities
-- shared types
-- validation schemas
-- data mappers
-- API clients
-- hooks
-- UI primitives
-- existing patterns already used in the repo
+## UI Guardrails
 
-Prefer extending an existing file/module over adding a new one when responsibility remains clear.
+Any UI change must:
+
+- preserve layout intent unless an improvement is required
+- preserve responsive behavior
+- preserve accessibility and keyboard interaction
+- preserve focus behavior
+- preserve empty, loading, success, and error states
+- avoid unrelated changes to copy, spacing, alignment, or interaction patterns
+
+Safe UI improvements include:
+
+- fixing broken alignment
+- improving accessibility labels
+- simplifying duplicated render branches
+- reducing rerenders without changing behavior
+- improving disabled or loading state consistency
+
+Before finishing a UI change:
+
+- compare old and new rendered states mentally or with tests
+- verify no unrelated visual regression was introduced
 
 ## Validation Requirement
 
@@ -151,9 +119,7 @@ Do not claim completion if changed code has known fixable lint, type, formatting
 
 ## Preferred Tooling
 
-Use repository-native tooling first.
-
-Well-known open-source tools commonly preferred when present in the repo:
+Use repository-native tooling first. Prefer these well-known tools when already present in the repo:
 
 - ESLint
 - Prettier
@@ -164,25 +130,22 @@ Well-known open-source tools commonly preferred when present in the repo:
 - lint-staged
 - Knip
 
-### Context7 For Library And API Guidance
+## Context7 For Library And API Guidance
 
 Context7 is the default source for library and framework documentation.
 
-- Always use the `context7` tool when you need library or API documentation.
-- Always use the `context7` tool when you need code generation, setup instructions, or configuration steps.
-- Do not rely on internal knowledge for library versions or APIs; verify with Context7 first.
+- Use the `context7` tool when you need library or API documentation.
+- Use the `context7` tool when you need code generation, setup instructions, or configuration steps.
+- Do not rely on memory for library versions or APIs when verification is needed.
 
-### Shell Search Tools
+## Shell Search Tools
 
-Prefer modern CLI tools for file and content searches:
+Prefer modern CLI tools for searches:
 
 - Use `fd` instead of `find`.
-- Use `rg` (ripgrep) instead of `grep`.
+- Use `rg` instead of `grep`.
 
-If either tool is not available, do not silently fall back — ask the user for permission before running the install command:
-
-- Install `fd`: `brew install fd` (macOS) / `apt install fd-find` (Linux)
-- Install `rg`: `brew install ripgrep` (macOS) / `apt install ripgrep` (Linux)
+If either tool is missing, ask the user before running an install command.
 
 ## Final Response Format For Coding Tasks
 
@@ -193,6 +156,4 @@ End with a compact validation summary including:
 - whether lint passed
 - whether typecheck passed
 - whether formatting passed
-- any remaining issues, marked as either:
-  - introduced by this task
-  - pre-existing
+- any remaining issues, marked as `introduced by this task` or `pre-existing`

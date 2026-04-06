@@ -8,51 +8,38 @@ Follow this file before editing code, running validations, or proposing refactor
 
 Shared repository rules live here:
 
-- `~/.shared-agents/linting.md`
-
-Relevant shared skills:
-
-- `~/.shared-agents/skills/refactor-safely/SKILL.md`
-- `~/.shared-agents/skills/preserve-ui-behavior/SKILL.md`
-- `~/.shared-agents/skills/dry-simple-code/SKILL.md`
-- `~/.shared-agents/skills/comment-transformations/SKILL.md`
-- `~/.shared-agents/common/skills/coexistance/SKILL.md`
+- `./.shared-agents/linting.md`
+- `./.shared-agents/common/skills/coexistance/SKILL.md`
 
 ## Working Style
 
-### Keep code DRY
+### Reuse first
 
-- Always look for existing helpers, hooks, services, types, utilities, and UI components before creating new ones.
-- Reuse and extend existing patterns where appropriate.
-- Only extract abstractions when they make the code easier to understand and maintain.
+- Check for existing helpers, hooks, services, types, parsers, validators, constants, and UI components before creating new ones.
+- Reuse and extend established repo patterns where appropriate.
+- Prefer extending an existing module over adding a new one when responsibility stays clear.
+- Extract helpers only when the reuse is real and the name is obvious.
+- If abstraction makes the code harder to follow, keep the logic inline.
 
-### Simplicity first
+### Keep code DRY and simple
 
 - Prefer the simplest correct solution.
 - Avoid clever abstractions unless they are clearly justified.
 - Write code that a junior engineer can trace confidently.
+- Prefer focused functions and readable branching over compact one-liners.
+- Do not introduce generic utilities or new patterns too early.
 
 ### Comment non-obvious transformations
 
-For advanced or dense logic, add short comments that show:
-
-- sample input
-- transformation
-- expected output
-
-Example:
+For advanced or dense logic, add short comments that show sample input and expected output.
 
 ```ts
-// input: "hellohello"
-const value = string.slice(0, 4);
-// output: "hell"
-
 // input: "a,b,c,d"
 const items = value.split(",").slice(0, 2);
 // output: ["a", "b"]
 ```
 
-Do not add unnecessary comments for obvious code.
+Use these comments for dense transforms, regex logic, parsing, mapping, filtering, or normalization. Do not add them for obvious code.
 
 ## Safety Rules For Existing Code
 
@@ -64,6 +51,7 @@ Do not break:
 - API behavior
 - component contracts
 - data flow
+- side effects callers rely on
 - UI behavior
 - accessibility
 - responsive behavior
@@ -72,23 +60,38 @@ Only touch old code when it is a real improvement, including:
 
 - bug fixes
 - code smell reduction
-- readability improvements
+- readability or maintainability improvements
 - safe simplification
 - safer typing
-- accessibility improvements
-- UI/UX improvements
+- accessibility or UI/UX improvements
 - dead code removal
 - duplicated logic reduction
 - performance improvements that preserve behavior
+
+Guardrails:
+
+- make the smallest safe change by default
+- understand current behavior before editing
+- keep data flow explicit
+- keep side effects where callers expect them
+- do not mix unrelated cleanup into the same diff
 
 ## Refactor Policy
 
 Prefer narrow, safe refactors.
 
+Refactor process:
+
+1. Identify current behavior first.
+2. Identify what is duplicated, confusing, fragile, or risky.
+3. Refactor only the touched area unless expansion is necessary.
+4. Preserve behavior with tests or strong local reasoning.
+5. Re-run validation after the change.
+
 Good refactors:
 
 - remove duplication in the touched area
-- rename confusing variables/functions
+- rename confusing variables or functions
 - isolate side effects
 - simplify conditionals
 - replace fragile logic with explicit logic
@@ -98,39 +101,27 @@ Good refactors:
 Avoid:
 
 - broad rewrites without strong need
+- hidden behavior changes
+- silent API contract changes
 - changing unrelated files
-- introducing new patterns when existing repo patterns already work
-- changing UI as collateral damage from code cleanup
+- opportunistic redesign
 
 ## UI Protection Rules
 
 When editing frontend code:
 
-- preserve current layout unless intentionally improving it
-- preserve spacing rhythm unless change is deliberate
-- preserve loading, empty, error, hover, focus, and disabled states
-- preserve keyboard interactions
-- preserve aria/accessibility behavior
-- verify no visual regressions are introduced
+- preserve current layout intent unless improving it
+- preserve spacing, copy, and alignment unless change is deliberate
+- preserve loading, empty, error, hover, focus, success, and disabled states
+- preserve keyboard interactions and accessibility behavior
+- preserve responsive behavior
+- verify no unrelated visual regressions are introduced
 
 If improving UI/UX:
 
 - make the smallest improvement that solves the problem
 - keep styling consistent with the existing codebase
-- do not redesign unrelated sections
-
-## Reuse-First Checklist
-
-Before adding code, check for:
-
-- existing utility functions
-- formatter/parsers already in use
-- shared constants/enums
-- existing domain services
-- shared hooks
-- design system components
-- common validation helpers
-- table/form/list patterns already established
+- avoid unrelated redesign
 
 ## Validation
 
@@ -159,21 +150,18 @@ When these tools already exist in the repo, prefer them over introducing alterna
 
 Context7 is the default source for library and framework documentation.
 
-- Always use the `context7` tool when you need library or API documentation.
-- Always use the `context7` tool when you need code generation, setup instructions, or configuration steps.
-- Do not rely on internal knowledge for library versions or APIs; verify with Context7 first.
+- Use the `context7` tool when you need library or API documentation.
+- Use the `context7` tool when you need code generation, setup instructions, or configuration steps.
+- Do not rely on memory for library versions or APIs when verification is needed.
 
 ## Shell Tool Preferences
 
 Prefer modern CLI search tools for efficiency:
 
-- Use `fd` instead of `find` for file searches.
-- Use `rg` (ripgrep) instead of `grep` for content searches.
+- Use `fd` instead of `find`.
+- Use `rg` instead of `grep`.
 
-If either tool is missing, do not silently fall back — instead, inform the user and ask permission before running the install command:
-
-- Install `fd`: `brew install fd` (macOS) / `apt install fd-find` (Linux)
-- Install `rg`: `brew install ripgrep` (macOS) / `apt install ripgrep` (Linux)
+If either tool is missing, inform the user and ask before running an install command.
 
 ## Expected End-Of-Task Summary
 
@@ -184,4 +172,4 @@ For code tasks, end with:
 - lint status
 - typecheck status
 - formatting status
--
+- remaining issues marked as `introduced by this task` or `pre-existing`

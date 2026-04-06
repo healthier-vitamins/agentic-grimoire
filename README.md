@@ -44,6 +44,18 @@ The installer is designed to be safe to rerun.
 - If a target path is a conflicting symlink, the script leaves it unchanged and prints a warning.
 
 Appended unmanaged-file sections are clearly delimited with ASCII markers so the repo-managed portion is easy to identify.
+When appending to an unmanaged file, unrelated existing content is preserved exactly as-is outside the managed section.
+
+```text
++-------------------------------+-----------------------------------------------+---------------------------+
+| Target state                  | Installer behavior                            | CLI status / note         |
++-------------------------------+-----------------------------------------------+---------------------------+
+| File missing                  | Create from repo source doc                   | updated                   |
+| File exists, missing section  | Preserve file, append managed section         | appended-with-warning     |
+| File exists, already complete | Leave unchanged                               | unchanged                 |
+| File exists, managed differs  | Update managed file/managed section only      | updated                   |
++-------------------------------+-----------------------------------------------+---------------------------+
+```
 
 The installer prints a status line for each target. Current statuses are:
 
@@ -54,13 +66,18 @@ The installer prints a status line for each target. Current statuses are:
 
 ## Shared Content
 
-If a `.shared-agents/` directory exists in the repo, the installer merges those files into the generated output.
+If a `.shared-agents/` directory exists in the repo, the installer applies those files in two ways:
 
-- `common/` content applies to both generated docs
-- `claude/` content applies only to `CLAUDE.md`
-- `codex/` content applies only to `AGENTS.md`
+- non-skill shared files are merged into the generated docs
+- shared skill files under `*/skills/` are installed into the respective home `skills/` directories
 
-The merged section is wrapped in shared-content markers so the generated output is still traceable.
+Scope rules:
+
+- `common/` content applies to both agents
+- `claude/` content applies only to `CLAUDE.md` and `~/.claude/skills/`
+- `codex/` content applies only to `AGENTS.md` and `~/.codex/skills/`
+
+Merged doc sections are wrapped in shared-content markers so the generated output is still traceable.
 
 ## Repo Layout
 
