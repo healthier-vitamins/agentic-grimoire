@@ -1,3 +1,8 @@
+---
+name: coexistance
+description: Use this skill when a task should begin with repository inspection and produce a concrete implementation plan before code changes.
+---
+
 # Coexistance
 
 Use this skill when a task should begin with repository inspection and produce a concrete implementation plan before code changes.
