@@ -1,136 +1,86 @@
 # AGENTS.md
 
-Project-wide instructions for Codex and similar coding agents.
+Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-specific instructions as needed.
 
-Codex must read and follow this file before making changes.
+**Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment.
 
-## Source Of Truth
+## Shared Rules
 
-Shared repository rules live here and must be followed:
+Shared repository rules live here:
 
 - `./.shared-agents/linting.md`
 - `./.shared-agents/common/skills/coexistance/SKILL.md`
 
-## Core Engineering Principles
+## Validation
 
-### Reuse first
-
-- Reuse existing helpers, hooks, services, utils, types, constants, and UI components before creating new ones.
-- Search for existing validators, mappers, API clients, hooks, and shared UI patterns before adding code.
-- Prefer extending an existing module over adding a new one when responsibility stays clear.
-- Extract helpers only when reuse is real and naming is obvious.
-- If an abstraction makes the code harder to read, keep the logic inline.
-
-### Keep code DRY and simple
-
-- Prefer the simplest correct solution over a clever one.
-- Use straightforward control flow, readable names, and small focused functions.
-- Minimize nesting and avoid compressed one-liners when branching would be clearer.
-- Duplicated code is acceptable temporarily if abstraction would reduce clarity.
-- Avoid generic utilities or new patterns unless the repo clearly needs them.
-
-### Comment dense transformations
-
-For non-obvious logic, add short comments that show the input and output shape.
-
-```ts
-// input: "alpha,beta,gamma"
-const firstTwo = value.split(",").slice(0, 2);
-// output: ["alpha", "beta"]
-```
-
-Rules:
-
-- Add these comments only for dense string/array/object transforms, regex logic, parsing, mapping, filtering, or normalization.
-- Keep comments short, accurate, and specific to the tricky part.
-- Do not add comments for obvious code.
-
-## Change Safety Rules
-
-Do not break existing functionality, behavior, or UI.
-
-- Default to the smallest safe change.
-- Understand current behavior before editing old code.
-- Preserve public interfaces unless the task explicitly requires change.
-- Preserve API contracts, component prop contracts, and side effects callers depend on.
-- Keep data flow explicit and keep side effects where callers expect them.
-- Do not mix unrelated cleanup into the same diff.
-
-Changes to existing code are encouraged when they clearly improve the codebase, such as:
-
-- fixing bugs
-- reducing duplication or code smell
-- improving readability, maintainability, or typing
-- simplifying risky or confusing logic
-- improving accessibility or UI/UX
-- removing dead code
-- improving performance without changing expected behavior
-
-## Refactoring Rules
-
-Refactor only when the current code is buggy, duplicated, confusing, risky, or blocking necessary work.
-
-When refactoring:
-
-1. Identify current behavior first.
-2. Identify what is duplicated, fragile, confusing, or risky.
-3. Refactor only the touched area unless expansion is necessary.
-4. Preserve behavior with tests or strong local reasoning.
-5. Re-run validation after the change.
-
-Avoid:
-
-- sweeping rewrites
-- hidden behavior changes
-- silent API contract changes
-- opportunistic redesign
-
-## UI Guardrails
-
-Any UI change must:
-
-- preserve layout intent unless an improvement is required
-- preserve responsive behavior
-- preserve accessibility and keyboard interaction
-- preserve focus behavior
-- preserve empty, loading, success, and error states
-- avoid unrelated changes to copy, spacing, alignment, or interaction patterns
-
-Safe UI improvements include:
-
-- fixing broken alignment
-- improving accessibility labels
-- simplifying duplicated render branches
-- reducing rerenders without changing behavior
-- improving disabled or loading state consistency
-
-Before finishing a UI change:
-
-- compare old and new rendered states mentally or with tests
-- verify no unrelated visual regression was introduced
-
-## Validation Requirement
-
-At the end of every coding task, follow:
+Before finishing any code task, follow:
 
 - `./.shared-agents/linting.md`
 
-Do not claim completion if changed code has known fixable lint, type, formatting, or test issues in the changed scope.
+Do not finish with known safe-to-fix issues in the changed scope.
 
-## Preferred Tooling
+## 1. Think Before Coding
 
-Use repository-native tooling first. Prefer these well-known tools when already present in the repo:
+**Don't assume. Don't hide confusion. Surface tradeoffs.**
 
-- ESLint
-- Prettier
-- TypeScript
-- Jest or Vitest
-- Testing Library
-- Husky
-- lint-staged
-- Knip
+Before implementing:
 
-## Context7 For Library And API Guidance
+- State your assumptions explicitly. If uncertain, ask.
+- If multiple interpretations exist, present them - don't pick silently.
+- If a simpler approach exists, say so. Push back when warranted.
+- If something is unclear, stop. Name what's confusing. Ask.
+
+## 2. Simplicity First
+
+**Minimum code that solves the problem. Nothing speculative.**
+
+- No features beyond what was asked.
+- No abstractions for single-use code.
+- No "flexibility" or "configurability" that wasn't requested.
+- No error handling for impossible scenarios.
+- If you write 200 lines and it could be 50, rewrite it.
+
+Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
+
+## 3. Surgical Changes
+
+**Touch only what you must. Clean up only your own mess.**
+
+When editing existing code:
+
+- Don't "improve" adjacent code, comments, or formatting.
+- Don't refactor things that aren't broken.
+- Match existing style, even if you'd do it differently.
+- If you notice unrelated dead code, mention it - don't delete it.
+
+When your changes create orphans:
+
+- Remove imports/variables/functions that YOUR changes made unused.
+- Don't remove pre-existing dead code unless asked.
+
+The test: Every changed line should trace directly to the user's request.
+
+## 4. Goal-Driven Execution
+
+**Define success criteria. Loop until verified.**
+
+Transform tasks into verifiable goals:
+
+- "Add validation" → "Write tests for invalid inputs, then make them pass"
+- "Fix the bug" → "Write a test that reproduces it, then make it pass"
+- "Refactor X" → "Ensure tests pass before and after"
+
+For multi-step tasks, state a brief plan:
+
+```
+1. [Step] → verify: [check]
+2. [Step] → verify: [check]
+3. [Step] → verify: [check]
+```
+
+Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
+
+## Context7
 
 Context7 is the default source for library and framework documentation.
 
@@ -138,22 +88,15 @@ Context7 is the default source for library and framework documentation.
 - Use the `context7` tool when you need code generation, setup instructions, or configuration steps.
 - Do not rely on memory for library versions or APIs when verification is needed.
 
-## Shell Search Tools
+## Shell Tool Preferences
 
-Prefer modern CLI tools for searches:
+Prefer modern CLI search tools for efficiency:
 
 - Use `fd` instead of `find`.
 - Use `rg` instead of `grep`.
 
-If either tool is missing, ask the user before running an install command.
+If either tool is missing, inform the user and ask before running an install command.
 
-## Final Response Format For Coding Tasks
+---
 
-End with a compact validation summary including:
-
-- commands run
-- whether fixes were applied
-- whether lint passed
-- whether typecheck passed
-- whether formatting passed
-- any remaining issues, marked as `introduced by this task` or `pre-existing`
+## **These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes
