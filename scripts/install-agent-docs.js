@@ -9,15 +9,16 @@ const BEGIN_SHARED_BLOCK = "<!-- BEGIN AGENTIC-GRIMOIRE SHARED CONTENT -->";
 const END_SHARED_BLOCK = "<!-- END AGENTIC-GRIMOIRE SHARED CONTENT -->";
 const OLD_BEGIN_INSTALL_BLOCK = "<!-- BEGIN AGENTIC-GRIMOIRE MANAGED BLOCK -->";
 const OLD_END_INSTALL_BLOCK = "<!-- END AGENTIC-GRIMOIRE MANAGED BLOCK -->";
-const ASCII_BAR = "############################################################";
 const BEGIN_MANAGED_SECTION = "# BEGIN AGENTIC-GRIMOIRE MANAGED SECTION";
 const END_MANAGED_SECTION = "# END AGENTIC-GRIMOIRE MANAGED SECTION";
+const OLD_MANAGED_SECTION_BORDER = "############################################################";
 
 const SCRIPT_DIR = __dirname;
 const REPO_ROOT = path.resolve(SCRIPT_DIR, "..");
 const CLAUDE_SOURCE = path.join(REPO_ROOT, ".claude", "CLAUDE.md");
 const CODEX_SOURCE = path.join(REPO_ROOT, ".codex", "AGENTS.md");
 const SHARED_DIR = path.join(REPO_ROOT, ".shared-agents");
+const SKILLS_DIR = path.join(REPO_ROOT, "skills");
 
 function warn(message) {
   process.stderr.write(`WARNING: ${message}\n`);
@@ -176,22 +177,6 @@ function buildSharedBlock(kind) {
   return parts.join("\n");
 }
 
-function getSkillRelativePath(relPath, kind) {
-  const prefixes = [
-    [`common${path.sep}skills${path.sep}`, true],
-    [`claude${path.sep}skills${path.sep}`, kind === "claude"],
-    [`codex${path.sep}skills${path.sep}`, kind === "codex"],
-  ];
-
-  for (const [prefix, shouldApply] of prefixes) {
-    if (shouldApply && relPath.startsWith(prefix)) {
-      return relPath.slice(prefix.length);
-    }
-  }
-
-  return null;
-}
-
 function isSkillDefinitionFile(relativePath) {
   return path.posix.basename(relativePath) === "SKILL.md";
 }
@@ -200,20 +185,15 @@ function hasLeadingYamlFrontmatter(content) {
   return /^---\n[\s\S]*?\n---(?:\n|$)/.test(normalizeToLf(content));
 }
 
-function collectSharedSkillFiles(kind) {
-  if (!fs.existsSync(SHARED_DIR) || !fs.statSync(SHARED_DIR).isDirectory()) {
+function collectSkillFiles() {
+  if (!fs.existsSync(SKILLS_DIR) || !fs.statSync(SKILLS_DIR).isDirectory()) {
     return [];
   }
 
-  return listFilesRecursive(SHARED_DIR)
+  return listFilesRecursive(SKILLS_DIR)
     .map((sourceFile) => {
-      const relPath = path.relative(SHARED_DIR, sourceFile);
-      const skillRelativePath = getSkillRelativePath(relPath, kind);
-      if (!skillRelativePath) {
-        return null;
-      }
-
-      const normalizedSkillPath = skillRelativePath.split(path.sep).join("/");
+      const relPath = path.relative(SKILLS_DIR, sourceFile);
+      const normalizedSkillPath = relPath.split(path.sep).join("/");
       const [skillName, ...rest] = normalizedSkillPath.split("/");
       if (!skillName || rest.length === 0) {
         return null;
@@ -222,7 +202,7 @@ function collectSharedSkillFiles(kind) {
       if (isSkillDefinitionFile(rest.join("/"))) {
         const skillContent = readFile(sourceFile);
         if (!hasLeadingYamlFrontmatter(skillContent)) {
-          warn(`skipping shared skill file without leading YAML frontmatter: ${sourceFile}`);
+          warn(`skipping skill file without leading YAML frontmatter: ${sourceFile}`);
           return null;
         }
       }
@@ -258,16 +238,12 @@ function buildManagedFile(desiredText) {
 function buildManagedSection(desiredText, intendedTarget) {
   const normalizedDesired = ensureTrailingEol(normalizeToLf(desiredText));
   return [
-    ASCII_BAR,
     BEGIN_MANAGED_SECTION,
     `# intended target: ${intendedTarget}`,
-    ASCII_BAR,
     "",
     normalizedDesired.replace(/\n$/, ""),
     "",
-    ASCII_BAR,
     END_MANAGED_SECTION,
-    ASCII_BAR,
     "",
   ].join("\n");
 }
@@ -295,7 +271,18 @@ function findAllBlockRanges(lines, beginMarker, endMarker) {
       return { malformed: true, ranges: [] };
     }
 
-    ranges.push([index, endIndex]);
+    let startIndex = index;
+    let finalEndIndex = endIndex;
+
+    if (startIndex > 0 && lines[startIndex - 1] === OLD_MANAGED_SECTION_BORDER) {
+      startIndex -= 1;
+    }
+
+    if (finalEndIndex + 1 < lines.length && lines[finalEndIndex + 1] === OLD_MANAGED_SECTION_BORDER) {
+      finalEndIndex += 1;
+    }
+
+    ranges.push([startIndex, finalEndIndex]);
     index = endIndex + 1;
   }
 
@@ -347,7 +334,8 @@ function stripManagedSections(text) {
     keptLines.push(lines[lineIndex]);
   }
 
-  let stripped = keptLines.join("\n");
+  const cleanedLines = keptLines.filter((line) => line !== OLD_MANAGED_SECTION_BORDER);
+  let stripped = cleanedLines.join("\n");
   stripped = stripped.replace(/\n{3,}$/g, "\n\n");
 
   return { malformed: false, found: true, content: stripped };
@@ -577,16 +565,15 @@ function install(targetHome = getTargetHome()) {
   const homeCodexFile = path.join(targetHome, ".codex", "AGENTS.md");
   const homeClaudeSkills = path.join(targetHome, ".claude", "skills");
   const homeCodexSkills = path.join(targetHome, ".codex", "skills");
-  const claudeSkillFiles = collectSharedSkillFiles("claude");
-  const codexSkillFiles = collectSharedSkillFiles("codex");
+  const skillFiles = collectSkillFiles();
 
   process.stdout.write(`Platform: ${platform}\n`);
   process.stdout.write(`Target home: ${targetHome}\n`);
 
   syncRegularFile(homeClaudeFile, claudeDesired, "~/.claude/CLAUDE.md", "~/.claude/CLAUDE.md");
   syncRegularFile(homeCodexFile, codexDesired, "~/.codex/AGENTS.md", "~/.codex/AGENTS.md");
-  syncSkillFiles(homeClaudeSkills, claudeSkillFiles, "~/.claude/skills");
-  syncSkillFiles(homeCodexSkills, codexSkillFiles, "~/.codex/skills");
+  syncSkillFiles(homeClaudeSkills, skillFiles, "~/.claude/skills");
+  syncSkillFiles(homeCodexSkills, skillFiles, "~/.codex/skills");
 }
 
 if (require.main === module) {

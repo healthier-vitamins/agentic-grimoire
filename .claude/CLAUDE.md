@@ -8,14 +8,14 @@ Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-s
 
 Shared repository rules live here:
 
-- `./.shared-agents/linting.md`
-- `./.shared-agents/common/skills/coexistance/SKILL.md`
+- `./.shared-agents/common/linting.md`
+- `./skills/coexistence/SKILL.md`
 
 ## Validation
 
 Before finishing any code task, follow:
 
-- `./.shared-agents/linting.md`
+- `./.shared-agents/common/linting.md`
 
 Do not finish with known safe-to-fix issues in the changed scope.
 

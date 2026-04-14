@@ -12,7 +12,7 @@ Use project scripts first. If no script exists, use the installed tool directly.
 
 JavaScript and TypeScript:
 
-- Scripts: `npm/pnpm/yarn/bun run lint`, `typecheck`, `format:check`, and `test`
+- Scripts: `npm run lint`, `pnpm lint`, `yarn lint`, `bun run lint`, plus matching `typecheck`, `format:check`, and `test` scripts
 - Direct tools: `npx eslint .`, `npx tsc --noEmit`, `npx prettier --check .`
 
 Python:

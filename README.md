@@ -43,7 +43,7 @@ The installer is designed to be safe to rerun.
 - If that appended managed section already exists, the installer updates just that section on later runs instead of adding it twice.
 - If a target path is a conflicting symlink, the script leaves it unchanged and prints a warning.
 
-Appended unmanaged-file sections are clearly delimited with ASCII markers so the repo-managed portion is easy to identify.
+Appended unmanaged-file sections are clearly delimited so the repo-managed portion is easy to identify.
 When appending to an unmanaged file, unrelated existing content is preserved exactly as-is outside the managed section.
 
 ```text
@@ -66,16 +66,15 @@ The installer prints a status line for each target. Current statuses are:
 
 ## Shared Content
 
-If a `.shared-agents/` directory exists in the repo, the installer applies those files in two ways:
+If a `.shared-agents/` directory exists in the repo, the installer merges those instruction files into the generated docs.
 
-- non-skill shared files are merged into the generated docs
-- shared skill files under `*/skills/` are installed into the respective home `skills/` directories
+If a root `skills/` directory exists, the installer copies each skill into both `~/.claude/skills/` and `~/.codex/skills/`.
 
 Scope rules:
 
 - `common/` content applies to both agents
-- `claude/` content applies only to `CLAUDE.md` and `~/.claude/skills/`
-- `codex/` content applies only to `AGENTS.md` and `~/.codex/skills/`
+- `claude/` content applies only to `CLAUDE.md`
+- `codex/` content applies only to `AGENTS.md`
 
 Merged doc sections are wrapped in shared-content markers so the generated output is still traceable.
 
@@ -87,11 +86,11 @@ Key paths:
 - `.claude/CLAUDE.md` - Claude source instructions
 - `.codex/AGENTS.md` - Codex source instructions
 - `.shared-agents/` - optional shared instruction fragments merged during install
-- `skills/` - related skill markdown files kept in the repo
+- `skills/` - skills installed for both agents
 
 ## Typical Workflow
 
 1. Edit the source docs in `.claude/` or `.codex/`.
-2. Optionally add shared fragments under `.shared-agents/`.
+2. Optionally add shared fragments under `.shared-agents/` or skills under `skills/`.
 3. Run `node scripts/install-agent-docs.js`.
 4. Review the printed statuses to confirm whether files were updated or preserved with an appended managed section.
