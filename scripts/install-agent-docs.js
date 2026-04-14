@@ -192,6 +192,14 @@ function getSkillRelativePath(relPath, kind) {
   return null;
 }
 
+function isSkillDefinitionFile(relativePath) {
+  return path.posix.basename(relativePath) === "SKILL.md";
+}
+
+function hasLeadingYamlFrontmatter(content) {
+  return /^---\n[\s\S]*?\n---(?:\n|$)/.test(normalizeToLf(content));
+}
+
 function collectSharedSkillFiles(kind) {
   if (!fs.existsSync(SHARED_DIR) || !fs.statSync(SHARED_DIR).isDirectory()) {
     return [];
@@ -209,6 +217,14 @@ function collectSharedSkillFiles(kind) {
       const [skillName, ...rest] = normalizedSkillPath.split("/");
       if (!skillName || rest.length === 0) {
         return null;
+      }
+
+      if (isSkillDefinitionFile(rest.join("/"))) {
+        const skillContent = readFile(sourceFile);
+        if (!hasLeadingYamlFrontmatter(skillContent)) {
+          warn(`skipping shared skill file without leading YAML frontmatter: ${sourceFile}`);
+          return null;
+        }
       }
 
       return {
