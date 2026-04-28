@@ -80,6 +80,21 @@ For multi-step tasks, state a brief plan:
 
 Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
 
+## 5. Design Patterns
+
+**Reach for an established pattern before inventing structure.**
+
+When a problem maps cleanly to a known pattern, use it — don't build a bespoke solution that a reviewer will have to reverse-engineer.
+
+| Category | Patterns |
+|---|---|
+| Creational | Factory Method, Abstract Factory, Builder, Prototype, Singleton |
+| Structural | Adapter, Bridge, Composite, Decorator, Facade, Flyweight, Proxy |
+| Behavioral | Chain of Responsibility, Command, Iterator, Mediator, Memento, Observer, State, Strategy, Template Method, Visitor |
+| Architectural | MVC, MVP, MVVM, Repository, CQRS, Event Sourcing, Layered (N-tier), Hexagonal (Ports & Adapters), Clean Architecture |
+| Concurrency | Active Object, Monitor, Thread Pool, Producer-Consumer, Scheduler |
+| Functional | Functor, Monad, Pipeline, Lens, Trampolining |
+
 ## Context7
 
 Context7 is the default source for library and framework documentation.
