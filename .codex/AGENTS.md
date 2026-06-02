@@ -9,7 +9,6 @@ Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-s
 Shared repository rules live here:
 
 - `./.shared-agents/common/linting.md`
-- `./skills/coexistence/SKILL.md`
 
 ## Validation
 
