@@ -13,10 +13,16 @@ Plus shared fragments under `.shared-agents/` and skills under `skills/`. Syncin
 
 ## Sync
 
-There is no installer script. Hand `SYNC.md` to Claude Code or Codex from the repo root and let it run the sync:
+Run the sync script from the repo root:
 
-```text
-Follow SYNC.md
+```sh
+python3 scripts/sync_agent_docs.py
+```
+
+To preview against a temporary home directory, pass `--home`:
+
+```sh
+python3 scripts/sync_agent_docs.py --home /tmp/agentic-grimoire-home
 ```
 
 `SYNC.md` writes or updates these targets under the current user's home directory:
@@ -25,7 +31,7 @@ Follow SYNC.md
 - `~/.codex/AGENTS.md`
 - `~/.claude/skills/` and `~/.codex/skills/`
 
-The sync is idempotent: targets that already match are left unchanged, unrelated existing content in the home files is preserved, and conflicting symlinks are left in place with a warning.
+The sync is idempotent: targets that already match are left unchanged, unrelated existing content in the home files is preserved outside the managed block, and conflicting symlinks are left in place with a warning.
 
 ## Shared Content
 
@@ -53,5 +59,5 @@ Key paths:
 
 1. Edit the source docs in `.claude/` or `.codex/`.
 2. Optionally add shared fragments under `.shared-agents/` or skills under `skills/`.
-3. Hand `SYNC.md` to Claude Code or Codex from the repo root.
+3. Run `python3 scripts/sync_agent_docs.py` from the repo root.
 4. Review the per-target statuses it prints to confirm what changed.

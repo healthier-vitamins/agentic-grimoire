@@ -3,6 +3,18 @@
 Instructions for Claude Code or Codex to sync this repo's agent config into the local
 home directory. Run from the repo root. Re-runnable — only apply real differences.
 
+## Command
+
+```sh
+python3 scripts/sync_agent_docs.py
+```
+
+For validation against a temporary home directory:
+
+```sh
+python3 scripts/sync_agent_docs.py --home /tmp/agentic-grimoire-home
+```
+
 ## Sources → Targets
 
 | Source              | Target                                    | Applies to |
