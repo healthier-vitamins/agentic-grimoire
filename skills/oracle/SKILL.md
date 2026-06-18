@@ -17,6 +17,13 @@ Goal: surface what the user does not know they don't know.
    - `WebSearch` for landscape, current context, and what practitioners actually do.
    - `Context7` MCP for library/framework/API documentation and syntax.
 
+   **Source priority (highest first):**
+   1. Big-tech engineering blogs & published design specs — Google, Meta, Amazon, Netflix, Microsoft, Apple, plus Uber, Grab, Airbnb, Stripe, etc.
+   2. Official documentation for the library / framework / API (`Context7` MCP, or the canonical docs site).
+   3. Reputable engineering newsletters, public RFCs, and architecture decision records.
+
+   Avoid SEO content farms, unattributed reposts, and AI-generated listicles. Cite the source per claim.
+
 5. **Per gap, give 2 sources framed as a verdict:** one for *why it's good*, one for *why it's not good*. Let the user weigh both sides.
 
 6. **Optionally add up to 2 further-reading sources** for the suggested topic — only if deeper understanding is required. Prefer documentation for reading on the topic and for syntax reference. If the two why-good / why-not sources already suffice, skip this.
