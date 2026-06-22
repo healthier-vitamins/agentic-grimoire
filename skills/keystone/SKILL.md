@@ -1,6 +1,6 @@
 ---
 name: keystone
-description: Write code using a Gang of Four design pattern and naming a junior can read at a glance. Use when implementing non-trivial logic, structuring a new module, or when readability and pattern fit matter.
+description: Write code as a senior would for the next junior reader — pick a Gang of Four pattern, name in full words, no opaque chains. Use when implementing non-trivial logic or structuring a new module.
 ---
 
 Write the code for this task as a senior engineer who optimizes for the next junior reader.

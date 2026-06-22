@@ -111,46 +111,20 @@ lookup-map pattern — the handler is selected by key, not by an `if`/`switch`.
  */
 const onChangeResolvers = {
   /**
-   * Role on change
+   * Role on change — clear dependent fields
    */
   role: () => {
-    // Clear division and division access field on role change
     form.setFieldValue("division", undefined);
     updateDivisionAccess([], undefined);
-    setSelectAllDivisionAccess(false);
   },
   /**
-   * Division on change
+   * Division on change — reset access for the new division
    */
   division: (value: DivisionCode) => {
-    // Skip changing division access values if selected role has access to all divisions
     if (selectedRoleHasAllDivisionAccess) return;
-    // Reset division access based on division
     updateDivisionAccess([value], value);
-    setSelectAllDivisionAccess(false);
-  },
-  /**
-   * Division access on change
-   */
-  divisionAccess: (value: DivisionCode[]) => {
-    let selectAll = false;
-
-    if (value?.length) {
-      const stringifiedSorted = JSON.stringify(ArrayUtil.sortString(value));
-      selectAll = stringifiedSorted === stringifiedSortedDivisionCodes;
-    }
-
-    setSelectAllDivisionAccess(selectAll);
-  },
-  /**
-   * Division access select all on change
-   */
-  divisionAccessSelectAll: (e: CheckboxChangeEvent) => {
-    const finalValue = e.target.checked ? allDivisionCodes : [];
-
-    updateDivisionAccess(finalValue, selectedDivisionCode);
-    setSelectAllDivisionAccess(e.target.checked);
   }
+  // …one key per field/action, each handler small (keystone rule 4)
 };
 ```
 

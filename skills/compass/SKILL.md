@@ -13,14 +13,7 @@ Companion to `oracle` (which explores one stack vertically — depth, unknown-un
 
 2. **Frame the axes that matter.** Name the dimensions alternatives differ on for *this* problem — e.g. latency, throughput, ops cost, consistency, lock-in, team familiarity, scaling ceiling. The right alternatives are decided by these axes, not by popularity.
 
-3. **Research — WebSearch is mandatory.** Find what practitioners actually ship, not what blogs recommend in the abstract.
-
-   **Source priority (highest first):**
-   1. Big-tech engineering blogs & published design specs — Google, Meta, Amazon, Netflix, Microsoft, Apple, plus Uber, Grab, Airbnb, Stripe, etc.
-   2. Official documentation for the library / framework / API (`Context7` MCP, or the canonical docs site).
-   3. Reputable engineering newsletters, public RFCs, and architecture decision records.
-
-   Avoid SEO content farms, unattributed reposts, and AI-generated listicles. Cite the source per claim.
+3. **Research — WebSearch is mandatory.** Rank sources by `../../.shared-agents/common/source-priority.md` — read it before searching, and cite the source per claim.
 
 4. **Surface ≥3 alternatives** (more if the space allows). The proposed solution is one point in the space; the others are *genuinely distinct* approaches — not config variations of the same thing.
 

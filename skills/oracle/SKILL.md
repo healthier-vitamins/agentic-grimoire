@@ -1,9 +1,11 @@
 ---
 name: oracle
-description: Infer the prompt's intent and surface unknown-unknowns — concepts the prompt never mentions that the user likely doesn't know. Research with WebSearch and Context7. Use on "oracle"/"brainstorm" or when exploring an unfamiliar topic.
+description: Infer the prompt's intent and surface unknown-unknowns — concepts the prompt never mentions that the user likely doesn't know. Use on "oracle"/"brainstorm" or when exploring an unfamiliar topic.
 ---
 
 Goal: surface what the user does not know they don't know.
+
+Companion to `compass` (which explores breadth across competing approaches). `oracle` explores one stack vertically — depth, unknown-unknowns.
 
 ## Steps
 
@@ -16,13 +18,7 @@ Goal: surface what the user does not know they don't know.
 4. **Research before surfacing.**
    - `WebSearch` for landscape, current context, and what practitioners actually do.
    - `Context7` MCP for library/framework/API documentation and syntax.
-
-   **Source priority (highest first):**
-   1. Big-tech engineering blogs & published design specs — Google, Meta, Amazon, Netflix, Microsoft, Apple, plus Uber, Grab, Airbnb, Stripe, etc.
-   2. Official documentation for the library / framework / API (`Context7` MCP, or the canonical docs site).
-   3. Reputable engineering newsletters, public RFCs, and architecture decision records.
-
-   Avoid SEO content farms, unattributed reposts, and AI-generated listicles. Cite the source per claim.
+   - Rank sources by `../../.shared-agents/common/source-priority.md` — read it before searching, and cite the source per claim.
 
 5. **Per gap, give 2 sources framed as a verdict:** one for *why it's good*, one for *why it's not good*. Let the user weigh both sides.
 
