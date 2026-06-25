@@ -54,6 +54,11 @@ def main() -> int:
         shared_fragments=find_shared_fragments(repo_root, ("common", "claude")),
     )
     sync_document(
+        source_path=repo_root / ".claude" / "CLAUDE.md",
+        target_path=home_directory / ".claude-personal" / "CLAUDE.md",
+        shared_fragments=find_shared_fragments(repo_root, ("common", "claude")),
+    )
+    sync_document(
         source_path=repo_root / ".codex" / "AGENTS.md",
         target_path=home_directory / ".codex" / "AGENTS.md",
         shared_fragments=find_shared_fragments(repo_root, ("common", "codex")),
@@ -62,6 +67,7 @@ def main() -> int:
         source_root=repo_root / "skills",
         target_roots=(
             home_directory / ".claude" / "skills",
+            home_directory / ".claude-personal" / "skills",
             home_directory / ".codex" / "skills",
         ),
     )
