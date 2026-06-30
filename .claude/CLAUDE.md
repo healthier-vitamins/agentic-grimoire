@@ -18,6 +18,10 @@ Before finishing any code task, follow:
 
 Do not finish with known safe-to-fix issues in the changed scope.
 
+## Commits
+
+Do not add `Co-Authored-By` or any AI-attribution trailers to commit messages.
+
 ## 1. Think Before Coding
 
 **Don't assume. Don't hide confusion. Surface tradeoffs.**
