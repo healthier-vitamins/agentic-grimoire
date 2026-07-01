@@ -14,7 +14,7 @@ Drop this folder into your skills directory:
 
 ```
 ~/.claude/skills/teach-publish/
-~/.codex/skills/teach-publish/
+~/.agents/skills/teach-publish/
 ```
 
 Then trigger it by asking Claude or Codex to "publish this course" / "put my lessons online", or run
@@ -23,7 +23,7 @@ the driver directly:
 ```bash
 bash ~/.claude/skills/teach-publish/publish.sh
 # or
-bash ~/.codex/skills/teach-publish/publish.sh
+bash ~/.agents/skills/teach-publish/publish.sh
 ```
 
 ## What it does
