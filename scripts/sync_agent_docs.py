@@ -49,17 +49,20 @@ def main() -> int:
     home_directory = arguments.home.expanduser().resolve()
 
     sync_document(
-        source_path=repo_root / ".claude" / "CLAUDE.md",
+        repo_root=repo_root,
+        source_path=repo_root / "CLAUDE.md",
         target_path=home_directory / ".claude" / "CLAUDE.md",
         shared_fragments=find_shared_fragments(repo_root, ("common", "claude")),
     )
     sync_document(
-        source_path=repo_root / ".claude" / "CLAUDE.md",
+        repo_root=repo_root,
+        source_path=repo_root / "CLAUDE.md",
         target_path=home_directory / ".claude-personal" / "CLAUDE.md",
         shared_fragments=find_shared_fragments(repo_root, ("common", "claude")),
     )
     sync_document(
-        source_path=repo_root / ".codex" / "AGENTS.md",
+        repo_root=repo_root,
+        source_path=repo_root / "AGENTS.md",
         target_path=home_directory / ".codex" / "AGENTS.md",
         shared_fragments=find_shared_fragments(repo_root, ("common", "codex")),
     )
@@ -68,7 +71,18 @@ def main() -> int:
         target_roots=(
             home_directory / ".claude" / "skills",
             home_directory / ".claude-personal" / "skills",
-            home_directory / ".codex" / "skills",
+            home_directory / ".agents" / "skills",
+        ),
+    )
+    sync_agent_files(
+        source_root=repo_root / "codex" / "agents",
+        target_roots=(home_directory / ".codex" / "agents",),
+    )
+    sync_agent_files(
+        source_root=repo_root / "claude" / "agents",
+        target_roots=(
+            home_directory / ".claude" / "agents",
+            home_directory / ".claude-personal" / "agents",
         ),
     )
 
@@ -98,13 +112,16 @@ def find_shared_fragments(repo_root: Path, scopes: tuple[str, ...]) -> list[Path
 
 
 def sync_document(
-    source_path: Path, target_path: Path, shared_fragments: list[Path]
+    repo_root: Path,
+    source_path: Path,
+    target_path: Path,
+    shared_fragments: list[Path],
 ) -> None:
     if is_unmanaged_symlink(target_path):
         print_status(target_path, SyncStatus.SKIPPED, "symlink to unmanaged file")
         return
 
-    generated_content = build_managed_document(source_path, shared_fragments)
+    generated_content = build_managed_document(repo_root, source_path, shared_fragments)
     old_content = read_text_if_exists(target_path)
     new_content = merge_managed_content(old_content, generated_content)
 
@@ -118,9 +135,11 @@ def sync_document(
     print_status(target_path, status)
 
 
-def build_managed_document(source_path: Path, shared_fragments: list[Path]) -> str:
+def build_managed_document(
+    repo_root: Path, source_path: Path, shared_fragments: list[Path]
+) -> str:
     source_content = source_path.read_text(encoding="utf-8").strip()
-    shared_content = build_shared_content(source_path.parent.parent, shared_fragments)
+    shared_content = build_shared_content(repo_root, shared_fragments)
     managed_parts = [MANAGED_BEGIN, "", source_content]
 
     if shared_content:
@@ -239,6 +258,34 @@ def sync_skill_directory(source_path: Path, target_path: Path) -> None:
     if target_path.exists():
         shutil.rmtree(target_path)
     shutil.copytree(source_path, target_path)
+    print_status(target_path, status)
+
+
+def sync_agent_files(source_root: Path, target_roots: tuple[Path, ...]) -> None:
+    if not source_root.exists():
+        return
+
+    for source_file in sorted(source_root.iterdir()):
+        if not source_file.is_file():
+            continue
+        for target_root in target_roots:
+            sync_single_file(source_file, target_root / source_file.name)
+
+
+def sync_single_file(source_path: Path, target_path: Path) -> None:
+    if is_unmanaged_symlink(target_path):
+        print_status(target_path, SyncStatus.SKIPPED, "symlink to unmanaged file")
+        return
+
+    new_content = source_path.read_text(encoding="utf-8")
+    old_content = read_text_if_exists(target_path)
+    if old_content == new_content:
+        print_status(target_path, SyncStatus.UNCHANGED)
+        return
+
+    target_path.parent.mkdir(parents=True, exist_ok=True)
+    target_path.write_text(new_content, encoding="utf-8")
+    status = SyncStatus.CREATED if old_content is None else SyncStatus.UPDATED
     print_status(target_path, status)
 
 

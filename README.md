@@ -8,8 +8,8 @@ Managed agent instruction files and skills for Codex, Claude, and Claude Persona
 
 This repo keeps two source instruction files:
 
-- `.claude/CLAUDE.md`
-- `.codex/AGENTS.md`
+- `CLAUDE.md`
+- `AGENTS.md`
 
 Plus shared fragments under `.shared-agents/` and skills under `skills/`. Syncing copies these into the expected locations in the current user's home directory.
 
@@ -28,7 +28,8 @@ make sync-codex   # have Codex follow SYNC.md
 - `~/.claude/CLAUDE.md`
 - `~/.claude-personal/CLAUDE.md`
 - `~/.codex/AGENTS.md`
-- `~/.claude/skills/`, `~/.claude-personal/skills/`, and `~/.codex/skills/`
+- `~/.codex/agents/` (from `codex/agents/`), and `~/.claude/agents/` + `~/.claude-personal/agents/` (from `claude/agents/`)
+- `~/.claude/skills/`, `~/.claude-personal/skills/`, and `~/.agents/skills/`
 
 The sync is idempotent: targets that already match are left unchanged, unrelated existing content in the home files is preserved outside the managed block, and conflicting symlinks are left in place with a warning.
 
@@ -36,7 +37,7 @@ The sync is idempotent: targets that already match are left unchanged, unrelated
 
 If a `.shared-agents/` directory exists in the repo, the installer merges those instruction files into the generated docs.
 
-If a root `skills/` directory exists, the installer copies each skill into `~/.claude/skills/`, `~/.claude-personal/skills/`, and `~/.codex/skills/`.
+If a root `skills/` directory exists, the installer copies each skill into `~/.claude/skills/`, `~/.claude-personal/skills/`, and `~/.agents/skills/`.
 
 Scope rules:
 
@@ -49,14 +50,16 @@ Scope rules:
 Key paths:
 
 - `SYNC.md` - sync instructions an agent follows
-- `.claude/CLAUDE.md` - Claude source instructions
-- `.codex/AGENTS.md` - Codex source instructions
+- `CLAUDE.md` - Claude source instructions
+- `AGENTS.md` - Codex source instructions
 - `.shared-agents/` - optional shared instruction fragments merged during sync
+- `codex/agents/` - Codex subagent definitions synced to `~/.codex/agents/`
+- `claude/agents/` - Claude subagent definitions synced to `~/.claude/agents/` and `~/.claude-personal/agents/`
 - `skills/` - skills synced for both agents
 
 ## Typical Workflow
 
-1. Edit the source docs in `.claude/` or `.codex/`.
+1. Edit the source docs `CLAUDE.md` or `AGENTS.md` at the repo root.
 2. Optionally add shared fragments under `.shared-agents/` or skills under `skills/`.
 3. Sync by following [`SYNC.md`](SYNC.md) — e.g. `make sync` (or `make sync-claude` / `make sync-codex`).
 4. Review the per-target statuses it prints to confirm what changed.

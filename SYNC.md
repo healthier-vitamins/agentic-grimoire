@@ -30,18 +30,20 @@ python3 scripts/sync_agent_docs.py --home /tmp/agentic-grimoire-home
 
 ## Sources → Targets
 
-| Source              | Target                                    | Applies to              |
-| ------------------- | ----------------------------------------- | ----------------------- |
-| `.claude/CLAUDE.md` | `~/.claude/CLAUDE.md`                     | Claude                  |
-| `.claude/CLAUDE.md` | `~/.claude-personal/CLAUDE.md`            | Claude Personal         |
-| `.codex/AGENTS.md`  | `~/.codex/AGENTS.md`                      | Codex                   |
-| `skills/*`          | all configured `skills/` target dirs      | Claude, Claude Personal, Codex |
+| Source       | Target                                    | Applies to              |
+| ------------ | ----------------------------------------- | ----------------------- |
+| `CLAUDE.md`  | `~/.claude/CLAUDE.md`                     | Claude                  |
+| `CLAUDE.md`  | `~/.claude-personal/CLAUDE.md`            | Claude Personal         |
+| `AGENTS.md`  | `~/.codex/AGENTS.md`                      | Codex                   |
+| `codex/agents/*`  | `~/.codex/agents/`                   | Codex                   |
+| `claude/agents/*` | `~/.claude/agents/`, `~/.claude-personal/agents/` | Claude, Claude Personal |
+| `skills/*`   | all configured `skills/` target dirs      | Claude, Claude Personal, Codex |
 | `.shared-agents/*`  | merged into target docs (see scope)       | varies                  |
 
 ## Task
 
-1. **Docs.** Copy `.claude/CLAUDE.md` → `~/.claude/CLAUDE.md` and
-   `~/.claude-personal/CLAUDE.md`; copy `.codex/AGENTS.md` →
+1. **Docs.** Copy `CLAUDE.md` → `~/.claude/CLAUDE.md` and
+   `~/.claude-personal/CLAUDE.md`; copy `AGENTS.md` →
    `~/.codex/AGENTS.md`. Create parent dirs if missing.
 
 2. **Shared fragments.** Merge `.shared-agents/` content inline into the target docs by scope:
@@ -54,8 +56,13 @@ python3 scripts/sync_agent_docs.py --home /tmp/agentic-grimoire-home
 
 3. **Skills.** Copy every `skills/<name>/` directory into
    `~/.claude/skills/<name>/`, `~/.claude-personal/skills/<name>/`, and
-   `~/.codex/skills/<name>/`, preserving files. Each skill must keep its leading
+   `~/.agents/skills/<name>/`, preserving files. Each skill must keep its leading
    YAML frontmatter in `SKILL.md`; skip any `SKILL.md` missing frontmatter and warn.
+
+4. **Agent definitions.** Copy each file in `codex/agents/` → `~/.codex/agents/`, and
+   each file in `claude/agents/` → `~/.claude/agents/` and `~/.claude-personal/agents/`.
+   Create parent dirs if missing; leave a target that already matches unchanged; skip an
+   unmanaged symlink with a warning.
 
 ## Rules
 
