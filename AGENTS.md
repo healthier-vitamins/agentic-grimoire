@@ -22,6 +22,29 @@ Do not finish with known safe-to-fix issues in the changed scope.
 
 Do not add `Co-Authored-By` or any AI-attribution trailers to commit messages.
 
+## Model Selection
+
+Keep orchestration, planning, and review on the top model at all times — never
+downgrade the main agent. Delegate mechanical work to subagents so the orchestrator's
+context stays clean; the cost win comes from that isolation (and a cheaper worker
+model), not from starving the worker's reasoning.
+
+Pick the worker whose reasoning effort matches the task — Codex bakes effort into each
+agent, so choosing the agent *is* choosing the effort:
+
+- **Routine execution** (clear, mechanical edits/commands) → `executor` (medium).
+- **Hard execution** (interdependent changes, debugging, costly-to-unwind edits) → `executor-deep` (high).
+- **Simple lookup** (find a definition, grep usages) → `explorer` (low).
+- **Synthesis search** (map patterns / trace flow across many files) → `explorer-deep` (medium).
+
+Codex only spawns subagents when asked, so treat this as a standing instruction to
+delegate — and reach for a `-deep` variant whenever a cheap miss would be costly to
+recover from (a failed worker bounces back to the orchestrator at full price).
+
+Definitions live in `~/.codex/agents/` (synced from `codex/agents/` in this repo).
+The `[agents]` defaults (`max_depth = 1`) are sufficient — no `config.toml` change is
+required.
+
 ## 1. Think Before Coding
 
 **Don't assume. Don't hide confusion. Surface tradeoffs.**
