@@ -5,13 +5,15 @@ home directory. Run from the repo root. Re-runnable — only apply real differen
 
 ## Quick run
 
-Canned commands (no need to compose your own) — all update `~/.claude`,
-`~/.claude-personal`, and `~/.codex` in one go:
+Canned commands (no need to compose your own). `make sync` updates `~/.claude`,
+`~/.claude-sec`, `~/.claude-personal`, and `~/.codex` in one go:
 
 ```sh
-make sync         # run the sync directly
-make sync-claude  # have Claude Code follow this file
-make sync-codex   # have Codex follow this file
+make sync           # run the sync directly (all targets)
+make sync-sec       # sync only ~/.claude-sec
+make sync-personal  # sync only ~/.claude-personal
+make sync-claude    # have Claude Code follow this file
+make sync-codex     # have Codex follow this file
 ```
 
 Each wraps the command below.
@@ -33,16 +35,17 @@ python3 scripts/sync_agent_docs.py --home /tmp/agentic-grimoire-home
 | Source       | Target                                    | Applies to              |
 | ------------ | ----------------------------------------- | ----------------------- |
 | `CLAUDE.md`  | `~/.claude/CLAUDE.md`                     | Claude                  |
+| `CLAUDE.md`  | `~/.claude-sec/CLAUDE.md`                 | Claude Sec              |
 | `CLAUDE.md`  | `~/.claude-personal/CLAUDE.md`            | Claude Personal         |
 | `AGENTS.md`  | `~/.codex/AGENTS.md`                      | Codex                   |
 | `codex/agents/*`  | `~/.codex/agents/`                   | Codex                   |
-| `claude/agents/*` | `~/.claude/agents/`, `~/.claude-personal/agents/` | Claude, Claude Personal |
-| `skills/*`   | all configured `skills/` target dirs      | Claude, Claude Personal, Codex |
+| `claude/agents/*` | `~/.claude/agents/`, `~/.claude-sec/agents/`, `~/.claude-personal/agents/` | Claude, Claude Sec, Claude Personal |
+| `skills/*`   | all configured `skills/` target dirs      | Claude, Claude Sec, Claude Personal, Codex |
 | `.shared-agents/*`  | merged into target docs (see scope)       | varies                  |
 
 ## Task
 
-1. **Docs.** Copy `CLAUDE.md` → `~/.claude/CLAUDE.md` and
+1. **Docs.** Copy `CLAUDE.md` → `~/.claude/CLAUDE.md`, `~/.claude-sec/CLAUDE.md`, and
    `~/.claude-personal/CLAUDE.md`; copy `AGENTS.md` →
    `~/.codex/AGENTS.md`. Create parent dirs if missing.
 
@@ -55,12 +58,14 @@ python3 scripts/sync_agent_docs.py --home /tmp/agentic-grimoire-home
    `.shared-agents/**/skills/` paths here — those are handled in step 3.
 
 3. **Skills.** Copy every `skills/<name>/` directory into
-   `~/.claude/skills/<name>/`, `~/.claude-personal/skills/<name>/`, and
+   `~/.claude/skills/<name>/`, `~/.claude-sec/skills/<name>/`,
+   `~/.claude-personal/skills/<name>/`, and
    `~/.agents/skills/<name>/`, preserving files. Each skill must keep its leading
    YAML frontmatter in `SKILL.md`; skip any `SKILL.md` missing frontmatter and warn.
 
 4. **Agent definitions.** Copy each file in `codex/agents/` → `~/.codex/agents/`, and
-   each file in `claude/agents/` → `~/.claude/agents/` and `~/.claude-personal/agents/`.
+   each file in `claude/agents/` → `~/.claude/agents/`, `~/.claude-sec/agents/`, and
+   `~/.claude-personal/agents/`.
    Create parent dirs if missing; leave a target that already matches unchanged; skip an
    unmanaged symlink with a warning.
 
