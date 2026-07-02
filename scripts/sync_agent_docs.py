@@ -10,6 +10,8 @@ import shutil
 from pathlib import Path
 
 
+CLAUDE_CONFIG_DIRS = (".claude", ".claude-sec", ".claude-personal")
+
 MANAGED_BEGIN = "<!-- AGENTIC-GRIMOIRE: MANAGED FILE -->"
 MANAGED_END = "<!-- END AGENTIC-GRIMOIRE: MANAGED FILE -->"
 USER_CONTENT_MARKER = "<!-- AGENTIC-GRIMOIRE: USER CONTENT -->"
@@ -40,6 +42,14 @@ def parse_arguments() -> argparse.Namespace:
         default=Path.home(),
         help="Target home directory. Defaults to the current user's home.",
     )
+    parser.add_argument(
+        "--only",
+        choices=[name.lstrip(".") for name in CLAUDE_CONFIG_DIRS],
+        help=(
+            "Restrict sync to a single Claude config dir (e.g. claude-sec). "
+            "Skips Codex and the shared ~/.agents dir."
+        ),
+    )
     return parser.parse_args()
 
 
@@ -48,45 +58,52 @@ def main() -> int:
     repo_root = arguments.repo_root.resolve()
     home_directory = arguments.home.expanduser().resolve()
 
-    sync_document(
-        repo_root=repo_root,
-        source_path=repo_root / "CLAUDE.md",
-        target_path=home_directory / ".claude" / "CLAUDE.md",
-        shared_fragments=find_shared_fragments(repo_root, ("common", "claude")),
-    )
-    sync_document(
-        repo_root=repo_root,
-        source_path=repo_root / "CLAUDE.md",
-        target_path=home_directory / ".claude-personal" / "CLAUDE.md",
-        shared_fragments=find_shared_fragments(repo_root, ("common", "claude")),
-    )
-    sync_document(
-        repo_root=repo_root,
-        source_path=repo_root / "AGENTS.md",
-        target_path=home_directory / ".codex" / "AGENTS.md",
-        shared_fragments=find_shared_fragments(repo_root, ("common", "codex")),
-    )
+    claude_dirs = select_claude_dirs(arguments.only)
+    full_sync = arguments.only is None
+    claude_fragments = find_shared_fragments(repo_root, ("common", "claude"))
+
+    for config_dir in claude_dirs:
+        sync_document(
+            repo_root=repo_root,
+            source_path=repo_root / "CLAUDE.md",
+            target_path=home_directory / config_dir / "CLAUDE.md",
+            shared_fragments=claude_fragments,
+        )
+
+    skill_target_roots = [home_directory / config_dir / "skills" for config_dir in claude_dirs]
+    if full_sync:
+        skill_target_roots.append(home_directory / ".agents" / "skills")
     sync_skills(
         source_root=repo_root / "skills",
-        target_roots=(
-            home_directory / ".claude" / "skills",
-            home_directory / ".claude-personal" / "skills",
-            home_directory / ".agents" / "skills",
-        ),
+        target_roots=tuple(skill_target_roots),
     )
-    sync_agent_files(
-        source_root=repo_root / "codex" / "agents",
-        target_roots=(home_directory / ".codex" / "agents",),
-    )
+
     sync_agent_files(
         source_root=repo_root / "claude" / "agents",
-        target_roots=(
-            home_directory / ".claude" / "agents",
-            home_directory / ".claude-personal" / "agents",
+        target_roots=tuple(
+            home_directory / config_dir / "agents" for config_dir in claude_dirs
         ),
     )
 
+    if full_sync:
+        sync_document(
+            repo_root=repo_root,
+            source_path=repo_root / "AGENTS.md",
+            target_path=home_directory / ".codex" / "AGENTS.md",
+            shared_fragments=find_shared_fragments(repo_root, ("common", "codex")),
+        )
+        sync_agent_files(
+            source_root=repo_root / "codex" / "agents",
+            target_roots=(home_directory / ".codex" / "agents",),
+        )
+
     return 0
+
+
+def select_claude_dirs(only: str | None) -> tuple[str, ...]:
+    if only is None:
+        return CLAUDE_CONFIG_DIRS
+    return (f".{only}",)
 
 
 def find_shared_fragments(repo_root: Path, scopes: tuple[str, ...]) -> list[Path]:
