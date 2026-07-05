@@ -3,10 +3,17 @@
 Instructions for Claude Code or Codex to sync this repo's agent config into the local
 home directory. Run from the repo root. Re-runnable — only apply real differences.
 
+Skill **content** is owned by the [`npx skills`](https://github.com/vercel-labs/skills)
+CLI, which manages the shared store `~/.agents/skills/` and installs into `~/.claude`
+(and other standard agents) as symlinks. `make sync` registers this repo's skills with
+that CLI, then handles what the CLI can't: the docs/agents/hooks, and mirroring the store
+into the custom `~/.claude-sec` / `~/.claude-personal` profiles (which the CLI can't see).
+
 ## Quick run
 
-Canned commands (no need to compose your own). `make sync` updates `~/.claude`,
-`~/.claude-sec`, `~/.claude-personal`, and `~/.codex` in one go:
+Canned commands (no need to compose your own). `make sync` registers skills with npx,
+refreshes remote skills, then syncs docs/agents/hooks and mirrors the store into the
+custom profiles:
 
 ```sh
 make sync           # run the sync directly (all targets)
@@ -16,15 +23,20 @@ make sync-claude    # have Claude Code follow this file
 make sync-codex     # have Codex follow this file
 ```
 
-Each wraps the command below.
+Each wraps the commands below.
 
-## Command
+## Commands
 
 ```sh
+# 1. Register this repo's skills with the npx CLI (store + ~/.claude), non-interactive.
+npx skills add ./skills --skill '*' --global --agent claude-code --yes
+# 2. Refresh remote skills (mattpocock / vercel-labs) from their recorded sources.
+npx skills update --global --yes
+# 3. Sync docs/agents/hooks and mirror the store into the custom profiles.
 python3 scripts/sync_agent_docs.py
 ```
 
-For validation against a temporary home directory:
+For validation against a temporary home directory (python step only):
 
 ```sh
 python3 scripts/sync_agent_docs.py --home /tmp/agentic-grimoire-home
@@ -40,8 +52,9 @@ python3 scripts/sync_agent_docs.py --home /tmp/agentic-grimoire-home
 | `AGENTS.md`  | `~/.codex/AGENTS.md`                      | Codex                   |
 | `codex/agents/*`  | `~/.codex/agents/`                   | Codex                   |
 | `claude/agents/*` | `~/.claude/agents/`, `~/.claude-sec/agents/`, `~/.claude-personal/agents/` | Claude, Claude Sec, Claude Personal |
-| `skills/*`   | all configured `skills/` target dirs      | Claude, Claude Sec, Claude Personal, Codex |
-| optional `skills/*/hooks/session_start.sh` | each `<config>/settings.json` → `hooks.SessionStart` | Claude, Claude Sec, Claude Personal |
+| `skills/*` (via `npx skills add`) | `~/.agents/skills/` store + `~/.claude/skills/` | Claude (npx-managed) |
+| `~/.agents/skills/*` (symlinked by the script) | `~/.claude-sec/skills/`, `~/.claude-personal/skills/` | Claude Sec, Claude Personal |
+| optional `~/.agents/skills/*/hooks/session_start.sh` | each `<config>/settings.json` → `hooks.SessionStart` | Claude, Claude Sec, Claude Personal |
 | `.shared-agents/*`  | merged into target docs (see scope)       | varies                  |
 
 ## Task
@@ -58,11 +71,16 @@ python3 scripts/sync_agent_docs.py --home /tmp/agentic-grimoire-home
    Append each fragment under a `## Shared Instructions: <relpath>` heading. Skip
    `.shared-agents/**/skills/` paths here — those are handled in step 3.
 
-3. **Skills.** Copy every `skills/<name>/` directory into
-   `~/.claude/skills/<name>/`, `~/.claude-sec/skills/<name>/`,
-   `~/.claude-personal/skills/<name>/`, and
-   `~/.agents/skills/<name>/`, preserving files. Each skill must keep its leading
-   YAML frontmatter in `SKILL.md`; skip any `SKILL.md` missing frontmatter and warn.
+3. **Skills.** Register this repo's `skills/` with the `npx skills` CLI:
+   `npx skills add ./skills --skill '*' --global --agent claude-code --yes`. The CLI
+   copies each skill into the shared store `~/.agents/skills/<name>/` and symlinks it into
+   `~/.claude/skills/`. Then the script mirrors the **whole store** into the profiles the
+   CLI can't reach: for every `~/.agents/skills/<name>/`, create a relative symlink
+   `~/.claude-sec/skills/<name>` and `~/.claude-personal/skills/<name>` →
+   `../../.agents/skills/<name>`, pruning dangling store links and leaving real dirs /
+   unrelated symlinks untouched. Local-path installs are not tracked in the CLI's lockfile,
+   so `make sync` re-runs `add` each time to refresh them. `grill-me` is provided by npx
+   (mattpocock), not this repo.
 
 4. **Agent definitions.** Copy each file in `codex/agents/` → `~/.codex/agents/`, and
    each file in `claude/agents/` → `~/.claude/agents/`, `~/.claude-sec/agents/`, and
