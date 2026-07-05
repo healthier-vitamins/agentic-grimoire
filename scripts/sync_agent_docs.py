@@ -4,14 +4,18 @@
 from __future__ import annotations
 
 import argparse
-import filecmp
 import json
 import os
-import shutil
 from pathlib import Path
 
 
 CLAUDE_CONFIG_DIRS = (".claude", ".claude-sec", ".claude-personal")
+
+# Skill *content* is owned by the `npx skills` CLI, which populates the canonical store
+# ~/.agents/skills and installs into ~/.claude (claude-code) directly. This dir is left
+# to the CLI; the sync only mirrors the store into the profiles the CLI can't see.
+NPX_MANAGED_CLAUDE_DIR = ".claude"
+STORE_SKILLS_RELATIVE = (".agents", "skills")
 
 # A skill ships a hook by placing hooks/<script> in its dir; the sync registers it
 # in each Claude config's settings.json, mapping the script to its hook event.
@@ -52,7 +56,7 @@ def parse_arguments() -> argparse.Namespace:
         choices=[name.lstrip(".") for name in CLAUDE_CONFIG_DIRS],
         help=(
             "Restrict sync to a single Claude config dir (e.g. claude-sec). "
-            "Skips Codex and the shared ~/.agents dir."
+            "Skips Codex docs/agents."
         ),
     )
     return parser.parse_args()
@@ -75,17 +79,18 @@ def main() -> int:
             shared_fragments=claude_fragments,
         )
 
-    skill_target_roots = [home_directory / config_dir / "skills" for config_dir in claude_dirs]
-    if full_sync:
-        skill_target_roots.append(home_directory / ".agents" / "skills")
-    sync_skills(
-        source_root=repo_root / "skills",
-        target_roots=tuple(skill_target_roots),
-    )
+    # The `npx skills` CLI owns skill content in the store and in ~/.claude; it can't
+    # reach the custom ~/.claude-sec / ~/.claude-personal profiles, so mirror the store
+    # into those via symlinks only.
+    store_skills_root = home_directory.joinpath(*STORE_SKILLS_RELATIVE)
+    for config_dir in claude_dirs:
+        if config_dir == NPX_MANAGED_CLAUDE_DIR:
+            continue
+        symlink_store_skills(store_skills_root, home_directory / config_dir / "skills")
 
     for config_dir in claude_dirs:
         sync_settings_hooks(
-            source_skills_root=repo_root / "skills",
+            source_skills_root=store_skills_root,
             home_directory=home_directory,
             config_dir=config_dir,
         )
@@ -254,40 +259,51 @@ def preserved_content_after_legacy_managed_file(legacy_content: str) -> str:
     return "\n\n" + USER_CONTENT_MARKER + "\n\n" + preserved_content + "\n"
 
 
-def sync_skills(source_root: Path, target_roots: tuple[Path, ...]) -> None:
-    if not source_root.exists():
+def symlink_store_skills(store_root: Path, target_root: Path) -> None:
+    """Mirror the npx-managed skill store into a config dir the CLI can't reach.
+
+    For every skill in the store, ensure target_root/<name> is a relative symlink into
+    the store (create or repair). Prune managed symlinks (those pointing into the store)
+    whose target no longer exists. Never touch real dirs or unrelated symlinks, so
+    plugin/other skills already in the config dir are preserved.
+    """
+    if not store_root.exists():
         return
 
-    for skill_directory in sorted(source_root.iterdir()):
-        if not skill_directory.is_dir():
+    target_root.mkdir(parents=True, exist_ok=True)
+
+    for store_skill in sorted(store_root.iterdir()):
+        if not store_skill.is_dir() or store_skill.name.startswith("."):
             continue
 
-        skill_file = skill_directory / "SKILL.md"
-        if not has_yaml_frontmatter(skill_file):
-            for target_root in target_roots:
-                target_path = target_root / skill_directory.name
-                print_status(target_path, SyncStatus.SKIPPED, "SKILL.md missing frontmatter")
+        link_path = target_root / store_skill.name
+        desired_target = os.path.relpath(store_skill, target_root)
+
+        if link_path.is_symlink():
+            if os.readlink(link_path) == desired_target:
+                print_status(link_path, SyncStatus.UNCHANGED)
+                continue
+            link_path.unlink()
+            link_path.symlink_to(desired_target)
+            print_status(link_path, SyncStatus.UPDATED)
+        elif link_path.exists():
+            print_status(link_path, SyncStatus.SKIPPED, "unmanaged (not a symlink)")
+        else:
+            link_path.symlink_to(desired_target)
+            print_status(link_path, SyncStatus.CREATED)
+
+    prune_dangling_store_links(target_root)
+
+
+def prune_dangling_store_links(target_root: Path) -> None:
+    """Remove symlinks into the shared store whose target no longer exists."""
+    for link_path in sorted(target_root.iterdir()):
+        if not link_path.is_symlink() or link_path.exists():
             continue
-
-        for target_root in target_roots:
-            sync_skill_directory(skill_directory, target_root / skill_directory.name)
-
-
-def sync_skill_directory(source_path: Path, target_path: Path) -> None:
-    if is_unmanaged_symlink(target_path):
-        print_status(target_path, SyncStatus.SKIPPED, "symlink to unmanaged file")
-        return
-
-    if target_path.exists() and directories_match(source_path, target_path):
-        print_status(target_path, SyncStatus.UNCHANGED)
-        return
-
-    status = SyncStatus.UPDATED if target_path.exists() else SyncStatus.CREATED
-    target_path.parent.mkdir(parents=True, exist_ok=True)
-    if target_path.exists():
-        shutil.rmtree(target_path)
-    shutil.copytree(source_path, target_path)
-    print_status(target_path, status)
+        target = os.readlink(link_path)
+        if os.path.join(*STORE_SKILLS_RELATIVE) in target:
+            link_path.unlink()
+            print_status(link_path, SyncStatus.SKIPPED, "pruned dangling store link")
 
 
 def sync_settings_hooks(
@@ -474,28 +490,6 @@ def sync_single_file(source_path: Path, target_path: Path) -> None:
     target_path.write_text(new_content, encoding="utf-8")
     status = SyncStatus.CREATED if old_content is None else SyncStatus.UPDATED
     print_status(target_path, status)
-
-
-def has_yaml_frontmatter(skill_file: Path) -> bool:
-    if not skill_file.exists():
-        return False
-
-    first_line = skill_file.read_text(encoding="utf-8").splitlines()[:1]
-    return bool(first_line and first_line[0] == "---")
-
-
-def directories_match(source_path: Path, target_path: Path) -> bool:
-    if not target_path.is_dir():
-        return False
-
-    comparison = filecmp.dircmp(source_path, target_path)
-    if comparison.left_only or comparison.right_only or comparison.diff_files:
-        return False
-
-    return all(
-        directories_match(source_path / subdir_name, target_path / subdir_name)
-        for subdir_name in comparison.common_dirs
-    )
 
 
 def is_unmanaged_symlink(target_path: Path) -> bool:
