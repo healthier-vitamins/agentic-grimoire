@@ -1,6 +1,6 @@
 # watermark — commit format
 
-Conventional Commits, terse and exact. Same message discipline as `caveman-commit`, with one deliberate exception: watermark **requires** the co-author trailer below (caveman-commit forbids AI attribution; watermark overrides that here).
+Conventional Commits, terse and exact. Match the repository's recent commit style.
 
 ## Subject line
 
@@ -17,14 +17,9 @@ Conventional Commits, terse and exact. Same message discipline as `caveman-commi
 - Wrap at 72 chars; bullets `-` not `*`
 - Never write "this commit does X", "I", "we", "now" — the diff says what. Why over what.
 
-## Required trailer
+## Trailers
 
-Every watermark commit carries exactly one co-author trailer, written for whichever assistant is running the skill:
-
-- Under Claude Code: `Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>`
-- Under Codex: `Co-Authored-By: Codex <noreply@openai.com>`
-
-Never add a `Claude-Session` line, the session id/URL, or the user's personal name/email to the message. The co-author trailer is the assistant's `noreply` address only (see the Privacy invariant in `SKILL.md`).
+Claude's default `Co-Authored-By: Claude` trailer is expected — leave it. Do not fabricate session id/URL trailers or add the user's personal name/email.
 
 ## Commit command
 
@@ -33,8 +28,7 @@ Commit normally — use the user's own git config for author identity and signin
 ```sh
 git commit \
   -m "<subject>" \
-  -m "<body>" \
-  -m "Co-Authored-By: <assistant co-author from above>"
+  -m "<body>"
 ```
 
-The `%an`/`%ae` author fields and any GPG signature come from the user's normal git config — that is expected. The only privacy rule lives in the message text: no session id/URL, no personal name/email in the subject, body, or trailers beyond the `noreply` co-author line.
+The `%an`/`%ae` author fields and any GPG signature come from the user's normal git config — that is expected, as is Claude's default `Co-Authored-By` trailer. The only message-text rule: no personal name/email in the subject, body, or trailers.
