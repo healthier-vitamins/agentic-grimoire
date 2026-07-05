@@ -18,18 +18,24 @@ Plus shared fragments under `.shared-agents/` and skills under `skills/`. Syncin
 Syncing is agent-driven: follow [`SYNC.md`](SYNC.md) from the repo root — the canonical, re-runnable procedure for both agents. From a terminal, use the canned commands:
 
 ```sh
-make sync         # run the sync directly
+make sync         # conventional: skills + ~/.claude docs/agents + codex
+make sync-custom  # custom profiles: ~/.claude-sec and ~/.claude-personal
 make sync-claude  # have Claude Code follow SYNC.md
 make sync-codex   # have Codex follow SYNC.md
 ```
 
-`SYNC.md` writes or updates these targets under the current user's home directory:
+`make sync` writes or updates the **conventional** targets under the current user's home directory:
 
 - `~/.claude/CLAUDE.md`
-- `~/.claude-personal/CLAUDE.md`
 - `~/.codex/AGENTS.md`
-- `~/.codex/agents/` (from `codex/agents/`), and `~/.claude/agents/` + `~/.claude-personal/agents/` (from `claude/agents/`)
-- `~/.claude/skills/`, `~/.claude-personal/skills/`, and `~/.agents/skills/`
+- `~/.claude/agents/` (from `claude/agents/`) and `~/.codex/agents/` (from `codex/agents/`)
+- `~/.claude/skills/` and `~/.agents/skills/` (managed by the `npx skills` CLI)
+
+`make sync-custom` writes the **unconventional** profiles the npx CLI can't see (run `make sync` first to populate the store):
+
+- `~/.claude-sec/CLAUDE.md` and `~/.claude-personal/CLAUDE.md`
+- `~/.claude-sec/agents/` and `~/.claude-personal/agents/` (from `claude/agents/`)
+- `~/.claude-sec/skills/` and `~/.claude-personal/skills/` (symlink mirror of `~/.agents/skills/`)
 
 The sync is idempotent: targets that already match are left unchanged, unrelated existing content in the home files is preserved outside the managed block, and conflicting symlinks are left in place with a warning.
 
@@ -37,7 +43,7 @@ The sync is idempotent: targets that already match are left unchanged, unrelated
 
 If a `.shared-agents/` directory exists in the repo, the installer merges those instruction files into the generated docs.
 
-If a root `skills/` directory exists, the installer copies each skill into `~/.claude/skills/`, `~/.claude-personal/skills/`, and `~/.agents/skills/`.
+If a root `skills/` directory exists, the `npx skills` CLI registers each skill into the shared store `~/.agents/skills/` and `~/.claude/skills/`; `make sync-custom` mirrors the store into `~/.claude-sec/skills/` and `~/.claude-personal/skills/`.
 
 Scope rules:
 
