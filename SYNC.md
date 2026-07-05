@@ -41,6 +41,7 @@ python3 scripts/sync_agent_docs.py --home /tmp/agentic-grimoire-home
 | `codex/agents/*`  | `~/.codex/agents/`                   | Codex                   |
 | `claude/agents/*` | `~/.claude/agents/`, `~/.claude-sec/agents/`, `~/.claude-personal/agents/` | Claude, Claude Sec, Claude Personal |
 | `skills/*`   | all configured `skills/` target dirs      | Claude, Claude Sec, Claude Personal, Codex |
+| optional `skills/*/hooks/session_start.sh` | each `<config>/settings.json` → `hooks.SessionStart` | Claude, Claude Sec, Claude Personal |
 | `.shared-agents/*`  | merged into target docs (see scope)       | varies                  |
 
 ## Task
@@ -68,6 +69,14 @@ python3 scripts/sync_agent_docs.py --home /tmp/agentic-grimoire-home
    `~/.claude-personal/agents/`.
    Create parent dirs if missing; leave a target that already matches unchanged; skip an
    unmanaged symlink with a warning.
+
+5. **Hook registration.** For any skill that ships `hooks/session_start.sh`, register a
+   `SessionStart` command hook in each Claude config dir's `settings.json` (`~/.claude`,
+   `~/.claude-sec`, `~/.claude-personal`), pointing at that config dir's own synced copy
+   (`<config>/skills/<name>/hooks/session_start.sh`). Idempotent: leave an entry that
+   already references the script unchanged (refresh only a stale path); remove stale
+   managed entries for skill hook scripts that no longer exist; preserve every other
+   setting and hook. `watermark` intentionally does not ship a SessionStart hook.
 
 ## Rules
 

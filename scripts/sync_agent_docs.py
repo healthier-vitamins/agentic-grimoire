@@ -5,12 +5,17 @@ from __future__ import annotations
 
 import argparse
 import filecmp
+import json
 import os
 import shutil
 from pathlib import Path
 
 
 CLAUDE_CONFIG_DIRS = (".claude", ".claude-sec", ".claude-personal")
+
+# A skill ships a hook by placing hooks/<script> in its dir; the sync registers it
+# in each Claude config's settings.json, mapping the script to its hook event.
+SETTINGS_HOOK_EVENT_BY_SCRIPT = {"session_start.sh": "SessionStart"}
 
 MANAGED_BEGIN = "<!-- AGENTIC-GRIMOIRE: MANAGED FILE -->"
 MANAGED_END = "<!-- END AGENTIC-GRIMOIRE: MANAGED FILE -->"
@@ -77,6 +82,13 @@ def main() -> int:
         source_root=repo_root / "skills",
         target_roots=tuple(skill_target_roots),
     )
+
+    for config_dir in claude_dirs:
+        sync_settings_hooks(
+            source_skills_root=repo_root / "skills",
+            home_directory=home_directory,
+            config_dir=config_dir,
+        )
 
     sync_agent_files(
         source_root=repo_root / "claude" / "agents",
@@ -276,6 +288,164 @@ def sync_skill_directory(source_path: Path, target_path: Path) -> None:
         shutil.rmtree(target_path)
     shutil.copytree(source_path, target_path)
     print_status(target_path, status)
+
+
+def sync_settings_hooks(
+    source_skills_root: Path, home_directory: Path, config_dir: str
+) -> None:
+    """Register each skill's hook scripts into <config_dir>/settings.json.
+
+    Convention: a skill that ships hooks/<script> gets an entry under the matching
+    hook event (session_start.sh -> SessionStart), pointing at the config dir's own
+    synced copy so every config dir is self-contained. Stale managed entries are
+    removed when a skill stops shipping a hook. All other settings are preserved.
+    """
+    if not source_skills_root.exists():
+        return
+
+    desired_hooks: list[tuple[str, str, str]] = []
+    managed_identifiers: list[tuple[str, str]] = []
+    for skill_directory in sorted(source_skills_root.iterdir()):
+        for script_name, event in SETTINGS_HOOK_EVENT_BY_SCRIPT.items():
+            identifier = f"skills/{skill_directory.name}/hooks/{script_name}"
+            managed_identifiers.append((event, identifier))
+            if not (skill_directory / "hooks" / script_name).exists():
+                continue
+            target_script = (
+                home_directory / config_dir / "skills" / skill_directory.name
+                / "hooks" / script_name
+            )
+            desired_hooks.append((event, f'bash "{target_script}"', identifier))
+
+    settings_path = home_directory / config_dir / "settings.json"
+    if desired_hooks or settings_path.exists():
+        apply_settings_hooks(settings_path, desired_hooks, managed_identifiers)
+
+
+def apply_settings_hooks(
+    settings_path: Path,
+    desired_hooks: list[tuple[str, str, str]],
+    managed_identifiers: list[tuple[str, str]],
+) -> None:
+    if is_unmanaged_symlink(settings_path):
+        print_status(settings_path, SyncStatus.SKIPPED, "symlink to unmanaged file")
+        return
+
+    old_text = read_text_if_exists(settings_path)
+    if old_text and old_text.strip():
+        try:
+            settings = json.loads(old_text)
+        except json.JSONDecodeError:
+            print_status(settings_path, SyncStatus.SKIPPED, "invalid JSON")
+            return
+    else:
+        settings = {}
+
+    hooks = settings.setdefault("hooks", {})
+    if not isinstance(hooks, dict):
+        print_status(settings_path, SyncStatus.SKIPPED, "hooks is not an object")
+        return
+
+    changed = False
+    desired_identifiers = {(event, identifier) for event, _, identifier in desired_hooks}
+    if prune_stale_managed_hooks(hooks, managed_identifiers, desired_identifiers):
+        changed = True
+
+    for event, command, identifier in desired_hooks:
+        groups = hooks.setdefault(event, [])
+        existing_hook = find_hook_entry(groups, identifier)
+        if existing_hook is None:
+            groups.append({"hooks": [{"type": "command", "command": command}]})
+            changed = True
+        elif existing_hook.get("command") != command:
+            existing_hook["command"] = command
+            changed = True
+
+    if not changed:
+        print_status(settings_path, SyncStatus.UNCHANGED)
+        return
+
+    settings_path.parent.mkdir(parents=True, exist_ok=True)
+    settings_path.write_text(json.dumps(settings, indent=2) + "\n", encoding="utf-8")
+    status = SyncStatus.CREATED if old_text is None else SyncStatus.UPDATED
+    print_status(settings_path, status)
+
+
+def prune_stale_managed_hooks(
+    hooks: object,
+    managed_identifiers: list[tuple[str, str]],
+    desired_identifiers: set[tuple[str, str]],
+) -> bool:
+    """Remove command hooks for managed skill scripts that no longer exist."""
+    if not isinstance(hooks, dict):
+        return False
+
+    changed = False
+    identifiers_by_event: dict[str, list[str]] = {}
+    desired_by_event: dict[str, set[str]] = {}
+    for event, identifier in managed_identifiers:
+        identifiers_by_event.setdefault(event, []).append(identifier)
+    for event, identifier in desired_identifiers:
+        desired_by_event.setdefault(event, set()).add(identifier)
+
+    for event, identifiers in identifiers_by_event.items():
+        groups = hooks.get(event)
+        if not isinstance(groups, list):
+            continue
+
+        kept_groups = []
+        for group in groups:
+            if not isinstance(group, dict) or not isinstance(group.get("hooks"), list):
+                kept_groups.append(group)
+                continue
+
+            kept_hooks = []
+            for hook in group["hooks"]:
+                if not isinstance(hook, dict):
+                    kept_hooks.append(hook)
+                    continue
+                command = hook.get("command", "")
+                matched_identifier = next(
+                    (identifier for identifier in identifiers if identifier in command),
+                    None,
+                )
+                if (
+                    hook.get("type") == "command"
+                    and matched_identifier is not None
+                    and matched_identifier not in desired_by_event.get(event, set())
+                ):
+                    changed = True
+                    continue
+                kept_hooks.append(hook)
+
+            if kept_hooks:
+                group["hooks"] = kept_hooks
+                kept_groups.append(group)
+            else:
+                changed = True
+
+        if kept_groups:
+            hooks[event] = kept_groups
+        else:
+            del hooks[event]
+            changed = True
+
+    return changed
+
+
+def find_hook_entry(groups: object, identifier: str) -> dict | None:
+    """Return the command-hook dict already referencing identifier, if any."""
+    if not isinstance(groups, list):
+        return None
+    for group in groups:
+        if not isinstance(group, dict):
+            continue
+        for hook in group.get("hooks", []):
+            if not isinstance(hook, dict):
+                continue
+            if identifier in hook.get("command", ""):
+                return hook
+    return None
 
 
 def sync_agent_files(source_root: Path, target_roots: tuple[Path, ...]) -> None:
