@@ -9,8 +9,9 @@ help:
 	@echo "make sync-codex     - sync via Codex following SYNC.md"
 
 # Skill *content* is owned by the `npx skills` CLI: `add ./skills` registers this repo's
-# skills into the store (~/.agents/skills) and ~/.claude; `update` refreshes remote skills.
-# The python script then handles what npx can't: docs/agents for ~/.claude and codex.
+# skills into the store (~/.agents/skills) but *copies* them into ~/.claude; `update`
+# refreshes remote skills. The python script then handles what npx can't: docs/agents for
+# ~/.claude and codex, and relinking those copies + mirroring the store into ~/.codex/skills.
 sync:
 	npx skills add ./skills --skill '*' --global --agent claude-code --yes
 	npx skills update --global --yes

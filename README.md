@@ -29,7 +29,7 @@ make sync-codex   # have Codex follow SYNC.md
 - `~/.claude/CLAUDE.md`
 - `~/.codex/AGENTS.md`
 - `~/.claude/agents/` (from `claude/agents/`) and `~/.codex/agents/` (from `codex/agents/`)
-- `~/.claude/skills/` and `~/.agents/skills/` (managed by the `npx skills` CLI)
+- `~/.agents/skills/` (the store, via the `npx skills` CLI) mirrored as symlinks into `~/.claude/skills/` and `~/.codex/skills/`
 
 `make sync-custom` writes the **unconventional** profiles the npx CLI can't see (run `make sync` first to populate the store):
 
@@ -43,7 +43,7 @@ The sync is idempotent: targets that already match are left unchanged, unrelated
 
 If a `.shared-agents/` directory exists in the repo, the installer merges those instruction files into the generated docs.
 
-If a root `skills/` directory exists, the `npx skills` CLI registers each skill into the shared store `~/.agents/skills/` and `~/.claude/skills/`; `make sync-custom` mirrors the store into `~/.claude-sec/skills/` and `~/.claude-personal/skills/`.
+If a root `skills/` directory exists, the `npx skills` CLI registers each skill into the shared store `~/.agents/skills/`. `npx add` symlinks github-sourced skills into `~/.claude/skills/` but *copies* local-path sources (this repo's `skills/`) there, and leaves an already-present store entry stale. So the sync script first **refreshes the store from the repo** (the repo's `skills/` is the source of truth for its own skills), then relinks the content-identical copies into store symlinks and mirrors the store into `~/.codex/skills/`. `make sync-custom` mirrors the store into `~/.claude-sec/skills/` and `~/.claude-personal/skills/`. Every profile ends up with symlinks into the one store; a real dir that differs from the store is left in place with a warning.
 
 Scope rules:
 
