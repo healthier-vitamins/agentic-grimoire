@@ -20,7 +20,8 @@ Do not finish with known safe-to-fix issues in the changed scope.
 
 ## Commits
 
-Do not add `Co-Authored-By` or any AI-attribution trailers to commit messages.
+Codex adds no default co-author trailer, so it attaches nothing — that is expected and correct.
+Do not fabricate a `Co-Authored-By`, session-id, or URL trailer on commit messages.
 
 ## Model Selection
 
