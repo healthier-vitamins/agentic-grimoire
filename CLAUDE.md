@@ -25,10 +25,9 @@ Opus plans and reviews, then auto-switches to Sonnet for execution within the sa
 Keep planning and final review on the top model and let Sonnet handle mechanical execution.
 Do not downgrade further (e.g. Haiku) for non-trivial work — failed loops cost more than they save.
 
-For codebase search, delegate rather than reading widely inline, so the orchestrator's
-context stays clean: the built-in `Explore` agent for quick lookups, the `explorer`
-agent (cheaper pinned model) for heavier cross-file mapping. This complements opusplan,
-which already covers execution cost within the session.
+For codebase search, delegate to the built-in `Explore` agent rather than reading widely
+inline, so the orchestrator's context stays clean. This complements opusplan, which
+already covers execution cost within the session.
 
 ## 1. Think Before Coding
 
