@@ -4,17 +4,21 @@ Instructions for Claude Code or Codex to sync this repo's agent config into the 
 home directory. Run from the repo root. Re-runnable — only apply real differences.
 
 Skill **content** is owned by the [`npx skills`](https://github.com/vercel-labs/skills)
-CLI, which manages the shared store `~/.agents/skills/` and installs into `~/.claude`
-(and other standard agents) as symlinks. `make sync` registers this repo's skills with
-that CLI, then handles what the CLI can't: the docs/agents for the conventional `~/.claude`
-profile and Codex. `make sync-custom` mirrors the store and syncs docs/agents into the
-custom `~/.claude-sec` / `~/.claude-personal` profiles (which the CLI can't see).
+CLI, which manages the shared store `~/.agents/skills/`. `npx add` symlinks github-sourced
+skills into agent dirs, but *copies* local-path sources (this repo's `skills/`) into
+`~/.claude` as real dirs — there is no store-only install flag to prevent it. `make sync`
+registers this repo's skills with that CLI, then the sync script handles what the CLI can't:
+docs/agents for `~/.claude` and Codex, **relinking** those local-skill copies into store
+symlinks, and mirroring the store into `~/.codex/skills/`. `make sync-custom` mirrors the
+store and syncs docs/agents into the custom `~/.claude-sec` / `~/.claude-personal` profiles
+(which the CLI can't see). Every profile ends up as symlinks into the one store.
 
 ## Quick run
 
 Canned commands (no need to compose your own). `make sync` registers skills with npx,
-refreshes remote skills, then syncs the conventional `~/.claude` docs/agents and Codex;
-`make sync-custom` mirrors the store and syncs docs/agents into the custom profiles:
+refreshes remote skills, then syncs the conventional `~/.claude` and Codex docs/agents and
+relinks their skills to the store; `make sync-custom` mirrors the store and syncs docs/agents
+into the custom profiles:
 
 ```sh
 make sync           # conventional: npx skills + ~/.claude docs/agents + codex
@@ -56,7 +60,8 @@ python3 scripts/sync_agent_docs.py --home /tmp/agentic-grimoire-home
 | `AGENTS.md`  | `~/.codex/AGENTS.md`                      | Codex                   |
 | `codex/agents/*`  | `~/.codex/agents/`                   | Codex                   |
 | `claude/agents/*` | `~/.claude/agents/`, `~/.claude-sec/agents/`, `~/.claude-personal/agents/` | Claude, Claude Sec, Claude Personal |
-| `skills/*` (via `npx skills add`) | `~/.agents/skills/` store + `~/.claude/skills/` | Claude (npx-managed) |
+| `skills/*` (via `npx skills add`) | `~/.agents/skills/` store (+ copied into `~/.claude/skills/`) | Claude (npx-managed) |
+| `~/.agents/skills/*` (symlinked by the script) | `~/.claude/skills/` (relinks copies), `~/.codex/skills/` | Claude, Codex |
 | `~/.agents/skills/*` (symlinked by the script, `--custom`) | `~/.claude-sec/skills/`, `~/.claude-personal/skills/` | Claude Sec, Claude Personal |
 | `.shared-agents/*`  | merged into target docs (see scope)       | varies                  |
 
@@ -80,13 +85,20 @@ Scope is set by the script flags: the default (`make sync`) targets the conventi
 
 3. **Skills.** On the default scope, register this repo's `skills/` with the `npx skills`
    CLI: `npx skills add ./skills --skill '*' --global --agent claude-code --yes`. The CLI
-   copies each skill into the shared store `~/.agents/skills/<name>/` and symlinks it into
-   `~/.claude/skills/`. Local-path installs are not tracked in the CLI's lockfile, so
-   `make sync` re-runs `add` each time to refresh them. Under `--custom`, the script mirrors
-   the **whole store** into the profiles the CLI can't reach: for every
-   `~/.agents/skills/<name>/`, create a relative symlink `~/.claude-sec/skills/<name>` and
-   `~/.claude-personal/skills/<name>` → `../../.agents/skills/<name>`, pruning dangling store
-   links and leaving real dirs / unrelated symlinks untouched.
+   copies each skill into the shared store `~/.agents/skills/<name>/`, but installs local-path
+   sources into `~/.claude/skills/` as **real-dir copies** (only github-sourced skills are
+   symlinked). Local-path installs aren't tracked in the CLI's lockfile, so `make sync`
+   re-runs `add` each time. Worse, `add` leaves an **already-present store entry stale** — so
+   the script first **refreshes the store from the repo** (`skills/` is the source of truth
+   for this repo's own skills; remote/store-only skills are left to `npx update`). The script
+   then mirrors the **whole store** into every in-scope
+   profile: for every `~/.agents/skills/<name>/`, create a relative symlink
+   `<profile>/skills/<name>` → `../../.agents/skills/<name>`. On the default scope this covers
+   `~/.claude/skills/` and `~/.codex/skills/`; under `--custom` it covers `~/.claude-sec` and
+   `~/.claude-personal`. When a target is a **real dir** whose content is identical to the
+   store skill (an npx copy), it is deleted and replaced with the symlink; a real dir that
+   **differs** is left in place with a warning. Dangling store links are pruned; unrelated
+   symlinks and non-store real dirs are left untouched.
 
 4. **Agent definitions.** Copy each file in `claude/agents/` into each in-scope Claude
    profile's `agents/` (default: `~/.claude/agents/`; `--custom`: `~/.claude-sec/agents/`
