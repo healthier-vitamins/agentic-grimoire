@@ -18,10 +18,6 @@ Before finishing any code task, follow:
 
 Do not finish with known safe-to-fix issues in the changed scope.
 
-## Commits
-
-Do not add `Co-Authored-By` or any AI-attribution trailers to commit messages.
-
 ## Model Selection
 
 For cost efficiency without quality loss, use the `opusplan` alias (`/model opus-plan`):
