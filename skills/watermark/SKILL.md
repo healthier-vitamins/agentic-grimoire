@@ -27,13 +27,13 @@ git log --oneline -5
 
 ## Step 2 — Choose commit scope
 
-Stage only the changes that belong in the requested commits:
+Decide what is in scope; **do not stage yet** — staging happens in Step 5, one concern at a time, driven by the Step 4 concern table.
 
-- Use whole-file staging for files whose entire diff belongs to one commit.
-- Use hunk staging when a file contains multiple logical changes.
+- Files whose entire diff belongs to one concern → whole-file staging later.
+- A file that holds two concerns → split it non-interactively (see Step 5); do **not** rely on interactive `git add -p`, an agent can't drive its TTY reliably.
 - Leave unrelated or uncertain changes unstaged.
 
-**Criterion:** every current change is either staged for a specific commit or explicitly left out with a reason. If there are no commit-worthy changes, say so and stop.
+**Criterion:** every current change is either assigned to a concern or explicitly left out with a reason. If there are no commit-worthy changes, say so and stop.
 
 ## Step 3 — Safety gates (abort with a clear message on any failure)
 
@@ -42,21 +42,39 @@ Stage only the changes that belong in the requested commits:
 
 **Criterion:** branch is safe, no secrets staged.
 
-## Step 4 — Group into atomic commits
+## Step 4 — Decompose into atomic commits (do this BEFORE staging)
 
-Group the staged changes by **concern/feature**, not by file type. Order groups so dependencies land first (a refactor or chore that later commits build on comes before the `feat` that uses it).
+This is the step that keeps commits granular. It runs automatically — there is no human preview — so the decomposition itself must be rigorous.
 
-**Criterion:** every staged change belongs to exactly one group.
+**Emit a concern table first.** Before any `git add`, output a table covering the whole diff:
+
+| concern | files / hunks | type(scope) | why (one line) |
+|---|---|---|---|
+
+Rules for the table:
+
+- **The "and" test:** if a row's *why* needs the word "and", it is two concerns — split the row. One logical change per commit.
+- **Logical unit, not file count:** a single concern spans as many files as it needs; do not split one change across per-file commits. A rename plus its import updates is **one** row.
+- **Never merge unrelated types:** a `feat` and an unrelated `fix` are always separate rows, even if small.
+- **Bias to split:** when unsure whether two changes are one concern or two, make them two rows.
+- **Sweep-back check:** every path in `git status --short` must appear in at least one row, or be explicitly excluded per Step 1. A missing path means a concern was lumped or dropped — regenerate the table.
+- **Order rows so dependencies land first:** a refactor/chore that later commits build on comes before the `feat` that uses it, so every commit leaves the tree building (build-green invariant).
+
+**Large diff (many files / hunks):** analyze each changed file's diff separately, note its concern(s), then cluster into the table — one pass over a big diff invites truncation and lumping.
+
+**Criterion:** the table is emitted before staging; every changed path maps to exactly one row (or is excluded with a reason); each row passes the "and" test.
 
 ## Step 5 — Compose and commit each group (auto, no preview)
 
-For each group, in dependency order:
-1. Stage exactly that group's changes.
+For each row of the Step 4 table, in order:
+1. Stage exactly that row's files/hunks.
+   - Whole-file: `git add <file>`.
+   - One file, two concerns: build the patch non-interactively — `git diff -- <file>` → keep only the target hunks → `git apply --cached <patch>`. Commit, then stage and commit the remainder as its own row.
 2. Compose a Conventional Commit message per `commit-format.md` (terse, imperative, why-over-what).
 3. Commit with the user's normal git identity and signing (the plain `git commit` in `commit-format.md`). Claude's default co-author trailer is fine; keep the user's personal name/email out of the message.
 
-**Criterion:** one commit per group; requested work committed; unrelated work remains unstaged; **nothing pushed**.
+**Criterion:** one commit per row; each commit touches only its concern (no commit mixes unrelated concerns); unrelated work remains unstaged; **nothing pushed**.
 
 ## Step 6 — Report
 
-List the commits created (hashes + subjects) and any files intentionally left uncommitted. Confirm nothing was pushed. Keep the user's personal name/email out of the report text.
+List the commits created (hashes + subjects), echo the Step 4 concern table so the grouping is auditable, and note any files intentionally left uncommitted. Confirm nothing was pushed. Keep the user's personal name/email out of the report text.
