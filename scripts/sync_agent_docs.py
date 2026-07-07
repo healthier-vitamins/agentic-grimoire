@@ -4,7 +4,9 @@
 from __future__ import annotations
 
 import argparse
+import filecmp
 import os
+import shutil
 from pathlib import Path
 
 
@@ -15,9 +17,9 @@ CUSTOM_CLAUDE_DIRS = (".claude-sec", ".claude-personal")
 CLAUDE_CONFIG_DIRS = CONVENTIONAL_CLAUDE_DIRS + CUSTOM_CLAUDE_DIRS
 
 # Skill *content* is owned by the `npx skills` CLI, which populates the canonical store
-# ~/.agents/skills and installs into ~/.claude (claude-code) directly. This dir is left
-# to the CLI; the sync only mirrors the store into the profiles the CLI can't see.
-NPX_MANAGED_CLAUDE_DIR = ".claude"
+# ~/.agents/skills. `npx add` symlinks github-sourced skills into agent dirs but *copies*
+# local-path sources (this repo's ./skills), so the sync relinks those copies into store
+# symlinks and mirrors the store into every profile — including ~/.claude and codex.
 STORE_SKILLS_RELATIVE = (".agents", "skills")
 
 MANAGED_BEGIN = "<!-- AGENTIC-GRIMOIRE: MANAGED FILE -->"
@@ -85,13 +87,13 @@ def main() -> int:
             shared_fragments=claude_fragments,
         )
 
-    # The `npx skills` CLI owns skill content in the store and in ~/.claude; it can't
-    # reach the custom ~/.claude-sec / ~/.claude-personal profiles, so mirror the store
-    # into those via symlinks only.
+    # `npx add` copies local skills into ~/.claude but leaves an already-present store
+    # entry stale, so refresh the store from the repo (its source of truth) first. Then
+    # mirror the store into every in-scope profile via symlinks, relinking any
+    # content-identical copies npx left behind.
     store_skills_root = home_directory.joinpath(*STORE_SKILLS_RELATIVE)
+    refresh_store_from_repo(repo_root / "skills", store_skills_root)
     for config_dir in claude_dirs:
-        if config_dir == NPX_MANAGED_CLAUDE_DIR:
-            continue
         symlink_store_skills(store_skills_root, home_directory / config_dir / "skills")
 
     sync_agent_files(
@@ -112,6 +114,7 @@ def main() -> int:
             source_root=repo_root / "codex" / "agents",
             target_roots=(home_directory / ".codex" / "agents",),
         )
+        symlink_store_skills(store_skills_root, home_directory / ".codex" / "skills")
 
     return 0
 
@@ -261,6 +264,41 @@ def preserved_content_after_legacy_managed_file(legacy_content: str) -> str:
     return "\n\n" + USER_CONTENT_MARKER + "\n\n" + preserved_content + "\n"
 
 
+def refresh_store_from_repo(repo_skills_root: Path, store_root: Path) -> None:
+    """Push this repo's skills into the shared store; the repo is their source of truth.
+
+    `npx add` copies local skills into agent dirs but leaves an already-present store entry
+    stale, so profiles that symlink to the store would serve outdated content. Overwrite each
+    store entry from the repo when it differs. Only the repo's own skills are touched; remote
+    / store-only skills (managed by `npx update`) are left alone.
+    """
+    if not repo_skills_root.is_dir():
+        return
+
+    store_root.mkdir(parents=True, exist_ok=True)
+
+    for skill_dir in sorted(repo_skills_root.iterdir()):
+        if not skill_dir.is_dir() or skill_dir.name.startswith("."):
+            continue
+
+        store_skill = store_root / skill_dir.name
+        if store_skill.is_symlink() or (store_skill.exists() and not store_skill.is_dir()):
+            print_status(store_skill, SyncStatus.SKIPPED, "store entry is not a real dir")
+            continue
+
+        if store_skill.is_dir() and dirs_equal(skill_dir, store_skill):
+            print_status(store_skill, SyncStatus.UNCHANGED)
+            continue
+
+        existed = store_skill.exists()
+        if existed:
+            shutil.rmtree(store_skill)
+        shutil.copytree(skill_dir, store_skill)
+        print_status(
+            store_skill, SyncStatus.UPDATED if existed else SyncStatus.CREATED
+        )
+
+
 def symlink_store_skills(store_root: Path, target_root: Path) -> None:
     """Mirror the npx-managed skill store into a config dir the CLI can't reach.
 
@@ -289,12 +327,34 @@ def symlink_store_skills(store_root: Path, target_root: Path) -> None:
             link_path.symlink_to(desired_target)
             print_status(link_path, SyncStatus.UPDATED)
         elif link_path.exists():
-            print_status(link_path, SyncStatus.SKIPPED, "unmanaged (not a symlink)")
+            if link_path.is_dir() and dirs_equal(link_path, store_skill):
+                shutil.rmtree(link_path)
+                link_path.symlink_to(desired_target)
+                print_status(link_path, SyncStatus.UPDATED, "relinked store copy")
+            else:
+                print_status(link_path, SyncStatus.SKIPPED, "unmanaged (differs from store)")
         else:
             link_path.symlink_to(desired_target)
             print_status(link_path, SyncStatus.CREATED)
 
     prune_dangling_store_links(target_root)
+
+
+def dirs_equal(left: Path, right: Path) -> bool:
+    """True if two directory trees have identical structure and file contents.
+
+    filecmp.cmp (shallow) falls back to a byte compare when sizes match but stat
+    signatures differ, so an npx copy with a fresh mtime still compares equal.
+    """
+    comparison = filecmp.dircmp(left, right)
+    if (
+        comparison.left_only
+        or comparison.right_only
+        or comparison.diff_files
+        or comparison.funny_files
+    ):
+        return False
+    return all(dirs_equal(left / sub, right / sub) for sub in comparison.common_dirs)
 
 
 def prune_dangling_store_links(target_root: Path) -> None:
