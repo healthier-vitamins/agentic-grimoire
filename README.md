@@ -1,71 +1,56 @@
 # agentic-grimoire
 
-Managed agent instruction files and skills for Codex, Claude, and Claude Personal. An agent (Claude Code or Codex) syncs them into the local home directory by following `SYNC.md`.
+A collection of agent **skills** plus the guideline block they install into your
+Claude Code and Codex config. Onboarding is one `npx` line and one or two slash commands —
+no Makefile, no build step.
 
-> _Running a sync resets any old-syntax managed blocks in your home files to the current format._
-
-## What This Repo Does
-
-This repo keeps two source instruction files:
-
-- `CLAUDE.md`
-- `AGENTS.md`
-
-Plus shared fragments under `.shared-agents/` and skills under `skills/`. Syncing copies these into the expected locations in the current user's home directory.
-
-## Sync
-
-Syncing is agent-driven: follow [`SYNC.md`](SYNC.md) from the repo root — the canonical, re-runnable procedure for both agents. From a terminal, use the canned commands:
+## Onboard
 
 ```sh
-make sync         # conventional: skills + ~/.claude docs/agents + codex
-make sync-custom  # custom profiles: ~/.claude-sec and ~/.claude-personal
-make sync-claude  # have Claude Code follow SYNC.md
-make sync-codex   # have Codex follow SYNC.md
+# 1. Install the skills into the central store (~/.agents/skills) and symlink them
+#    into the conventional profiles (Claude Code + Codex).
+npx skills add healthier-vitamins/agentic-grimoire --global -a claude-code codex --yes
+
+# 2. Splice the guideline block into ~/.claude/CLAUDE.md AND ~/.codex/AGENTS.md
+#    (append-only, idempotent — your existing content is preserved).
+/setup-agentic-grimoire
+
+# 3. Optional: extend to the custom profiles ~/.claude-personal and ~/.claude-sec
+#    (symlink the store into them + splice their CLAUDE.md).
+/link-agentic-grimoire-custom
 ```
 
-`make sync` writes or updates the **conventional** targets under the current user's home directory:
+Steps 2 and 3 are slash commands you run **inside** Claude Code — they ship as skills, so
+step 1 installs them. The first run is worth doing interactively so you can eyeball the diff
+into your own config; after that it's safe to re-run (idempotent).
 
-- `~/.claude/CLAUDE.md`
-- `~/.codex/AGENTS.md`
-- `~/.claude/agents/` (from `claude/agents/`) and `~/.codex/agents/` (from `codex/agents/`)
-- `~/.agents/skills/` (the store, via the `npx skills` CLI) mirrored as symlinks into `~/.claude/skills/` and `~/.codex/skills/`
+## How it splits responsibility
 
-`make sync-custom` writes the **unconventional** profiles the npx CLI can't see (run `make sync` first to populate the store):
+- **`npx skills`** ([vercel-labs/skills](https://github.com/vercel-labs/skills)) owns the
+  skills: it installs a canonical copy into the store `~/.agents/skills/` and symlinks it
+  into every *detected* agent (`~/.claude/skills/`, `~/.codex/skills/`). It never touches
+  `CLAUDE.md`/`AGENTS.md`, and it can't see custom profile dirs.
+- **`setup-agentic-grimoire`** fills the first gap — it splices the guideline block between
+  `<!-- AGENTIC-GRIMOIRE: MANAGED FILE -->` markers in `~/.claude/CLAUDE.md` and
+  `~/.codex/AGENTS.md`. A re-run replaces only that block; everything you wrote outside it
+  survives.
+- **`link-agentic-grimoire-custom`** fills the second — it symlinks the store into
+  `~/.claude-personal` and `~/.claude-sec` (preserving any real skill dir you placed there,
+  pruning only dead store links) and splices their `CLAUDE.md` the same way.
 
-- `~/.claude-sec/CLAUDE.md` and `~/.claude-personal/CLAUDE.md`
-- `~/.claude-sec/agents/` and `~/.claude-personal/agents/` (from `claude/agents/`)
-- `~/.claude-sec/skills/` and `~/.claude-personal/skills/` (symlink mirror of `~/.agents/skills/`)
+## Updating
 
-The sync is idempotent: targets that already match are left unchanged, unrelated existing content in the home files is preserved outside the managed block, and conflicting symlinks are left in place with a warning.
+Edit a skill or the guideline blocks here → commit → push → `npx skills update --global`,
+then re-run `/setup-agentic-grimoire` (and `/link-agentic-grimoire-custom`) to refresh the
+managed block. Authors and consumers onboard the same way.
 
-## Shared Content
+## Repo layout
 
-If a `.shared-agents/` directory exists in the repo, the installer merges those instruction files into the generated docs.
+- `skills/` — the skills, incl. `setup-agentic-grimoire/` (the guideline blocks +
+  `splice.sh`) and `link-agentic-grimoire-custom/` (`link.sh`).
+- `CLAUDE.md` / `AGENTS.md` — this repo's *own* dev guidance (no longer synced anywhere).
+- `docs/adr/` — architecture decision records.
 
-If a root `skills/` directory exists, the `npx skills` CLI registers each skill into the shared store `~/.agents/skills/`. `npx add` symlinks github-sourced skills into `~/.claude/skills/` but *copies* local-path sources (this repo's `skills/`) there, and leaves an already-present store entry stale. So the sync script first **refreshes the store from the repo** (the repo's `skills/` is the source of truth for its own skills), then relinks the content-identical copies into store symlinks and mirrors the store into `~/.codex/skills/`. `make sync-custom` mirrors the store into `~/.claude-sec/skills/` and `~/.claude-personal/skills/`. Every profile ends up with symlinks into the one store; a real dir that differs from the store is left in place with a warning.
-
-Scope rules:
-
-- `common/` content applies to all generated docs
-- `claude/` content applies to both Claude `CLAUDE.md` files
-- `codex/` content applies only to `AGENTS.md`
-
-## Repo Layout
-
-Key paths:
-
-- `SYNC.md` - sync instructions an agent follows
-- `CLAUDE.md` - Claude source instructions
-- `AGENTS.md` - Codex source instructions
-- `.shared-agents/` - optional shared instruction fragments merged during sync
-- `codex/agents/` - Codex subagent definitions synced to `~/.codex/agents/`
-- `claude/agents/` - Claude subagent definitions synced to `~/.claude/agents/` and `~/.claude-personal/agents/`
-- `skills/` - skills synced for both agents
-
-## Typical Workflow
-
-1. Edit the source docs `CLAUDE.md` or `AGENTS.md` at the repo root.
-2. Optionally add shared fragments under `.shared-agents/` or skills under `skills/`.
-3. Sync by following [`SYNC.md`](SYNC.md) — e.g. `make sync` (or `make sync-claude` / `make sync-codex`).
-4. Review the per-target statuses it prints to confirm what changed.
+See [`docs/adr/0002-npx-skills-onboarding.md`](docs/adr/0002-npx-skills-onboarding.md) for
+why the old `make`/Python sync engine was retired, and [`CONTEXT.md`](CONTEXT.md) for the
+project's vocabulary.
