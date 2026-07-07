@@ -10,6 +10,8 @@ Ask **before** explaining — retrieval builds storage strength, narration does 
 - **Explanation** — "Why did the AI route this through the repository layer instead of calling the ORM directly?" Use to test design understanding. Best for architecture, patterns, tradeoffs.
 - **Transfer** — "Where else in this codebase does this pattern appear?" Use to connect new code to existing knowledge. Best for idioms, conventions, cross-cutting concerns.
 
+**Show the code you're quizzing.** Quote the focused excerpt alongside the question — the lines the question targets plus minimal surrounding context, in a chat code block with a `file:line` ref — so the user reads the code in place instead of hunting for it. This is substrate, not narration (see anti-patterns): showing the snippet ≠ explaining it. The flaw-hunt spec below already works this way. Exception: a transfer question that tests whether the user can *locate* a pattern may withhold it.
+
 Judge each answer right / partial / wrong, then explain only the **delta** — the gap between their answer and the full picture. Never re-explain what they already demonstrated.
 
 Quiz hygiene: when offering multiple-choice options, keep every option the same length and register — formatting must not leak the answer.
@@ -53,7 +55,7 @@ Difficulty is per-area, never global — an expert in the API layer can be a nov
 
 ## Anti-patterns
 
-- **No pure narration.** A tour without questions produces recognition, not learning. Orientation gets 60 seconds; everything after is interactive.
+- **No pure narration.** A tour without questions produces recognition, not learning. Orientation gets 60 seconds; everything after is interactive. Quoting the snippet a question is about is not narration — narration is *explaining* the code before the user has answered.
 - **No trivia flashcards.** Quiz understanding ("why does this handler re-fetch?"), not facts a grep answers ("what is the function named?").
 - **No marathon sessions.** Past ~15 minutes retention drops and the user stops returning. End early with a clean wrap-up rather than pushing through.
 

@@ -46,13 +46,13 @@ Skip on the first session. Ask 1-3 questions drawn from the oldest or `shaky` ac
 
 ## Step 5 — Orientation map
 
-A 60-second tour, the only non-interactive moment: slice the target into 2-6 working-memory-sized chunks and show a map — one line per chunk (chunk → file(s) → role), in suggested reading order. If the target has more than 6 natural chunks, triage to the 4-6 highest-leverage ones (core logic over boilerplate and generated noise) and append the rest to the NOTES.md walk queue, telling the user what was deferred.
+A 60-second tour, the only non-interactive moment: slice the target into 2-6 working-memory-sized chunks and show a map — one line per chunk (chunk → file(s) → role), in suggested reading order, each with a short **representative excerpt** (a few core/entry lines, `file:line` ref) so the tour shows code, not just names. Keep excerpts tiny to stay inside the 60-second budget — full detail waits for Step 6. If the target has more than 6 natural chunks, triage to the 4-6 highest-leverage ones (core logic over boilerplate and generated noise) and append the rest to the NOTES.md walk queue, telling the user what was deferred.
 
 **Done when:** the map is shown and the user confirmed it or picked their chunks.
 
 ## Step 6 — Walk the chunks
 
-For each selected chunk, in that area's mode (turn shapes defined in [pedagogy.md](references/pedagogy.md)): question **before** explanation, judge the answer, explain only the delta, and tie the code to codebase idioms and `reference/glossary.md` terms. Calibrate continuously — downshift and upshift per pedagogy.md; the user can override with "easier" / "harder" at any time.
+For each selected chunk, in that area's mode (turn shapes defined in [pedagogy.md](references/pedagogy.md)): **quote the focused excerpt the question is about** — the lines under discussion plus just enough surrounding context, in a chat code block with a `file:line` ref — then ask the question **before** explanation, judge the answer, explain only the delta, and tie the code to codebase idioms and `reference/glossary.md` terms. Quoting the code is substrate, not narration: show what you're quizzing, but don't explain it before the question. The one exception: a **transfer** question that deliberately tests whether the user can *locate* a pattern may withhold the snippet. Calibrate continuously — downshift and upshift per pedagogy.md; the user can override with "easier" / "harder" at any time.
 
 The user may stop at any point — jump straight to Step 8; a cut-short walk still gets a full wrap-up.
 
