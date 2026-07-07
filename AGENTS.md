@@ -29,21 +29,11 @@ downgrade the main agent. Delegate mechanical work to subagents so the orchestra
 context stays clean; the cost win comes from that isolation (and a cheaper worker
 model), not from starving the worker's reasoning.
 
-Pick the worker whose reasoning effort matches the task — Codex bakes effort into each
-agent, so choosing the agent *is* choosing the effort:
-
-- **Routine execution** (clear, mechanical edits/commands) → `executor` (medium).
-- **Hard execution** (interdependent changes, debugging, costly-to-unwind edits) → `executor-deep` (high).
-- **Simple lookup** (find a definition, grep usages) → `explorer` (low).
-- **Synthesis search** (map patterns / trace flow across many files) → `explorer-deep` (medium).
-
-Codex only spawns subagents when asked, so treat this as a standing instruction to
-delegate — and reach for a `-deep` variant whenever a cheap miss would be costly to
-recover from (a failed worker bounces back to the orchestrator at full price).
-
-Definitions live in `~/.codex/agents/` (synced from `codex/agents/` in this repo).
-The `[agents]` defaults (`max_depth = 1`) are sufficient — no `config.toml` change is
-required.
+Match each subagent's reasoning effort to its task — low for a simple lookup, higher
+for interdependent changes or debugging — and reach for more effort whenever a cheap
+miss would be costly to recover from (a failed worker bounces back to the orchestrator
+at full price). Codex only spawns subagents when asked, so treat this as a standing
+instruction to delegate.
 
 ## 1. Think Before Coding
 
