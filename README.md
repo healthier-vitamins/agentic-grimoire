@@ -44,10 +44,19 @@ Edit a skill or the guideline blocks here → commit → push → `npx skills up
 then re-run `/setup-agentic-grimoire` (and `/link-agentic-grimoire-custom`) to refresh the
 managed block. Authors and consumers onboard the same way.
 
+## Uninstall
+
+Run `/uninstall-agentic-grimoire` inside Claude Code — it reverses all three onboarding
+steps. It strips the guideline block from `~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md`, and
+the custom profiles (preserving everything you wrote outside the markers), then removes this
+repo's own skills from the store and every profile. It removes **only** the skills this repo
+published; anything you installed from another source is left untouched.
+
 ## Repo layout
 
 - `skills/` — the skills, incl. `setup-agentic-grimoire/` (the guideline blocks +
-  `splice.sh`) and `link-agentic-grimoire-custom/` (`link.sh`).
+  `splice.sh`), `link-agentic-grimoire-custom/` (`link.sh`), and
+  `uninstall-agentic-grimoire/` (`unsplice.sh`).
 - `CLAUDE.md` / `AGENTS.md` — this repo's *own* dev guidance (no longer synced anywhere).
 - `docs/adr/` — architecture decision records.
 
