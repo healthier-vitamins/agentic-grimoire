@@ -37,7 +37,7 @@ The published skill set (keep in sync with this repo's `skills/`):
 
 ```sh
 SKILLS="codewalk compass keystone keystone-react lathe link-agentic-grimoire-custom \
-oracle playbook setup-agentic-grimoire storm teach-publish watermark uninstall-agentic-grimoire"
+oracle playbook setup-agentic-grimoire storm teach-publish ticketsmith watermark uninstall-agentic-grimoire"
 ```
 
 1. **Preview the block removal.** Unsplice into throwaway copies and diff, so the user sees
