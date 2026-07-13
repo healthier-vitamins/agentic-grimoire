@@ -24,7 +24,8 @@ Skills installed from other sources — Matt Pocock's `ask-matt`, `grilling`, `g
   `<!-- END AGENTIC-GRIMOIRE: MANAGED FILE -->` (and the `USER CONTENT` marker line),
   preserving everything the user wrote outside it. No-op on a file without the markers.
 - `npx skills remove` removes the store copy and the conventional-profile symlinks. It removes
-  **by skill name**, so we pass exactly this repo's published names.
+  **by skill name**, so we pass exactly the names installed from this source, read live from
+  `~/skills-lock.json` (drift-proof, and it catches stale installs a hardcoded list would miss).
 - Removing the store dirs leaves the custom-profile symlinks (`~/.claude-personal`,
   `~/.claude-sec`) dangling; a prune of dead store links finishes the job.
 
@@ -33,11 +34,14 @@ Skills installed from other sources — Matt Pocock's `ask-matt`, `grilling`, `g
 Let `DIR` be this skill's own directory (the folder holding this `SKILL.md`, i.e.
 `~/.agents/skills/uninstall-agentic-grimoire`).
 
-The published skill set (keep in sync with this repo's `skills/`):
+The skills to remove — exactly those installed from this source, read from the lockfile so the
+list can never drift and always includes stale installs (skills deleted from the repo but still
+on this machine):
 
 ```sh
-SKILLS="codewalk compass keystone keystone-react lathe link-agentic-grimoire-custom \
-oracle playbook setup-agentic-grimoire storm teach-publish ticketsmith watermark uninstall-agentic-grimoire"
+SKILLS="$(jq -r '.skills // {} | to_entries[]
+  | select(.value.source == "healthier-vitamins/agentic-grimoire") | .key' \
+  "$HOME/skills-lock.json" 2>/dev/null | tr '\n' ' ')"
 ```
 
 1. **Preview the block removal.** Unsplice into throwaway copies and diff, so the user sees
@@ -62,9 +66,10 @@ oracle playbook setup-agentic-grimoire storm teach-publish ticketsmith watermark
    ```
    Each prints `updated` / `unchanged` (custom profiles no-op unless `/link-agentic-grimoire-custom` ran).
 
-3. **Remove this repo's skills** from the store and the conventional profiles:
+3. **Remove this repo's skills** from the store and the conventional profiles (skip if the
+   lockfile listed none — nothing was installed from this source):
    ```sh
-   npx skills remove --global -a claude-code codex --yes $SKILLS
+   [ -n "${SKILLS// /}" ] && npx skills remove --global -a claude-code codex --yes $SKILLS
    ```
    Only the names in `$SKILLS` are removed. Other sources' skills are untouched.
 
