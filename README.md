@@ -8,8 +8,9 @@ no Makefile, no build step.
 
 ```sh
 # 1. Install the skills into the central store (~/.agents/skills) and symlink them
-#    into the conventional profiles (Claude Code + Codex).
-npx skills add healthier-vitamins/agentic-grimoire --global -a claude-code codex --yes
+#    into the conventional profiles (Claude Code + Codex). Dropping --yes lets the CLI
+#    show an interactive multi-select picker so you choose which skills to install.
+npx skills add healthier-vitamins/agentic-grimoire --global -a claude-code codex
 
 # 2. Splice the guideline block into ~/.claude/CLAUDE.md AND ~/.codex/AGENTS.md
 #    (append-only, idempotent — your existing content is preserved).
@@ -19,6 +20,13 @@ npx skills add healthier-vitamins/agentic-grimoire --global -a claude-code codex
 #    (symlink the store into them + splice their CLAUDE.md).
 /link-agentic-grimoire-custom
 ```
+
+**In the step 1 picker, always keep the four management skills selected —
+`setup-agentic-grimoire`, `sync-agentic-grimoire`, `link-agentic-grimoire-custom`, and
+`uninstall-agentic-grimoire`.** They are the machinery that splices the guideline block,
+updates/prunes, and tears everything down; deselecting them breaks setup, update, and
+uninstall. The picker needs a real terminal — in a non-TTY/CI shell, add `--yes` (installs
+all) or `--skill <name>` to select non-interactively.
 
 Steps 2 and 3 are slash commands you run **inside** Claude Code — they ship as skills, so
 step 1 installs them. The first run is worth doing interactively so you can eyeball the diff
