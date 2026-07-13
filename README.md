@@ -48,9 +48,11 @@ into your own config; after that it's safe to re-run (idempotent).
 
 ## Updating
 
-Edit a skill or the guideline blocks here → commit → push → `npx skills update --global`,
-then re-run `/setup-agentic-grimoire` (and `/link-agentic-grimoire-custom`) to refresh the
-managed block. Authors and consumers onboard the same way.
+Edit a skill or the guideline blocks here → commit → push → `/sync-agentic-grimoire` inside
+Claude Code. It runs `npx skills update --global` (which updates changed skills but, at global
+scope, does **not** remove skills deleted upstream) and then prunes those deleted skills — the
+gap the CLI leaves. Re-run `/setup-agentic-grimoire` (and `/link-agentic-grimoire-custom`) to
+refresh the managed block. Authors and consumers onboard the same way.
 
 ## Uninstall
 
