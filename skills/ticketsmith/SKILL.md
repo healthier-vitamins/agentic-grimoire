@@ -1,6 +1,6 @@
 ---
 name: ticketsmith
-description: Turn a one-sentence description into a full Jira ticket — uses Matt Pocock's grill-me skill to sharpen scope, reads the surrounding git repo to ground the technical section, writes the ticket to a .md file and prints it. Use when the user says "ticketsmith", "draft a jira ticket", "make a ticket", or "write me a jira".
+description: Turn a one-sentence description into a grilled, repo-grounded Jira ticket.
 argument-hint: "[one-sentence description]"
 disable-model-invocation: true
 ---
@@ -13,11 +13,7 @@ disable-model-invocation: true
 > - **Codex:** a custom agent with `model = "gpt-5.4"`,
 >   `model_reasoning_effort = "medium"`.
 
-Goal: turn a one-sentence description into a well-formed Jira ticket, grounded
-in the surrounding repo when there is one, sharpened by Matt Pocock's `grill-me`
-interview. Companion to `lathe` (which shapes the artifact) — this shapes the
-ticket. The interactive steps run in the main session; the model-sensitive draft
-runs in a pinned subagent.
+Companion to `lathe` (which shapes the artifact) — this shapes the ticket.
 
 ## Step 1 — Get the seed
 
@@ -26,8 +22,9 @@ description of what they want built. Do not proceed without it.
 
 ## Step 2 — Ensure grill-me is installed
 
-Check for Matt Pocock's `grill-me` skill (e.g. `~/.agents/skills/grill-me/` or
-the active profile's `skills/grill-me/`). If it is **missing**, show the user the
+Check for Matt Pocock's `grill-me` skill (`~/.claude/skills/grill-me/` for
+Claude Code, `~/.agents/skills/grill-me/` for Codex, or the active profile's
+`skills/grill-me/`). If it is **missing**, show the user the
 install command and **ask before running it** — it mutates their global skill
 store:
 
@@ -42,7 +39,8 @@ Run it only on the user's yes. If they decline, stop.
 Run `git rev-parse --is-inside-work-tree`. If inside a repo, gather cheap seed
 context only — `git ls-files | head` and `git log --oneline -5` — to orient the
 interview. Deep reads happen in Step 5, inside the pinned subagent. If not in a
-repo, skip.
+repo, skip. Done when: repo presence known and seed context captured, or the
+step skipped.
 
 ## Step 4 — grill-me interview (Matt Pocock's skill), advisory handoff
 
@@ -72,10 +70,10 @@ it: the seed description, the resolved `grill-me` decisions, and the repo path
    the files/dirs the description names (use `Explore` for broader sweeps). This
    grounding does **not** license identifiers in the plain sections.
 2. Write every plain section for **a reader who has never opened the repo**:
-   *User story*, *What needs to happen*, and *Acceptance criteria* carry no file
-   paths, module or framework names, or code identifiers. Confine all such
-   identifiers to a **Technical notes (for engineers)** section — and omit that
-   section entirely when there is no repo.
+   *User story*, *What needs to happen*, and *Acceptance criteria* are
+   **identifier-free** — no file paths, module or framework names, or code
+   identifiers. Confine all identifiers to a **Technical notes (for
+   engineers)** section — and omit that section entirely when there is no repo.
 3. Fill this template (keep **User story** and **What needs to happen** as the
    load-bearing sections):
 
@@ -88,7 +86,7 @@ it: the seed description, the resolved `grill-me` decisions, and the repo path
    As a <user>, I want <capability> so that <benefit>.
 
    ## What needs to happen
-   - <plain-language point — no file paths, module/framework names, or code identifiers>
+   - <plain-language point — identifier-free>
    - <plain-language point>
 
    ## Acceptance criteria
@@ -109,10 +107,7 @@ it: the seed description, the resolved `grill-me` decisions, and the repo path
 
 Print the ticket the subagent returned and report the file path.
 
-**Criterion:** a `.md` ticket file exists in the current folder (never
-overwriting an existing one) whose plain sections (User story, What needs to
-happen, Acceptance criteria) contain no file paths, module/framework names, or
-code identifiers — those appear only in a *Technical notes (for engineers)*
-section, which is omitted when there is no repo. Produced by a Sonnet-5 /
-GPT-5.4-medium subagent from the `grill-me` interview and repo context, with the
-same content printed in the chat.
+**Criterion:** a `.md` ticket file exists in the current folder (suffixed per
+Step 5.4, never clobbering) whose plain sections are identifier-free per
+Step 5.2. Produced by a Sonnet-5 / GPT-5.4-medium subagent from the `grill-me`
+interview and repo context, with the same content printed in the chat.
