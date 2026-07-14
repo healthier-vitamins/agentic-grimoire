@@ -68,11 +68,16 @@ Spawn a subagent on the required model (see the model requirement above) and pas
 it: the seed description, the resolved `grill-me` decisions, and the repo path
 (if any). Instruct the subagent to:
 
-1. Ground the technical section in the repo — read the files/dirs the
-   description names (use `Explore` for broader sweeps), citing real
-   module/file names.
-2. Fill this template (keep **User story** and **Brief technical
-   implementation** as the load-bearing sections):
+1. **Ground, don't surface.** Read the repo to make the ticket accurate — read
+   the files/dirs the description names (use `Explore` for broader sweeps). This
+   grounding does **not** license identifiers in the plain sections.
+2. Write every plain section for **a reader who has never opened the repo**:
+   *User story*, *What needs to happen*, and *Acceptance criteria* carry no file
+   paths, module or framework names, or code identifiers. Confine all such
+   identifiers to a **Technical notes (for engineers)** section — and omit that
+   section entirely when there is no repo.
+3. Fill this template (keep **User story** and **What needs to happen** as the
+   load-bearing sections):
 
    ```
    # <concise title>
@@ -82,16 +87,20 @@ it: the seed description, the resolved `grill-me` decisions, and the repo path
    ## User story
    As a <user>, I want <capability> so that <benefit>.
 
-   ## Brief technical implementation
-   - <step grounded in real files/modules when repo present>
-   - <step> — <sub-detail>
+   ## What needs to happen
+   - <plain-language point — no file paths, module/framework names, or code identifiers>
+   - <plain-language point>
 
    ## Acceptance criteria
+   - [ ] <verifiable outcome, in plain language>
    - [ ] <verifiable outcome>
-   - [ ] <verifiable outcome>
+
+   ## Technical notes (for engineers)
+   - <grounding detail: real module/file names, reused utilities — the ONLY section where identifiers appear>
+   - <omit this whole section when there is no repo>
    ```
 
-3. Write it to `./<slug-from-title>.md` in the **current working directory**
+4. Write it to `./<slug-from-title>.md` in the **current working directory**
    (the user's folder, not a scratchpad). If that file already exists, suffix to
    avoid clobbering: `<slug>-2.md`, `<slug>-3.md`, … Return the full ticket text
    and the path it wrote.
@@ -101,7 +110,9 @@ it: the seed description, the resolved `grill-me` decisions, and the repo path
 Print the ticket the subagent returned and report the file path.
 
 **Criterion:** a `.md` ticket file exists in the current folder (never
-overwriting an existing one) containing all five template sections, with User
-story and Brief technical implementation filled from the `grill-me` interview
-and repo context, produced by a Sonnet-5 / GPT-5.4-medium subagent, and the same
-content printed in the chat.
+overwriting an existing one) whose plain sections (User story, What needs to
+happen, Acceptance criteria) contain no file paths, module/framework names, or
+code identifiers — those appear only in a *Technical notes (for engineers)*
+section, which is omitted when there is no repo. Produced by a Sonnet-5 /
+GPT-5.4-medium subagent from the `grill-me` interview and repo context, with the
+same content printed in the chat.
