@@ -1,12 +1,8 @@
 ---
 name: link-agentic-grimoire-custom
-description: Extend the agentic-grimoire setup to the custom Claude profiles ~/.claude-personal and ~/.claude-sec — symlink the skill store into them and splice the guideline block into their CLAUDE.md. Run after `/setup-agentic-grimoire`. Use when the user says "link custom profiles" or names claude-personal / claude-sec.
+description: Extend agentic-grimoire setup to the custom Claude profiles ~/.claude-personal and ~/.claude-sec — symlink the skill store and splice the guideline block. Run after /setup-agentic-grimoire.
 disable-model-invocation: true
 ---
-
-Goal: cover the two profiles the `npx skills` CLI can't see — **`~/.claude-personal`** and
-**`~/.claude-sec`** — by (1) symlinking the central store's skills into them and (2) splicing
-the guideline block into their `CLAUDE.md`, the same append-only way as `/setup-agentic-grimoire`.
 
 Prerequisite: `npx skills add healthier-vitamins/agentic-grimoire --global` has run (the store
 `~/.agents/skills` exists) and ideally `/setup-agentic-grimoire` too (it installs the shared
