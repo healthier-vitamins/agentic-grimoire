@@ -1,10 +1,8 @@
 ---
 name: sync-agentic-grimoire
-description: Sync this machine's agentic-grimoire skills with the repo — update changed skills and prune ones deleted upstream. Wraps `npx skills update` (which updates but never prunes at global scope) and adds the missing removal. Never touches skills from other sources. Use when the user says "sync agentic-grimoire" or "update the grimoire skills".
+description: Sync this machine's agentic-grimoire skills with the repo — update changed skills and prune ones deleted upstream. Use when the user says "sync agentic-grimoire".
+disable-model-invocation: true
 ---
-
-Goal: bring the installed skills in line with the repo — **update** the ones that changed and
-**remove** the ones deleted upstream — without touching anything from another source.
 
 ## Why this exists
 
