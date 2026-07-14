@@ -1,6 +1,6 @@
 ---
 name: storm
-description: Decide an implementation by researching it from 5 adaptive expert perspectives, mapping where they contradict, synthesising sourced findings, then self peer-reviewing into a confidence-gated recommendation. Real WebSearch + Context7 sourcing, cited per claim. Runs as four interactive gated phases (scan → contradiction map → synthesis → peer review) and renders a visual MDX briefing. Use on "storm" or for deep research before an implementation / tooling / architecture decision where you want unknown-unknowns surfaced before picking.
+description: Decide an implementation by researching it from 5 adaptive expert perspectives, mapping where they contradict, synthesising sourced findings, then self peer-reviewing into a confidence-gated recommendation. Real WebSearch + Context7 sourcing, cited per claim. Runs as four interactive gated phases (scan → contradiction map → synthesis → peer review). Use on "storm" or for deep research before an implementation / tooling / architecture decision where you want unknown-unknowns surfaced before picking.
 ---
 
 Goal: build deep, sourced knowledge on a topic, surface the unknown-unknowns, then decide which implementation to go with — recommending only when the evidence is strong enough, and stating what is still unknown before the recommendation.
@@ -43,23 +43,3 @@ Run the four phases as **interactive gates**: after each phase, print the result
 3. **Bias check.** Which lens over-dominated the synthesis.
 4. **Missing perspective.** Is there a 6th lens that would change the conclusions.
 5. **Recommendation rule.** State remaining unknowns / unverified items **first**. Then — only if confidence is sufficient — give the recommended implementation with why / why-not, plus the "pick X instead if …" condition. **If uncertainty is too high, withhold the pick** and list exactly what info would unblock the decision.
-6. **Gate** → offer to render the visual MDX briefing.
-
-## Visual output
-
-Reuse the `visual-plan` skill's machinery — do not re-document its blocks here.
-
-1. Read `visual-plan`'s reference files (`references/document-quality.md`, `references/wireframe.md`, `references/canvas.md`) and run `npx @agent-native/core@latest plan blocks` for the authoritative block catalog before authoring.
-2. Emit a **plan-style** MDX doc to `plans/<slug>/plan.mdx` (frontmatter: title, brief, `kind: plan`, created). Suggested mapping:
-   - 5 perspectives → `TabsBlock`, one tab per lens, each `RichText` with cited evidence.
-   - Contradiction map → `Diagram` (lenses as nodes, clashes as edges) + `Callout`s for consensus ("likely true") and blind spot ("unknown-unknown").
-   - Synthesis → `RichText` summary + ranked findings; candidates as `Columns` or a table (why / why-not / when-to-pick).
-   - Peer review → confidence-score table; `Callout` for weakest link + bias; unblock-questions in a `QuestionForm`.
-   - Recommendation → `Callout` (decision tone), with the gaps stated above it.
-3. Validate then serve: `plan local check --dir plans/<slug>`, then `plan local serve --dir plans/<slug> --kind plan --open`.
-4. **Fallback:** if `@agent-native/core` is not installed, render one self-contained HTML artifact with the same sections so the skill works standalone.
-
-## Output shape
-
-- **Per phase, in chat behind a gate** — Phase 1 lenses + cited evidence · Phase 2 contradiction map · Phase 3 synthesis + candidates · Phase 4 peer-review scores + recommendation.
-- **Then a visual MDX briefing** (or HTML fallback) carrying the perspectives, contradiction map, sourced synthesis, confidence scores, and the confidence-gated recommendation with its stated gaps.
