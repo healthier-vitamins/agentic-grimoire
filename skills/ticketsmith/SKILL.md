@@ -52,6 +52,16 @@ for the grilling session to finish, then fold the resolved decisions back into
 this flow. Do **not** re-implement the interview inline — `grill-me` drives the
 questioning.
 
+**Goal seed:** when handing the seed to `grill-me`, direct it to surface the
+**main goal / why** behind the request — the benefit the user story's "so that"
+needs — not just the what.
+
+**One ticket, one goal (re-align gate):** after `grill-me` finishes, before
+Step 5, check the resolved scope. If it contains several distinct goals,
+**stop** — list them, recommend one ticket per goal, and ask which to draft
+first. Draft only the chosen single-goal ticket in Step 5; the rest are separate
+ticketsmith runs.
+
 ## Step 5 — Draft the ticket in a pinned subagent
 
 Spawn a subagent on the required model (see the model requirement above) and pass
