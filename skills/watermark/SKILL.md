@@ -37,10 +37,10 @@ Decide what is in scope; **do not stage yet** — staging happens in Step 5, one
 
 ## Step 3 — Safety gates (abort with a clear message on any failure)
 
-- **Branch:** if on the default branch (`main`/`master`), create a feature branch first and commit there. Never commit session work directly onto the default branch.
+- **Branch:** commit on the current branch — including `main`/`master`; nothing is ever pushed, so local commits there are safe. Only if the user explicitly asked for a new branch or new worktree, create it first and commit there; otherwise never switch branches.
 - **Secrets/artifacts:** refuse to stage `.env`, key material, credentials, or build output. Warn and exclude.
 
-**Criterion:** branch is safe, no secrets staged.
+**Criterion:** on the branch the user intends (current branch by default), no secrets staged.
 
 ## Step 4 — Decompose into atomic commits (do this BEFORE staging)
 
