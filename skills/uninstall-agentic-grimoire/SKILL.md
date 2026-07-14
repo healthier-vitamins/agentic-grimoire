@@ -1,21 +1,15 @@
 ---
 name: uninstall-agentic-grimoire
-description: Fully remove agentic-grimoire — strip the guideline block from ~/.claude/CLAUDE.md and ~/.codex/AGENTS.md (and the custom profiles), then remove this repo's skills from the store and every profile. Never touches skills from other sources. Use when the user says "uninstall agentic-grimoire" or "remove the grimoire skills".
+description: Fully remove agentic-grimoire — strip the guideline block from all profiles' memory files and remove this repo's skills from the store and every profile. Leaves other sources' skills untouched.
 disable-model-invocation: true
 ---
 
-Goal: cleanly reverse the three onboarding steps (`npx skills add` + `/setup-agentic-grimoire`
-+ `/link-agentic-grimoire-custom`) — remove the spliced guideline block and this repo's own
-skills — **without touching anything else in the store**.
-
 ## Scope boundary (hard rule)
 
-This uninstaller removes **only what this repo published**: the skill directories under this
-repo's `skills/` (the `SKILLS` list below) plus the managed `CLAUDE.md` / `AGENTS.md` block.
-Skills installed from other sources — Matt Pocock's `ask-matt`, `grilling`, `grill-me`,
-`grill-with-docs`, `brand`, `design`, and any other online skill — are **left installed**.
-`oracle` and `compass` **are** removed because they are this repo's own `skills/oracle` /
-`skills/compass`. Never run `npx skills remove --all`.
+This uninstaller removes **only what this repo published** — the skill directories listed in
+`$SKILLS` (read live from the lockfile by source, see Steps) plus the managed
+`CLAUDE.md` / `AGENTS.md` block. Skills installed from any other source are **left installed**.
+Never run `npx skills remove --all`.
 
 ## How it works
 

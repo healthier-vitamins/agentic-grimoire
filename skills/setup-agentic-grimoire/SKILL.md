@@ -1,12 +1,8 @@
 ---
 name: setup-agentic-grimoire
-description: Splice the agentic-grimoire guideline block into ~/.claude/CLAUDE.md and ~/.codex/AGENTS.md, append-only and idempotent. Run once after `npx skills add healthier-vitamins/agentic-grimoire`. Use when the user says "setup agentic-grimoire" or asks to install the guidelines.
+description: Splice the agentic-grimoire guideline block into ~/.claude/CLAUDE.md and ~/.codex/AGENTS.md, append-only and idempotent. Run once after installing the skills.
 disable-model-invocation: true
 ---
-
-Goal: inject the agentic-grimoire guideline block into the conventional profiles' memory
-files — **`~/.claude/CLAUDE.md`** and **`~/.codex/AGENTS.md`** — without ever destroying
-what the user already wrote there.
 
 Skills are linked into profiles by `npx skills add healthier-vitamins/agentic-grimoire`.
 This skill covers the one thing that CLI never touches: the `CLAUDE.md` / `AGENTS.md` files.
