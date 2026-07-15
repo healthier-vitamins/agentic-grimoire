@@ -7,7 +7,7 @@ Write the code for this task as a senior engineer who optimizes for the next jun
 
 ## 1. Pick a pattern before inventing structure
 
-Map the problem to an established pattern first. Do not guess or invent bespoke structure — choose from this catalog, then state the chosen pattern and a one-line reason before writing code.
+Map the problem to an established pattern first. Choose from this catalog rather than inventing bespoke structure, then state the chosen pattern and a one-line reason before writing code.
 
 | Category | Patterns |
 |---|---|
