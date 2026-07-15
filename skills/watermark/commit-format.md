@@ -31,4 +31,4 @@ git commit \
   -m "<body>"
 ```
 
-The `%an`/`%ae` author fields and any GPG signature come from the user's normal git config — that is expected, as is Claude's default `Co-Authored-By` trailer. The only message-text rule: no personal name/email in the subject, body, or trailers.
+Identity, GPG signing, and the `Co-Authored-By` trailer all come from the user's normal git config and default setup — nothing overridden (see **Trailers** above).
