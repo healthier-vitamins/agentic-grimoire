@@ -1,6 +1,6 @@
 ---
 name: sync-agentic-grimoire
-description: Sync this machine's agentic-grimoire skills with the repo — update changed skills and prune ones deleted upstream. Use when the user says "sync agentic-grimoire".
+description: Sync this machine's agentic-grimoire skills with the repo — update changed skills and prune ones deleted upstream.
 disable-model-invocation: true
 ---
 
