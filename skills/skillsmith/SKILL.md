@@ -1,6 +1,6 @@
 ---
 name: skillsmith
-description: Forge a new skill or audit an existing one in Matt Pocock's style — socratic grilling (max 5 questions), leading words, checkable completion criteria, progressive disclosure. Use when the user says "skillsmith".
+description: Forge a new skill or audit an existing one, in Matt Pocock's style.
 argument-hint: "[skill idea | path to existing SKILL.md]"
 disable-model-invocation: true
 ---
@@ -72,6 +72,8 @@ Present the complete draft plus one line of rationale per *derived* decision (di
 ### Step 1 — Read
 
 Read the target skill in full — `SKILL.md` and every file it points to — plus [`references/audit-rubric.md`](references/audit-rubric.md).
+
+**Done when:** `SKILL.md` and every file it points to have been read, plus the rubric.
 
 ### Step 2 — Audit
 
