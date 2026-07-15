@@ -52,8 +52,12 @@ Let `DIR` be this skill's own directory (the folder holding this `SKILL.md`, i.e
 4. **Remove (only after the user confirms):**
    ```sh
    npx skills remove --global -a claude-code codex --yes <names-from-step-2>
+   rm -rf ~/.agents/skills/<names-from-step-2>
    ```
    Pass only the names `sync.sh` printed. Other sources' skills stay installed.
+   The `remove` clears the registry entry but **leaves the physical store dir**
+   `~/.agents/skills/<name>`, which the next `npx skills` link pass re-links — so the
+   explicit `rm -rf` is required to make the prune stick.
 
 5. **Reminders** (no automatic invocation):
    - If `~/.claude-personal` or `~/.claude-sec` exists, tell the user to re-run
