@@ -1,6 +1,6 @@
 # Pedagogy
 
-How to question, calibrate, and challenge during a walk. The goal is **storage strength** (long-term retention), not fluency (in-the-moment recall). Fluency feels like mastery and fades; effortful retrieval is what makes learning stick.
+How to question, calibrate, and challenge during a walk. The goal is **storage strength** (long-term retention), not fluency (in-the-moment recall) — Bjork. Fluency feels like mastery and fades; effortful retrieval is what makes learning stick.
 
 ## Question rubric
 
@@ -45,7 +45,7 @@ Difficulty is per-area, never global — an expert in the API layer can be a nov
 
 ## Flaw-hunt spec
 
-**Safety rule: injected bugs exist only in chat code blocks. Never write them to any file.** Quote the real snippet, present a mutated copy, and say how many bugs it contains.
+**Injected bugs live only in chat code blocks — never written to a file (the iron rule in SKILL.md).** Quote the real snippet, present a mutated copy, and say how many bugs it contains.
 
 - **Count:** 1-3 per round.
 - **Prefer real over synthetic:** if the walk already surfaced an actual AI mistake, use it — hunting a real bug beats hunting a planted one.
