@@ -42,17 +42,18 @@ into your own config; after that it's safe to re-run (idempotent).
   `<!-- AGENTIC-GRIMOIRE: MANAGED FILE -->` markers in `~/.claude/CLAUDE.md` and
   `~/.codex/AGENTS.md`. A re-run replaces only that block; everything you wrote outside it
   survives.
-- **`link-agentic-grimoire-custom`** fills the second — it symlinks the store into
-  `~/.claude-personal` and `~/.claude-sec` (preserving any real skill dir you placed there,
-  pruning only dead store links) and splices their `CLAUDE.md` the same way.
+- **`link-agentic-grimoire-custom`** fills the second — it relative-symlinks root's config
+  (`CLAUDE.md`, `RTK.md`, `rules/`, `skills/`, `agents/`, `commands/`) into `~/.claude-personal`
+  and `~/.claude-sec`, backing up any real file it replaces, so their config mirrors root instead
+  of drifting. Because `skills/` points at root's farm, the custom profiles track the store live.
 
 ## Updating
 
 Edit a skill or the guideline blocks here → commit → push → `/sync-agentic-grimoire` inside
 Claude Code. It runs `npx skills update --global` (which updates changed skills but, at global
 scope, does **not** remove skills deleted upstream) and then prunes those deleted skills — the
-gap the CLI leaves. Re-run `/setup-agentic-grimoire` (and `/link-agentic-grimoire-custom`) to
-refresh the managed block. Authors and consumers onboard the same way.
+gap the CLI leaves. Re-run `/setup-agentic-grimoire` to refresh the managed block (the custom
+profiles inherit it through their `CLAUDE.md` symlink). Authors and consumers onboard the same way.
 
 ## Uninstall
 

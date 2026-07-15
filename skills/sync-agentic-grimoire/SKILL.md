@@ -60,9 +60,9 @@ Let `DIR` be this skill's own directory (the folder holding this `SKILL.md`, i.e
    explicit `rm -rf` is required to make the prune stick.
 
 5. **Reminders** (no automatic invocation):
-   - If `~/.claude-personal` or `~/.claude-sec` exists, tell the user to re-run
-     `/link-agentic-grimoire-custom` — pruned skills leave dangling symlinks there that its
-     re-run cleans up.
+   - If `~/.claude-personal` or `~/.claude-sec` exists but its `skills/` is not yet a symlink to
+     root, tell the user to run `/link-agentic-grimoire-custom`. Once linked, the profiles track
+     root's skill set live, so pruned skills need no profile-side cleanup.
    - Tell the user to re-run `/setup-agentic-grimoire` if the guideline block changed upstream.
 
 **Criterion:** every skill still installed from this source exists in the repo; other sources'
