@@ -8,9 +8,7 @@ scrolling — where they are in the tree and what the file is responsible for.
 
 ## 0. Keystone still applies
 
-Every rule from `keystone` holds: pick an established (Gang of Four) pattern before
-inventing structure, name in full words, no opaque expression chains, small
-single-purpose functions. This file adds the React layer on top.
+Every rule from `keystone` holds — this file adds the React layer on top.
 
 ## 1. Component hierarchy & naming
 
