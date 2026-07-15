@@ -13,7 +13,7 @@ does the prune the CLI lacks.
 
 ## Scope boundary (hard rule)
 
-Prune **only** skills whose `~/skills-lock.json` source is exactly
+Prune **only** skills whose `~/.agents/.skill-lock.json` source is exactly
 `healthier-vitamins/agentic-grimoire`. Skills from other sources (caveman, ask-matt, brand,
 design, …) are never removed. Never run `npx skills remove --all`.
 
@@ -21,7 +21,7 @@ design, …) are never removed. Never run `npx skills remove --all`.
 
 - `npx skills update --global` handles the *changed* half (GitHub Tree SHA diff → re-`add`).
 - `sync.sh` (this directory) computes the *prune set*, read-only: the skills installed from
-  this repo (per `~/skills-lock.json`) minus the repo's current `skills/` dirs (fetched live
+  this repo (per `~/.agents/.skill-lock.json`) minus the repo's current `skills/` dirs (fetched live
   from the GitHub Contents API). It prints one name per line and **removes nothing** — the
   removal decision stays here, behind a confirm gate.
 - If the GitHub fetch fails or is rate-limited, `sync.sh` exits non-zero and prunes nothing;
