@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # sync.sh
 #
-# Print the prune set: skills installed from THIS repo (per ~/skills-lock.json)
+# Print the prune set: skills installed from THIS repo (per ~/.agents/.skill-lock.json)
 # that no longer exist in the repo's skills/ dir on GitHub. One name per line, stdout.
 # Read-only — never removes anything; the caller previews, confirms, then runs
 # `npx skills remove`. Diagnostics go to stderr.
@@ -11,7 +11,7 @@
 set -euo pipefail
 
 SOURCE="healthier-vitamins/agentic-grimoire"
-LOCK="$HOME/skills-lock.json"
+LOCK="$HOME/.agents/.skill-lock.json"
 API="https://api.github.com/repos/$SOURCE/contents/skills"
 
 if [ ! -f "$LOCK" ]; then
