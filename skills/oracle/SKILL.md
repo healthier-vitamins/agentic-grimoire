@@ -31,6 +31,8 @@ Companion to `compass` (breadth across competing approaches). `oracle` descends 
 
    Each claim cited. Add up to 2 further-reading sources (documentation preferred) only when a gap needs deeper reading.
 
+   **Done when:** every gap in the descent map (step 3) is taught.
+
 ## Output shape
 
 - **Intent** — one line.
