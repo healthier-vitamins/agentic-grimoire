@@ -1,9 +1,14 @@
 ---
 name: ticketsmith
-description: Turn a one-sentence description into a grilled, repo-grounded Jira-style ticket.
+description: Forge a Jira user story with checkbox acceptance criteria (doubling as a status update) from a description or codebase context, grilled for accuracy.
 argument-hint: "[one-sentence description]"
 disable-model-invocation: true
 ---
+
+The **user story is the highlight**. Write it so a product owner, business analyst, or
+project manager with no visibility into this project catches up fast — the why, the
+domain, and where it stands. The **acceptance criteria are checkboxes** that carry the
+status: `[x]` done, `[ ]` outstanding. Those two sections are the whole ticket.
 
 > **Model requirement (hard):** the ticket **draft** must be produced by a
 > subagent pinned to **Claude Sonnet 5** or **GPT-5.4 (medium effort)** —
@@ -32,13 +37,19 @@ npx skills add mattpocock/skills --skill=grill-me
 
 Run it only on the user's yes. If they decline, stop.
 
-## Step 3 — Detect the repo (light)
+## Step 3 — Scope the code (if available)
 
-Run `git rev-parse --is-inside-work-tree`. If inside a repo, gather cheap seed
-context only — `git ls-files | head` and `git log --oneline -5` — to orient the
-interview. Deep reads happen in Step 5, inside the pinned subagent. If not in a
-repo, skip. Done when: repo presence known and seed context captured, or the
-step skipped.
+Run `git rev-parse --is-inside-work-tree`. If inside a repo, read the files and
+areas the description names to form two things:
+
+- **Context assumptions** — how the relevant behaviour works today, in plain language.
+- **Candidate done-state** — which acceptance criteria the code already appears to satisfy.
+
+Stay scoped to what the description names; deeper reads happen in the Step 5 subagent.
+If not in a repo, skip.
+
+**Done when:** context assumptions and candidate done-state are captured, or the step was
+skipped because there is no repo.
 
 ## Step 4 — grill-me interview (Matt Pocock's skill), advisory handoff
 
@@ -48,9 +59,13 @@ for the grilling session to finish, then fold the resolved decisions back into
 this flow. Do **not** re-implement the interview inline — `grill-me` drives the
 questioning.
 
-**Goal seed:** when handing the seed to `grill-me`, direct it to surface the
-**main goal / why** behind the request — the benefit the user story's "so that"
-needs — not just the what.
+**Goal seed:** direct `grill-me` to surface the **main goal / why** behind the
+request — the benefit the user story's "so that" needs — not just the what.
+
+**Context-correctness gate:** when Step 3 scoped code, hand the context
+assumptions and candidate done-state to `grill-me` as well, so the user
+**confirms or corrects** them. Draft only from confirmed context; a criterion
+counts as done only once the user confirms it.
 
 **One ticket, one goal (re-align gate):** after `grill-me` finishes, before
 Step 5, check the resolved scope. If it contains several distinct goals,
@@ -61,41 +76,34 @@ ticketsmith runs.
 ## Step 5 — Draft the ticket in a pinned subagent
 
 Spawn a subagent on the required model (see the model requirement above) and pass
-it: the seed description, the resolved `grill-me` decisions, and the repo path
-(if any). Instruct the subagent to:
+it: the seed description, the confirmed `grill-me` decisions, the confirmed
+context and done-state, and the repo path (if any). Instruct the subagent to:
 
-1. **Ground, don't surface.** Read the repo to make the ticket accurate — read
-   the files/dirs the description names (use `Explore` for broader sweeps). This
-   grounding does **not** license identifiers in the plain sections.
-2. Write every plain section for **a reader who has never opened the repo**:
-   *User story*, *What needs to happen*, and *Acceptance criteria* are
-   **identifier-free** — no file paths, module or framework names, or code
-   identifiers. Confine all identifiers to a **Technical notes (for
-   engineers)** section — and omit that section entirely when there is no repo.
-3. Fill this template (keep **User story** and **What needs to happen** as the
-   load-bearing sections):
+1. **Ground, don't surface.** Read the repo to make the story and criteria
+   accurate (use `Explore` for broader sweeps). Grounding informs the content
+   only — it never licenses identifiers in the ticket.
+2. **Write for a reader who has never opened the repo.** Both sections are
+   plain-language and **identifier-free**: no file paths, module or framework
+   names, or code identifiers anywhere.
+3. Fill this template — the two sections are the whole ticket:
 
    ```
    # <concise title>
 
-   **Type:** Story | Bug | Task   **Labels:** <suggested>   **Estimate:** <t-shirt / points>
-
    ## User story
-   As a <user>, I want <capability> so that <benefit>.
+   As a <role>, I want <capability> so that <benefit>.
 
-   ## What needs to happen
-   - <plain-language point — identifier-free>
-   - <plain-language point>
+   <2-3 plain sentences of context: the why, the domain, and where it stands —
+   enough for a product owner or business analyst with no project visibility to
+   catch up fast.>
 
    ## Acceptance criteria
-   - [ ] <verifiable outcome, in plain language>
-   - [ ] <verifiable outcome>
-
-   ## Technical notes (for engineers)
-   - <grounding detail: real module/file names, reused utilities — the ONLY section where identifiers appear>
-   - <omit this whole section when there is no repo>
+   - [x] <criterion the confirmed context shows already done>
+   - [ ] <criterion still outstanding, verifiable, plain language>
    ```
 
+   Mark `[x]` only for criteria confirmed done in the grill; every other
+   criterion is `[ ]`.
 4. Write it to `./<slug-from-title>.md` in the **current working directory**
    (the user's folder, not a scratchpad). If that file already exists, suffix to
    avoid clobbering: `<slug>-2.md`, `<slug>-3.md`, … Return the full ticket text
@@ -108,6 +116,8 @@ it: the seed description, the resolved `grill-me` decisions, and the repo path
 Print the ticket the subagent returned and report the file path.
 
 **Criterion:** a `.md` ticket file exists in the current folder (suffixed per
-Step 5.4, never clobbering) whose plain sections are identifier-free per
-Step 5.2. Produced by a Sonnet-5 / GPT-5.4-medium subagent from the `grill-me`
-interview and repo context, with the same content printed in the chat.
+Step 5.4, never clobbering) whose only sections are an identifier-free **User
+story** and checkbox **Acceptance criteria**, with `[x]` limited to
+grill-confirmed done criteria. Produced by a Sonnet-5 / GPT-5.4-medium subagent
+from the `grill-me` interview and confirmed context, with the same content
+printed in the chat.
