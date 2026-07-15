@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 Every category of code has a **playbook** — the battle-tested standard practice a senior engineer expects. Functional code that ignores its playbook (retry without jitter, write without a transaction, endpoint without authz) passes tests and bites in production. This skill audits a set of changes against the playbook and **voices every departure**, so the convention class can't be silently skipped.
 
-Run the three steps in order. Do not shortcut.
+Run the three steps in order.
 
 ## Step 1 — Resolve scope
 
