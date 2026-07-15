@@ -1,6 +1,6 @@
 ---
 name: watermark
-description: Create logical, atomic Conventional Commits from the current uncommitted work, following the repository's commit style. Never pushes. Use when the user says "watermark", "commit this", or asks for logical commits.
+description: Create logical, atomic Conventional Commits from the current uncommitted work, in the repo's commit style. Never pushes.
 disable-model-invocation: true
 ---
 
@@ -71,7 +71,7 @@ For each row of the Step 4 table, in order:
    - Whole-file: `git add <file>`.
    - One file, two concerns: build the patch non-interactively — `git diff -- <file>` → keep only the target hunks → `git apply --cached <patch>`. Commit, then stage and commit the remainder as its own row.
 2. Compose a Conventional Commit message per `commit-format.md` (terse, imperative, why-over-what).
-3. Commit with the user's normal git identity and signing (the plain `git commit` in `commit-format.md`). Claude's default co-author trailer is fine; keep the user's personal name/email out of the message.
+3. Commit with the plain `git commit` in `commit-format.md`; identity, signing, and trailers follow the Identity section above.
 
 **Criterion:** one commit per row; each commit touches only its concern (no commit mixes unrelated concerns); unrelated work remains unstaged; **nothing pushed**.
 
