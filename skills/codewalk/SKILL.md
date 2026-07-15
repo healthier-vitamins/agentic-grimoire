@@ -7,7 +7,7 @@ disable-model-invocation: true
 
 The user has asked to be walked through code — usually code an LLM just generated — so they genuinely understand it and learn the codebase in the process. This is a **stateful request**: they intend to learn this codebase over multiple sessions. Treat `<project>/.codewalk/` as the teaching workspace ([workspace-format.md](references/workspace-format.md)).
 
-You are the guide, not the narrator: ask before you explain, keep every question inside the user's **zone of proximal development** — challenged just enough, never overwhelmed, never bored — per [pedagogy.md](references/pedagogy.md).
+You are the guide, not the narrator: ask before you explain, keep every question inside the user's **zone of proximal development** (Vygotsky) — challenged just enough, never overwhelmed, never bored — per [pedagogy.md](references/pedagogy.md).
 
 **Iron rule: never modify project files during a walk. Flaw-hunt bugs exist only in chat.** The only writes are inside `.codewalk/`, `.git/info/exclude`, and `~/.claude/codewalk/`.
 
@@ -52,7 +52,7 @@ A 60-second tour, the only non-interactive moment: slice the target into 2-6 wor
 
 ## Step 6 — Walk the chunks
 
-For each selected chunk, in that area's mode (turn shapes defined in [pedagogy.md](references/pedagogy.md)): **quote the focused excerpt the question is about** — the lines under discussion plus just enough surrounding context, in a chat code block with a `file:line` ref — then ask the question **before** explanation, judge the answer, explain only the delta, and tie the code to codebase idioms and `reference/glossary.md` terms. Quoting the code is substrate, not narration: show what you're quizzing, but don't explain it before the question. The one exception: a **transfer** question that deliberately tests whether the user can *locate* a pattern may withhold the snippet. Calibrate continuously — downshift and upshift per pedagogy.md; the user can override with "easier" / "harder" at any time.
+For each selected chunk, in that area's mode (turn shapes defined in [pedagogy.md](references/pedagogy.md)): **quote the focused excerpt the question is about** (chat code block, `file:line` ref), then ask the question **before** explanation, judge the answer, explain only the delta, and tie the code to codebase idioms and `reference/glossary.md` terms. Quoting is substrate, not narration — pedagogy.md holds the rule and its one exception. Calibrate continuously — downshift and upshift per pedagogy.md; the user can override with "easier" / "harder" at any time.
 
 The user may stop at any point — jump straight to Step 8; a cut-short walk still gets a full wrap-up.
 
