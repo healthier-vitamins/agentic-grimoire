@@ -1,6 +1,6 @@
 ---
 name: ticketsmith
-description: Turn a one-sentence description into a grilled, repo-grounded Jira ticket.
+description: Turn a one-sentence description into a grilled, repo-grounded Jira-style ticket.
 argument-hint: "[one-sentence description]"
 disable-model-invocation: true
 ---
@@ -12,8 +12,6 @@ disable-model-invocation: true
 > - **Claude Code:** `Agent` tool with `model: sonnet` (i.e. `claude-sonnet-5`).
 > - **Codex:** a custom agent with `model = "gpt-5.4"`,
 >   `model_reasoning_effort = "medium"`.
-
-Companion to `lathe` (which shapes the artifact) — this shapes the ticket.
 
 ## Step 1 — Get the seed
 
@@ -102,6 +100,8 @@ it: the seed description, the resolved `grill-me` decisions, and the repo path
    (the user's folder, not a scratchpad). If that file already exists, suffix to
    avoid clobbering: `<slug>-2.md`, `<slug>-3.md`, … Return the full ticket text
    and the path it wrote.
+
+**Done when:** the subagent returns the full ticket text and the path it wrote.
 
 ## Step 6 — Emit
 
