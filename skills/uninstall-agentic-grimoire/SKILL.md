@@ -20,8 +20,10 @@ Never run `npx skills remove --all`.
 - `npx skills remove` removes the store copy and the conventional-profile symlinks. It removes
   **by skill name**, so we pass exactly the names installed from this source, read live from
   `~/skills-lock.json` (drift-proof, and it catches stale installs a hardcoded list would miss).
-- Removing the store dirs leaves the custom-profile symlinks (`~/.claude-personal`,
-  `~/.claude-sec`) dangling; a prune of dead store links finishes the job.
+- Removing the store dirs can leave *legacy* per-skill symlinks (the old symlink-farm layout)
+  dangling in a custom profile; a prune of dead store links finishes the job. Profiles on the
+  current layout (a single `skills/` dir symlink to root, plus the other config symlinks) are
+  reversed by `/unlink-agentic-grimoire-custom`, not here — this uninstaller only de-manages root.
 
 ## Steps
 
@@ -44,6 +46,7 @@ SKILLS="$(jq -r '.skills // {} | to_entries[]
    for f in "$HOME/.claude/CLAUDE.md" "$HOME/.codex/AGENTS.md" \
             "$HOME/.claude-personal/CLAUDE.md" "$HOME/.claude-sec/CLAUDE.md"; do
      [ -e "$f" ] || continue
+     [ -L "$f" ] && continue   # symlink -> root; root's own entry already covers it
      tmp="$(mktemp)"; cp "$f" "$tmp"
      bash "$DIR/unsplice.sh" "$tmp" >/dev/null
      echo "=== $f ==="; diff -u "$f" "$tmp" 2>/dev/null || true; rm -f "$tmp"
@@ -55,10 +58,12 @@ SKILLS="$(jq -r '.skills // {} | to_entries[]
    ```sh
    for f in "$HOME/.claude/CLAUDE.md" "$HOME/.codex/AGENTS.md" \
             "$HOME/.claude-personal/CLAUDE.md" "$HOME/.claude-sec/CLAUDE.md"; do
+     [ -L "$f" ] && continue   # symlink -> root; root's own entry already covers it
      [ -e "$f" ] && bash "$DIR/unsplice.sh" "$f"
    done
    ```
-   Each prints `updated` / `unchanged` (custom profiles no-op unless `/link-agentic-grimoire-custom` ran).
+   Each prints `updated` / `unchanged`. A profile `CLAUDE.md` that symlinks to root is skipped
+   here — root's single strip covers it; a legacy real-file profile (pre-link) is stripped in place.
 
 3. **Remove this repo's skills** from the store and the conventional profiles (skip if the
    lockfile listed none — nothing was installed from this source):
@@ -67,11 +72,15 @@ SKILLS="$(jq -r '.skills // {} | to_entries[]
    ```
    Only the names in `$SKILLS` are removed. Other sources' skills are untouched.
 
-4. **Prune the now-dangling custom-profile symlinks** (inverse of `link.sh`; removes only dead
-   links that point into the store — never a real dir or an unmanaged symlink):
+4. **Prune dangling *legacy* per-skill symlinks** (old symlink-farm layout only; removes dead
+   links that point into the store — never a real dir or an unmanaged symlink). Current-layout
+   profiles whose `skills/` is a single dir symlink to root are left for
+   `/unlink-agentic-grimoire-custom`:
    ```sh
    for profile in .claude-personal .claude-sec; do
-     dst="$HOME/$profile/skills"; [ -d "$dst" ] || continue
+     dst="$HOME/$profile/skills"
+     [ -L "$dst" ] && continue   # current layout: single dir symlink -> root; /unlink owns it
+     [ -d "$dst" ] || continue
      for link in "$dst"/*; do
        [ -L "$link" ] && [ ! -e "$link" ] || continue
        case "$(readlink "$link")" in
