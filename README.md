@@ -57,20 +57,23 @@ profiles inherit it through their `CLAUDE.md` symlink). Authors and consumers on
 
 ## Uninstall
 
-Run `/uninstall-agentic-grimoire` inside Claude Code — it reverses all three onboarding
-steps. It strips the guideline block from `~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md`, and
-the custom profiles (preserving everything you wrote outside the markers), then removes this
-repo's own skills from the store and every profile. It removes **only** the skills this repo
-published; anything you installed from another source is left untouched.
+Run `/uninstall-agentic-grimoire` inside Claude Code — it de-manages root. It strips the
+guideline block from `~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md`, and any custom profile that
+still holds its own block (preserving everything you wrote outside the markers), then removes
+this repo's own skills from the store and every profile. It removes **only** the skills this
+repo published; anything you installed from another source is left untouched.
+
+To also **reverse the linking** — so the custom profiles stop mirroring root and get their own
+config back — run `/unlink-agentic-grimoire-custom`, the inverse of `/link-agentic-grimoire-custom`.
+It removes the config symlinks it created and restores each profile's original from its backups.
+A full teardown of a linked setup is `/uninstall-agentic-grimoire` + `/unlink-agentic-grimoire-custom`.
 
 ## Repo layout
 
 - `skills/` — the skills, incl. `setup-agentic-grimoire/` (the guideline blocks +
-  `splice.sh`), `link-agentic-grimoire-custom/` (`link.sh`), and
+  `splice.sh`), `link-agentic-grimoire-custom/` (`link.sh`),
+  `unlink-agentic-grimoire-custom/` (`unlink.sh`), and
   `uninstall-agentic-grimoire/` (`unsplice.sh`).
 - `CLAUDE.md` / `AGENTS.md` — this repo's *own* dev guidance (no longer synced anywhere).
 - `docs/adr/` — architecture decision records.
 
-See [`docs/adr/0002-npx-skills-onboarding.md`](docs/adr/0002-npx-skills-onboarding.md) for
-why the old `make`/Python sync engine was retired, and [`CONTEXT.md`](CONTEXT.md) for the
-project's vocabulary.
