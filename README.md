@@ -43,7 +43,7 @@ into your own config; after that it's safe to re-run (idempotent).
   `~/.codex/AGENTS.md`. A re-run replaces only that block; everything you wrote outside it
   survives.
 - **`link-agentic-grimoire-custom`** fills the second — it relative-symlinks root's config
-  (`CLAUDE.md`, `RTK.md`, `rules/`, `skills/`, `agents/`, `commands/`) into `~/.claude-personal`
+  (`CLAUDE.md`, `rules/`, `skills/`, `agents/`, `commands/`) into `~/.claude-personal`
   and `~/.claude-sec`, backing up any real file it replaces, so their config mirrors root instead
   of drifting. Because `skills/` points at root's farm, the custom profiles track the store live.
 

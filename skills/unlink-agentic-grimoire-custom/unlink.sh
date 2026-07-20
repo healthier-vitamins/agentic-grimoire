@@ -20,7 +20,7 @@ target="$HOME/.claude"
 dry=false
 profiles=()
 
-CONFIG_ITEMS=(CLAUDE.md RTK.md rules skills agents commands)
+CONFIG_ITEMS=(CLAUDE.md rules skills agents commands)
 
 # Never touch these, even if a future edit adds them to CONFIG_ITEMS.
 DENY=(.claude.json .credentials.json settings.json settings.local.json

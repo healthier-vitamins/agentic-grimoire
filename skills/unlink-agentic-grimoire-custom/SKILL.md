@@ -1,6 +1,6 @@
 ---
 name: unlink-agentic-grimoire-custom
-description: Reverse /link-agentic-grimoire-custom — remove the config symlinks (CLAUDE.md, RTK.md, rules, skills, agents, commands) that mirror root into ~/.claude-personal and ~/.claude-sec, restoring each profile's own file from backups so it stops mirroring root. Never touches account, settings, or knowledge.
+description: Reverse /link-agentic-grimoire-custom — remove the config symlinks (CLAUDE.md, rules, skills, agents, commands) that mirror root into ~/.claude-personal and ~/.claude-sec, restoring each profile's own file from backups so it stops mirroring root. Never touches account, settings, or knowledge.
 disable-model-invocation: true
 ---
 
@@ -18,7 +18,7 @@ Let `DIR` be this skill's own directory.
 
 | Item | Action |
 |---|---|
-| `CLAUDE.md`, `RTK.md`, `rules/`, `skills/`, `agents/`, `commands/` | remove symlink → restore from `backups/` if present |
+| `CLAUDE.md`, `rules/`, `skills/`, `agents/`, `commands/` | remove symlink → restore from `backups/` if present |
 | `.claude.json` + Keychain auth | **never touched** — this is the account identity |
 | `settings.json`, `projects/` (chats + memory), `plans/`, `history.jsonl`, caches, runtime | **never touched** — per-profile / knowledge |
 
