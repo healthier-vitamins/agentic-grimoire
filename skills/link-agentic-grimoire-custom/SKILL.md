@@ -1,6 +1,6 @@
 ---
 name: link-agentic-grimoire-custom
-description: Mirror root ~/.claude's config into the custom Claude profiles ~/.claude-personal and ~/.claude-sec — relative-symlink CLAUDE.md, RTK.md, rules, skills, agents, and commands to root so they never drift. Run after /setup-agentic-grimoire.
+description: Mirror root ~/.claude's config into the custom Claude profiles ~/.claude-personal and ~/.claude-sec — relative-symlink CLAUDE.md, rules, skills, agents, and commands to root so they never drift. Run after /setup-agentic-grimoire.
 disable-model-invocation: true
 ---
 
@@ -18,7 +18,7 @@ Let `DIR` be this skill's own directory.
 
 | Item | Action |
 |---|---|
-| `CLAUDE.md`, `RTK.md`, `rules/`, `skills/`, `agents/`, `commands/` | symlink → root |
+| `CLAUDE.md`, `rules/`, `skills/`, `agents/`, `commands/` | symlink → root |
 | `.claude.json` + Keychain auth | **never touched** — this is the account identity |
 | `settings.json`, `projects/` (chats + memory), `plans/`, `history.jsonl`, caches, runtime | **never touched** — per-profile / knowledge |
 
