@@ -10,7 +10,11 @@ This skill is user-invoked only. Read `commit-format.md` (same directory) before
 
 ## Identity (governs the commit message)
 
-Commit with the user's normal git identity and signing — the `%an`/`%ae` author fields and any GPG signature come from their git config and are expected. Claude's default `Co-Authored-By: Claude` trailer is fine; leave it. Keep the user's personal name/email out of the subject, body, or trailers.
+The single source of truth for identity, signing, and trailers — `commit-format.md` and every step point here:
+
+- Author identity and any GPG signature come from the user's normal git config (`%an`/`%ae` and the signature are expected — nothing overridden).
+- Claude's default `Co-Authored-By: Claude` trailer stays. Fabricate no session id/URL trailers.
+- Keep the user's personal name/email out of the subject, body, and trailers.
 
 ## Step 1 — Inspect the worktree
 
@@ -44,7 +48,7 @@ Decide what is in scope; **do not stage yet** — staging happens in Step 5, one
 
 ## Step 4 — Decompose into atomic commits (do this BEFORE staging)
 
-This is the step that keeps commits granular. It runs automatically — there is no human preview — so the decomposition itself must be rigorous.
+This is the step that keeps commits granular. It runs automatically — there is no human preview, so the verification pass below is the only check.
 
 **Emit a concern table first.** Before any `git add`, output a table covering the whole diff:
 
@@ -67,7 +71,7 @@ Rules for the table:
 
 **Large diff (many files / hunks):** analyze each changed file's diff separately, note its concern(s), then cluster into the table — one pass over a big diff invites truncation and lumping.
 
-**Verification pass (do this after the table, before staging):** re-read the diff once against the table. For every row with more than one file, or a new+modified mix, write a one-line atomicity justification in the *why* column ("atomic: X because Y"). A row you cannot justify in one line fails an always-split trigger — split it and regenerate the table. This is the independent check that replaces the missing human preview.
+**Verification pass (do this after the table, before staging):** re-read the diff once against the table. For every row with more than one file, or a new+modified mix, write a one-line atomicity justification in the *why* column ("atomic: X because Y"). A row you cannot justify in one line fails an always-split trigger — split it and regenerate the table.
 
 **Criterion:** the table is emitted before staging; every changed path maps to exactly one row (or is excluded with a reason); each row passes the "and" test and every always-split trigger; multi-file / new+modified rows carry an inline atomicity justification.
 
@@ -84,4 +88,4 @@ For each row of the Step 4 table, in order:
 
 ## Step 6 — Report
 
-List the commits created (hashes + subjects), echo the Step 4 concern table so the grouping is auditable, and note any files intentionally left uncommitted. Confirm nothing was pushed. Keep the user's personal name/email out of the report text.
+List the commits created (hashes + subjects), echo the Step 4 concern table so the grouping is auditable, and note any files intentionally left uncommitted. Confirm nothing was pushed. The report text follows the Identity rule too — no personal name/email.
