@@ -53,8 +53,13 @@ This is the step that keeps commits granular. It runs automatically — there is
 
 Rules for the table:
 
+- **Always-split triggers (fire regardless of how "one concern" it feels):**
+  - New files (scaffold) vs. edits that wire them in → separate rows.
+  - Tests vs. the implementation they cover → separate rows.
+  - Docs/config vs. code → separate rows.
+  - A row touching more than a handful of files, or mixing new **and** modified files → stop and justify inline (see verification) why it is genuinely atomic; if you can't, split it.
 - **The "and" test:** if a row's *why* needs the word "and", it is two concerns — split the row. One logical change per commit.
-- **Logical unit, not file count:** a single concern spans as many files as it needs; do not split one change across per-file commits. A rename plus its import updates is **one** row.
+- **Logical unit, not file count:** a single concern spans as many files as it needs; do not split one change across per-file commits. A rename plus its import updates is **one** row. **But when this rule and "bias to split" conflict, split wins** — this rule only prevents per-file over-splitting, it never licenses a fat catch-all commit.
 - **Never merge unrelated types:** a `feat` and an unrelated `fix` are always separate rows, even if small.
 - **Bias to split:** when unsure whether two changes are one concern or two, make them two rows.
 - **Sweep-back check:** every path in `git status --short` must appear in at least one row, or be explicitly excluded per Step 1. A missing path means a concern was lumped or dropped — regenerate the table.
@@ -62,7 +67,9 @@ Rules for the table:
 
 **Large diff (many files / hunks):** analyze each changed file's diff separately, note its concern(s), then cluster into the table — one pass over a big diff invites truncation and lumping.
 
-**Criterion:** the table is emitted before staging; every changed path maps to exactly one row (or is excluded with a reason); each row passes the "and" test.
+**Verification pass (do this after the table, before staging):** re-read the diff once against the table. For every row with more than one file, or a new+modified mix, write a one-line atomicity justification in the *why* column ("atomic: X because Y"). A row you cannot justify in one line fails an always-split trigger — split it and regenerate the table. This is the independent check that replaces the missing human preview.
+
+**Criterion:** the table is emitted before staging; every changed path maps to exactly one row (or is excluded with a reason); each row passes the "and" test and every always-split trigger; multi-file / new+modified rows carry an inline atomicity justification.
 
 ## Step 5 — Compose and commit each group (auto, no preview)
 
