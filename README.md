@@ -1,5 +1,5 @@
 ## Motivations
-Given the dichotomy of easily accessible knowledge and constant LLM hallucinations presenting misinformation as fact, how do we improve our productivity and learning efficiently and responsibly?
+Given the dichotomy of easily accessible knowledge and constant LLM hallucinations presenting misinformation as fact, how do we improve our productivity and learning, efficiently and responsibly?
 
 This set of skills attempt to solve this issue. 
 
