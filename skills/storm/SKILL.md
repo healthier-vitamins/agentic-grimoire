@@ -1,46 +1,140 @@
 ---
 name: storm
 disable-model-invocation: true
-description: Deep multi-lens research before an implementation decision — 5 expert lenses, contradiction-mapped and peer-reviewed into a confidence-gated pick.
+description: Decide anything the heavy way — a batch-grill-me interview to shared understanding, then autonomous rounds of multi-lens research, contradiction-mapped, moderator-driven, and peer-reviewed into a confidence-gated pick.
 ---
 
-Goal: build deep, sourced knowledge on a topic, surface the unknown-unknowns, then decide which implementation to go with — recommending only when the evidence is strong enough, and stating what is still unknown before the recommendation.
+Goal: take any problem statement — technical or not, from a user who may know nothing
+about the domain — reach shared understanding through an interview, then autonomously
+build deep, sourced knowledge across research rounds and land on a pick, recommending
+only when the evidence is strong enough and stating what is still unknown first.
 
-STORM = Synthesis of Topic Outlines through Retrieval and Multi-perspective question asking (Stanford OVAL, NAACL 2024). Companion to `compass` (breadth across named alternatives) and `oracle` (vertical unknown-unknowns). `storm` is the heavier sibling — it runs the full multi-lens → contradiction → synthesis → peer-review loop and lands on a confidence-gated pick.
+Method from Stanford OVAL's STORM (multi-perspective question asking, NAACL 2024) and
+Co-STORM (a moderator mining uncited sources for new directions, EMNLP 2024). Companion
+to `compass` (breadth across named alternatives) and `oracle` (vertical unknown-unknowns);
+`storm` is the heavier sibling — interview, then the full loop, then a gated pick.
 
-Run the four phases as **interactive gates**: after each phase, print the result in chat and stop for the user to review before continuing.
+**The interview is the only gate.** After the user confirms shared understanding
+(Step 1), every remaining step runs autonomously through to the recommendation.
 
 ## Steps
 
-### Phase 1 — Multi-lens scan (topic-adaptive)
+### Step 1 — Interview to shared understanding
 
-1. **Restate.** One line: the topic + the decision to be made.
-2. **Pick 5 expert lenses for *this* topic.** Choose the lenses that actually matter here — e.g. a DB choice → practitioner, scalability engineer, cost/ops, security, maintainer. Fall back to the article's generic 5 (practitioner, academic, skeptic, economist, historian) only if the topic is too broad to specialise. State the chosen 5 + a one-line why for each.
-3. **Research before asserting — do not simulate knowledge.** Per lens: `WebSearch` for the landscape and what practitioners actually ship; `Context7` MCP for library / framework / API docs. Rank sources by `../../.shared-agents/common/source-priority.md` (read it before searching) and **cite the source per claim**.
-4. **Per lens, output:** core position (2 sentences) · strongest evidence (with cited source) · the one thing only this lens would tell you.
-5. **Gate** → wait for the user.
+Check for `batch-grill-me` (`~/.claude/skills/batch-grill-me/` for Claude Code,
+`~/.agents/skills/batch-grill-me/` for Codex, or the active profile's
+`skills/batch-grill-me/`).
 
-### Phase 2 — Contradiction map
+**Found:** hand the interview to `batch-grill-me` — it drives the questioning round by
+round and dispatches its own sub-agents for facts; seed it and wait.
 
-1. **Conflicts.** Where do ≥2 lenses directly clash? List each with the specific claims that collide.
-2. **Evidence weight.** Which lens has the strongest evidence, which the weakest, and why.
-3. **The pivotal question** that, if answered, resolves the biggest conflict.
-4. **Consensus.** What every lens agrees on — likely true, since even opponents confirm it.
-5. **Blind spot.** What no lens addressed — the unknown-unknown, often the most valuable finding.
-6. **Gate** → wait for the user.
+**Missing:** run the same interview inline with the `AskUserQuestion` tool, keeping the
+batch-grill-me contract: ask the whole frontier each round — every question whose
+prerequisites are settled — with a recommended answer per question; look facts up
+yourself instead of asking the user; recompute the frontier after each round of answers;
+the interview ends when the frontier is empty.
 
-### Phase 3 — Synthesis briefing
+Either way, seed the interview with the problem statement and direct it to surface: the
+user's domain knowledge (assume none until shown otherwise), hard constraints (budget,
+deadline, locale, stack), the goal behind the ask, preferences and dealbreakers, and
+the report file destination (default `./storm-report-<topic-slug>.md`).
 
-1. **One-paragraph summary** for someone with 60 seconds who needs nuance, not the headline.
-2. **5 key findings**, ranked by reliability; per finding note which lenses support and which challenge it.
-3. **Hidden connection** — one non-obvious link visible only across all 5 lenses.
-4. **Candidate implementations** — the decision surface: per candidate give why / why-not / when-to-pick, backed by the sourced findings above (this is the `compass`-style comparison, now evidence-led).
-5. **Gate** → wait for the user.
+**Done when:** the user confirms shared understanding — the last interactive moment.
+Announce that storm now runs autonomously to the recommendation, then continue without
+stopping.
 
-### Phase 4 — Peer review + confidence-gated recommendation
+### Step 2 — Pick 5 expert lenses for *this* topic
 
-1. **Confidence scores.** Rate each key finding 1–10 for reliability, with reasoning.
-2. **Weakest link.** The least-confident claim + the specific info that would verify it.
-3. **Bias check.** Which lens over-dominated the synthesis.
-4. **Missing lens.** Is there a 6th lens that would change the conclusions.
-5. **Recommendation rule.** State remaining unknowns / unverified items **first**. Then — only if confidence is sufficient — give the recommended implementation with why / why-not, plus the "pick X instead if …" condition. **If uncertainty is too high, withhold the pick** and list exactly what info would unblock the decision.
+Restate topic + decision in one line. Choose the 5 lenses that matter *here* — a DB
+choice → practitioner, scalability engineer, cost/ops, security, maintainer; a
+photoshoot-company pick → past client, working photographer, budget analyst, logistics
+planner, reputation checker. Fall back to the generic 5 (practitioner, academic,
+skeptic, economist, historian) only if the topic resists specialisation.
+
+**Done when:** 5 lenses stand, each with a one-line why tied to an interview constraint.
+
+### Step 3 — Research round *(loop entry — round counter starts at 1 here)*
+
+Research before asserting — retrieved facts only, gathered by **parallel sub-agents**,
+one per lens (round 1) or per moderator question (later rounds), launched in a single
+batch. Each sub-agent runs 2–3 scoped `WebSearch` queries — plus `Context7` MCP when
+the topic is a library / framework / API — ranks sources by
+`../../.shared-agents/common/source-priority.md` (read it first), and returns: core
+position (2 sentences) · strongest evidence with cited source · the one thing only this
+lens would tell you · every source it retrieved.
+
+Merge the returns into the **source ledger**: every source retrieved this round, marked
+*cited* or *uncited* once the round's outputs are written. The ledger is the moderator's
+raw material (Step 6).
+
+**Done when:** every lens or question has its three-part output, every claim cited,
+every retrieved source in the ledger.
+
+### Step 4 — Contradiction map
+
+1. **Conflicts** — where ≥2 lenses clash, with the colliding claims.
+2. **Evidence weight** — strongest and weakest lens, and why.
+3. **Pivotal question** — the one that resolves the biggest conflict.
+4. **Consensus** — what every lens agrees on; even opponents confirm it.
+5. **Blind spot** — what no lens addressed. Hunt it with `oracle`'s descent move
+   (`../oracle/SKILL.md` Step 3): dispatch one sub-agent to ask, for each gap, what
+   concept it presupposes, what mechanism it hides, what failure mode it papers over —
+   and recurse. Gaps found feed the moderator (Step 6).
+
+**Done when:** all five parts written; from round 2 on, each prior conflict marked
+resolved or still open.
+
+### Step 5 — Synthesis
+
+1. **5 key findings**, ranked by reliability; per finding, which lenses support and
+   which challenge it.
+2. **Hidden connection** — one non-obvious link visible only across lenses.
+3. **Candidates** — the decision surface, built with `compass`'s frame
+   (`../compass/SKILL.md` Steps 2, 4–5): name the axes that dominate this decision,
+   surface ≥3 genuinely distinct candidates, and give each why / why-not /
+   when-to-pick — each why naming an axis, backed by the cited findings. The verdict
+   stays with Step 7; synthesis maps the surface only.
+
+**Done when:** every finding traces to cited sources and every candidate carries all
+three facets, each tied to a named axis.
+
+### Step 6 — Moderator *(loop or exit — Co-STORM)*
+
+Mine two seams for new questions: **(a)** uncited ledger entries — retrieved
+information no output used; **(b)** open items from Step 4 — unresolved conflicts, the
+pivotal question, the blind spot. Rank candidate questions by relevance to the decision
+and dissimilarity from questions already asked.
+
+A question is **material** if its answer could change a candidate's ranking or move a
+finding's reliability. Loop rule: after round 1, always carry the top questions into
+Step 3 — two rounds minimum. After round 2, loop a third time only if material
+questions remain. Three rounds is the cap; then → Step 7.
+
+**Done when:** the loop decision is stated with the question list (or "none material")
+and the round count.
+
+### Step 7 — Peer review + confidence-gated recommendation
+
+1. **Confidence scores** — each key finding 1–10 with reasoning.
+2. **Weakest link** — the least-confident claim + what would verify it.
+3. **Bias check** — which lens over-dominated the synthesis.
+4. **Missing lens** — would a 6th change the conclusion.
+5. **Recommendation rule** — state remaining unknowns first. Then, only if confidence
+   suffices, give the pick with why / why-not and the "pick X instead if …" condition.
+   If uncertainty is too high, **withhold the pick** and list exactly what info would
+   unblock the decision.
+
+Write the report to the Step-1 path in two parts. **Body — a 5-minute read, ~1100
+words max:** unknowns-first verdict, confidence table, the 5 key findings, candidates
+with why / why-not / when-to-pick. **Appendix — below a `---` divider, skippable, no
+length cap:** per-round research record, contradiction-map history, full source ledger,
+peer-review detail — every claim cited.
+
+**Done when:** the report file exists at the agreed path, its body reads in ≤5 minutes,
+and chat shows the unknowns-first verdict.
+
+## Output shape
+
+- **Chat** — one progress line per step per round while autonomous; at the end,
+  unknowns first, then the verdict (or the withheld-pick unblock list).
+- **Report file** — 5-minute body + cited appendix, at the interview-agreed path.
