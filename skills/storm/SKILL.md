@@ -123,18 +123,43 @@ and the round count.
    suffices, give the pick with why / why-not and the "pick X instead if …" condition.
    If uncertainty is too high, **withhold the pick** and list exactly what info would
    unblock the decision.
+6. **Recommended path** — directly below the verdict, a ~150-word first-person
+   narrative arguing the pick like an advisor who must sign off, not a survey: what
+   I'd do and in what order, which candidates I rejected and on which axis, which are
+   conditional and on what. When rule 5 withholds the pick, the advisor argues the
+   neutrality instead — the evidence genuinely splits, and here is what would unblock
+   it. Tag each candidate heading with the advisor's call: **picked** (+ role, e.g.
+   backbone / add-on), **rejected: <one-line reason>**, or **conditional: <condition>**.
 
-Write the report to the Step-1 path in two parts. **Body — a 5-minute read, ~1100
-words max:** unknowns-first verdict, confidence table, the 5 key findings, candidates
-with why / why-not / when-to-pick. **Appendix — below a `---` divider, skippable, no
-length cap:** per-round research record, contradiction-map history, full source ledger,
-peer-review detail — every claim cited.
+Write the report to the Step-1 path in two parts. **Body — a 5-minute read, ~1250
+words max**, in order: unknowns first, verdict, recommended path, confidence table,
+the 5 key findings, candidates (tagged) with why / why-not / when-to-pick.
+**Appendix — below a `---` divider, skippable, no length cap:** per-round research
+record, contradiction-map history, full source ledger, peer-review detail — every
+claim cited.
+
+Formatting contract — the body is written to be skimmed:
+
+- Each key finding: **bold one-line claim**, then 2–4 labeled sub-bullets
+  (evidence · challenged by · so what), no bullet over 2 sentences.
+- Nuance that doesn't fit a bullet sinks to the appendix — trimmed from the body,
+  never deleted.
+- Appendix lens entries use labeled bullets — Position / Evidence / Unique insight /
+  Sources — not run-on paragraphs.
+- Citations are compact inline links at the point of the claim —
+  `([source label](url))` — at most 2 per bullet. Link only URLs actually retrieved
+  (they are in the ledger); a claim without a captured URL cites its ledger entry.
+  Ledger entries themselves are markdown links.
 
 **Done when:** the report file exists at the agreed path, its body reads in ≤5 minutes,
-and chat shows the unknowns-first verdict.
+the bold lead-ins alone summarize the report (skim test), and chat shows the
+unknowns-first verdict + recommended path.
 
 ## Output shape
 
 - **Chat** — one progress line per step per round while autonomous; at the end,
-  unknowns first, then the verdict (or the withheld-pick unblock list).
-- **Report file** — 5-minute body + cited appendix, at the interview-agreed path.
+  unknowns first, then the verdict + recommended path (or the withheld-pick unblock
+  list).
+- **Report file** — 5-minute skimmable body (unknowns → verdict → recommended path →
+  confidence table → findings → candidates, tagged) + cited appendix, at the
+  interview-agreed path.
