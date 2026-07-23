@@ -5,6 +5,19 @@ This set of skills attempt to solve this issue.
 
 > This is by no means perfect nor absolutely correct. Please create an issue or pull request if there's any errors/improvements to be made. I'll gladly appreciate it. Thank you!
 
+### Personal Habits
+**1. In every single prompt, always attach your personal inference**
+You should never offload critical thinking to LLMs. For every prompt, always attach what you think the answer might be alongside your query
+ 
+This brings about 2 major benefits: 
+- Attaching your personal inference, right or wrong, ensures you've actually thought about the question
+- It gives the LLM more context on where your knowledge stands.
+
+**2. Always use `oracle` and `compass` to ground LLM responses**
+One of the best ways to ground LLM responses is to cite credible sources: technical blogs, articles, research papers, etc. 
+
+Always open the cited links to confirm they are indeed relevant. If you don't understand or keep losing focus, you probably lack some foundational knowledge. Use another LLM to **ELI5** or **show worked examples**.
+
 ## Install
 
 Install the skills into the central store and symlink them into Claude Code and Codex:
@@ -30,7 +43,7 @@ If you also want my CLAUDE.md guidelines, run `/setup-agentic-grimoire` after in
 | keystone | Clean code pedagogy. GoF patterns, functions over inline code, OOP. To be applied for all types of code. |
 | keystone-react | Same idea as `keystone`, but for React only. Decomposed components, context over prop-drilling, co-located CSS. |
 | playbook | Audit changed code against your engineering conventions (race conditions, idempotency, etc) and flag what is missing. |
-| skillsmith | Create a new skill or audit an existing one, attempted Matt Pocock style. |
+| skillsmith | Create a new skill or audit an existing one, attempted Matt Pocock philosophies. |
 | ticketsmith | Draft a Jira story with checkbox acceptance criteria from a description or the codebase. Uses Matt Pocock's `grill-me` (prompts to install if missing). |
 | watermark | Turn uncommitted work into clean atomic conventional commits for user to review code easily. Never pushes. |
 | setup-agentic-grimoire | One-time setup. Splices the guideline block into your CLAUDE.md and AGENTS.md. |
@@ -38,6 +51,9 @@ If you also want my CLAUDE.md guidelines, run `/setup-agentic-grimoire` after in
 | unlink-agentic-grimoire-custom | Reverse the link. Restores each custom profile's own config from backups. |
 | sync-agentic-grimoire | Update this machine's skills from the repo and prune ones deleted upstream. |
 | uninstall-agentic-grimoire | Full removal. Strips the guideline block and removes this repo's skills everywhere. |
+
+### STORM
+STORM is extremely heavy, but it provides the most detailed output compared to `oracle` and `compass`. My personal approach is first tackle unknowns with `oracle` and `compass`. Once you feel relatively comfortable in diving deeper, proceed with `storm`.
 
 ## When to reach for what
 
