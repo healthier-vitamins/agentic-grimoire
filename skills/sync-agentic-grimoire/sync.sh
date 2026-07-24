@@ -18,6 +18,22 @@ if [ ! -f "$LOCK" ]; then
   echo "no lockfile at $LOCK — nothing installed from $SOURCE." >&2
   exit 0
 fi
+if ! jq -e '(.skills // {}) | type == "object"' "$LOCK" >/dev/null; then
+  echo "error: invalid skill lockfile: $LOCK" >&2
+  exit 2
+fi
+
+validate_names() {
+  local label="$1" names="$2" name
+  while IFS= read -r name; do
+    case "$name" in
+      ""|.*|-*|*[!a-z0-9-]*)
+        echo "error: unsafe $label skill name: $name" >&2
+        exit 2
+        ;;
+    esac
+  done <<< "$names"
+}
 
 installed="$(jq -r --arg src "$SOURCE" \
   '.skills // {} | to_entries[] | select(.value.source == $src) | .key' "$LOCK")"
@@ -26,6 +42,8 @@ if [ -z "$installed" ]; then
   echo "no skills installed from $SOURCE — nothing to prune." >&2
   exit 0
 fi
+
+validate_names "installed" "$installed"
 
 resp="$(curl -fsSL "$API" 2>/dev/null)" || {
   echo "error: could not reach GitHub ($API). Offline or rate-limited (60/hr unauth)." >&2
@@ -42,6 +60,7 @@ if ! printf '%s' "$resp" | jq -e 'type == "array"' >/dev/null 2>&1; then
 fi
 
 repo="$(printf '%s' "$resp" | jq -r '.[] | select(.type == "dir") | .name')"
+validate_names "repository" "$repo"
 
 # Prune set = installed-from-source MINUS repo-current.
 comm -23 <(printf '%s\n' "$installed" | sort) <(printf '%s\n' "$repo" | sort)
