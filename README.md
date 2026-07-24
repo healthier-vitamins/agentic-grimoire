@@ -55,6 +55,18 @@ If you also want my CLAUDE.md guidelines, run `/setup-agentic-grimoire` after in
 ### STORM
 STORM is extremely heavy, but it provides the most detailed output compared to `oracle` and `compass`. My personal approach is first tackle unknowns with `oracle` and `compass`. Once you feel relatively comfortable in diving deeper, proceed with `storm`.
 
+## Updating
+
+Edit a skill or the guideline blocks here → commit → push → `/sync-agentic-grimoire` inside
+Claude Code. It runs `npx skills update --global` (which updates changed skills but, at global
+scope, does **not** remove skills deleted upstream), prunes those deleted skills, and reconciles
+legacy profile-local shadows. Claude Code entries link to the canonical `~/.agents/skills`
+store; obsolete grimoire-owned entries under `~/.codex/skills` are removed because current
+Codex reads the canonical store directly. Prune and reconciliation report entries from other
+sources and leave them untouched; the initial global update may still refresh their changed
+content. Re-run `/setup-agentic-grimoire` to refresh the managed block (the custom profiles
+inherit it through their `CLAUDE.md` symlink). Authors and consumers onboard the same way.
+
 ## When to reach for what
 
 **Understanding something**
