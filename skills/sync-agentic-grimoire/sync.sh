@@ -6,8 +6,12 @@
 # Read-only — never removes anything; the caller previews, confirms, then runs
 # `npx skills remove`. Diagnostics go to stderr.
 #
+# The listing is fetched through `gh api` when the GitHub CLI is installed and logged in
+# (5000 req/hr), falling back to unauthenticated curl (60 req/hr) otherwise.
+#
 #   - no lockfile / nothing installed from this source -> no output, exit 0
-#   - GitHub fetch fails / rate-limited (object, not array) -> abort, exit 2, prune nothing
+#   - both fetches fail, or the response is an object rather than the expected directory
+#     array (offline, rate-limited, repo renamed) -> abort, exit 2, prune nothing
 set -euo pipefail
 
 SOURCE="healthier-vitamins/agentic-grimoire"
@@ -45,8 +49,23 @@ fi
 
 validate_names "installed" "$installed"
 
-resp="$(curl -fsSL "$API" 2>/dev/null)" || {
-  echo "error: could not reach GitHub ($API). Offline or rate-limited (60/hr unauth)." >&2
+# Prefer the authenticated CLI: the anonymous API allows only 60 requests/hr, and
+# exhausting it is the common reason this script aborts. Capture gh's output before
+# emitting any of it, so a partial body can never be concatenated with curl's response.
+fetch_listing() {
+  local out
+  if command -v gh >/dev/null 2>&1 && gh auth status >/dev/null 2>&1; then
+    if out="$(gh api "repos/$SOURCE/contents/skills" 2>/dev/null)"; then
+      printf '%s' "$out"
+      return 0
+    fi
+  fi
+  curl -fsSL "$API" 2>/dev/null
+}
+
+resp="$(fetch_listing)" || {
+  echo "error: could not reach GitHub ($API) via gh or curl. Offline, or rate-limited" >&2
+  echo "(60/hr unauthenticated — run 'gh auth login' to raise it to 5000/hr)." >&2
   echo "No skills pruned — retry later." >&2
   exit 2
 }

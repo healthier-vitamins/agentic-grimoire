@@ -28,7 +28,7 @@ Companion to `compass` (breadth across competing approaches). `oracle` descends 
 
    Aim: every gap bottoms out at first principles or a layer the prompt shows the user already knows.
 
-4. **Research.** `WebSearch` for what practitioners actually do; `Context7` MCP for library/framework/API documentation. Rank sources by `../../.shared-agents/common/source-priority.md` — read it before searching. Cite what is non-obvious, contested, or version-specific; undisputed statements need no footnote.
+4. **Research.** `WebSearch` for what practitioners actually do; `Context7` MCP for library/framework/API documentation. Rank sources by [`references/source-priority.md`](references/source-priority.md) — read it before searching. Cite what is non-obvious, contested, or version-specific; undisputed statements need no footnote.
 
 5. **Teach each gap:**
    - **What it is** — one line.

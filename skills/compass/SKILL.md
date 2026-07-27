@@ -24,7 +24,7 @@ Companion to `oracle` (which explores one stack vertically — depth, unknown-un
 
    Aim: the axes dominating *this* decision are named, and every later alternative can be placed on them.
 
-3. **Research — WebSearch is mandatory.** Rank sources by `../../.shared-agents/common/source-priority.md` — read it before searching, and cite the source per claim.
+3. **Research — WebSearch is mandatory.** Rank sources by [`references/source-priority.md`](references/source-priority.md) — read it before searching, and cite the source per claim.
 
    Aim: every alternative in step 5 carries a cited source.
 
