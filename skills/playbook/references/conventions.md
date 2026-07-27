@@ -131,3 +131,10 @@ This list is seeded, not exhaustive. When a change touches a convention not list
 - Trigger: a tunable constant that operations may need to change (timeout, retry count, backoff base/cap, page size, batch size).
 - Standard: read from env/config with a sensible default; document the unit.
 - Smell: a hardcoded `2.0` / `60` / `10` buried in code with no name or override path.
+
+## 8. Portability
+
+**Runtime assumptions match supported environments**
+- Trigger: changed code relies on behavior that varies by OS, shell, runtime, filesystem, or tool version and materially differs between supported Linux and macOS environments.
+- Standard: verify the smallest relevant check on the least-capable supported environment (or equivalent version). Do not require an unconditional OS matrix, Windows coverage, or new CI scaffolding.
+- Smell: empty-array handling works on a newer Bash but fails under macOS Bash 3.2 with `set -u`, or validation covers only a newer developer environment.
