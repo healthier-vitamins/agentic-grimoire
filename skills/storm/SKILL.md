@@ -59,9 +59,9 @@ Research before asserting — retrieved facts only, gathered by **parallel sub-a
 one per lens (round 1) or per moderator question (later rounds), launched in a single
 batch. Each sub-agent runs 2–3 scoped `WebSearch` queries — plus `Context7` MCP when
 the topic is a library / framework / API — ranks sources by
-`../../.shared-agents/common/source-priority.md` (read it first), and returns: core
-position (2 sentences) · strongest evidence with cited source · the one thing only this
-lens would tell you · every source it retrieved.
+[`references/source-priority.md`](references/source-priority.md) (read it first),
+and returns: core position (2 sentences) · strongest evidence with cited source · the
+one thing only this lens would tell you · every source it retrieved.
 
 Merge the returns into the **source ledger**: every source retrieved this round, marked
 *cited* or *uncited* once the round's outputs are written. The ledger is the moderator's
