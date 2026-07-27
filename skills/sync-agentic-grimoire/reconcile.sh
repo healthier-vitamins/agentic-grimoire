@@ -117,7 +117,7 @@ fi
 
 is_owned() {
   local candidate="$1" name
-  for name in "${owned[@]}"; do
+  for name in "${owned[@]+"${owned[@]}"}"; do
     [ "$candidate" = "$name" ] && return 0
   done
   return 1
@@ -125,7 +125,7 @@ is_owned() {
 
 is_excluded() {
   local candidate="$1" excluded_name
-  for excluded_name in "${excluded[@]}"; do
+  for excluded_name in "${excluded[@]+"${excluded[@]}"}"; do
     [ "$candidate" = "$excluded_name" ] && return 0
   done
   return 1
@@ -251,7 +251,7 @@ expect_prune_state() {
 
 preview_pruned_paths() {
   local name scope entry signature
-  for name in "${excluded[@]}"; do
+  for name in "${excluded[@]+"${excluded[@]}"}"; do
     is_owned "$name" || { echo "error: excluded skill is not owned by $SOURCE: $name" >&2; return 2; }
     for scope in store claude-code codex; do
       entry="$(prune_path "$scope" "$name")"
@@ -264,14 +264,14 @@ preview_pruned_paths() {
 
 apply_pruned_paths() {
   local name scope entry signature
-  for name in "${excluded[@]}"; do
+  for name in "${excluded[@]+"${excluded[@]}"}"; do
     for scope in claude-code codex store; do
       entry="$(prune_path "$scope" "$name")"
       signature="$(entry_signature "$entry")"
       expect_prune_state "$scope" "$name" "$signature"
     done
   done
-  for name in "${excluded[@]}"; do
+  for name in "${excluded[@]+"${excluded[@]}"}"; do
     for scope in claude-code codex store; do
       entry="$(prune_path "$scope" "$name")"
       signature="$(entry_signature "$entry")"
@@ -302,7 +302,7 @@ if [ "${#owned[@]}" -eq 0 ] && [ "${#excluded[@]}" -eq 0 ]; then
   echo "no skills installed from $SOURCE — nothing to reconcile." >&2
 else
   validate_roots
-  for name in "${excluded[@]}"; do
+  for name in "${excluded[@]+"${excluded[@]}"}"; do
     canonical="$STORE/$name"
     for entry in "$CLAUDE_SKILLS/$name" "$CODEX_SKILLS/$name"; do
       if [ ! -L "$entry" ] && [ -e "$entry" ] && [ -e "$canonical" ] && [ "$entry" -ef "$canonical" ]; then
@@ -311,7 +311,7 @@ else
       fi
     done
   done
-  for name in "${owned[@]}"; do
+  for name in "${owned[@]+"${owned[@]}"}"; do
     is_excluded "$name" && continue
     [ -d "$STORE/$name" ] || { echo "error: canonical skill is missing: $STORE/$name" >&2; exit 2; }
     for entry in "$CLAUDE_SKILLS/$name" "$CODEX_SKILLS/$name"; do
@@ -322,7 +322,7 @@ else
     done
   done
   if $apply; then apply_pruned_paths; else preview_pruned_paths; fi
-  for name in "${owned[@]}"; do
+  for name in "${owned[@]+"${owned[@]}"}"; do
     is_excluded "$name" && continue
     reconcile_claude "$name"
     reconcile_codex "$name"
