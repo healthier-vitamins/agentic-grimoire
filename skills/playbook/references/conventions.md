@@ -52,6 +52,16 @@ This list is seeded, not exhaustive. When a change touches a convention not list
 - Standard: reuse a pooled connection.
 - Smell: a fresh connection created per call → handshake cost and exhaustion under load.
 
+**Expensive objects are built once, not per request**
+- Trigger: constructing a compile-, parse-, or connect-heavy framework object inside a request handler or a per-item loop (compiled graph or pipeline, HTTP/DB client, schema validator, template environment, loaded model).
+- Standard: build once at module/app scope, or memoize keyed on the static config alone; per-request inputs (tenant, model, effort) travel through invocation arguments, not the constructor.
+- Smell: `.compile()` / `new Client()` / `Factory(...)` on the hot path → compile cost and per-item retention on every record.
+
+**Hoisting to shared scope audits baked-in state**
+- Trigger: moving a per-request object to module, singleton, or cached (`lru_cache`, DI singleton) scope — including as part of a build-once fix.
+- Standard: enumerate everything the constructor bakes in — concurrency primitives, mutable buffers or accumulators, deadlines, tenant/auth context — and confirm each is either genuinely static config (and therefore part of the cache key) or moved to invocation state.
+- Smell: a cached object holding a `Semaphore(n)` → an n-per-request bound silently becomes n-global; or a cache key that omits a config field, pinning stale config past a reload.
+
 **Debounce / throttle on high-frequency triggers**
 - Trigger: a handler fired by rapid events (scroll, keypress, webhook bursts).
 - Standard: debounce or throttle.
