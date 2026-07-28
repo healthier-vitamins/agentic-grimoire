@@ -12,11 +12,11 @@ into the code. They get the why, the current behaviour, and where it stands. The
 outstanding. Those two sections are the whole ticket.
 
 > **Model requirement (hard):** the ticket **draft** must be produced by a
-> subagent pinned to **Claude Sonnet 5** or **GPT-5.4 (medium effort)**, nothing
+> subagent pinned to **Claude Sonnet 5** or **GPT-5.5 (medium effort)**, nothing
 > else. Do not draft the ticket in the main session. Delegate it (Step 5) so the
 > model is enforced regardless of the orchestrator's model.
 > - **Claude Code:** `Agent` tool with `model: sonnet` (i.e. `claude-sonnet-5`).
-> - **Codex:** a custom agent with `model = "gpt-5.4"`,
+> - **Codex:** a custom agent with `model = "gpt-5.5"`,
 >   `model_reasoning_effort = "medium"`.
 
 ## House style (ticket output)
