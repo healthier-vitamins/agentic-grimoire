@@ -44,7 +44,7 @@ If you also want my CLAUDE.md guidelines, run `/setup-agentic-grimoire` after in
 | keystone-react | Same idea as `keystone`, but for React only. Decomposed components, context over prop-drilling, co-located CSS. |
 | playbook | Audit changed code against your engineering conventions (race conditions, idempotency, etc) and flag what is missing. |
 | skillsmith | Create a new skill or audit an existing one, attempted Matt Pocock philosophies. |
-| slice-map | Turn a large implementation plan into a critical-path map of vertical slices, then navigate and revise it as work advances. |
+| throughline | Turn a large implementation plan into a durable critical path of vertical slices, then navigate and revise it as work advances. |
 | ticketsmith | Draft a Jira story with checkbox acceptance criteria from a description or the codebase. Uses Matt Pocock's `grill-me` (prompts to install if missing). |
 | watermark | Turn uncommitted work into clean atomic conventional commits for user to review code easily. Never pushes. |
 | setup-agentic-grimoire | One-time setup. Splices the guideline block into your CLAUDE.md and AGENTS.md. |
@@ -74,7 +74,7 @@ STORM is extremely heavy, but it provides the most detailed output compared to `
 - Jira story: `ticketsmith`
 
 **Planning implementation**
-- Turn a large implementation plan into a navigable dependency map: `slice-map`
+- Turn a large implementation plan into a navigable critical path: `throughline`
 
 **Authoring skills**
 - Attempted Matt Pocock's philosophies on writing skills: `skillsmith`
