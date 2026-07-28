@@ -91,25 +91,143 @@ This list is seeded, not exhaustive. When a change touches a convention not list
 
 ## 4. Security
 
+Security rows carry a sharper false-positive risk than the rest of the playbook, because
+most security defects are defects of *absence* — a missing authz check has no syntax to
+match on. Two gates apply to every row below:
+
+- **Fire on evidence in the hunk.** A visible token (`verify=False`, `Math.random()`,
+  `@v3`) is decidable from the diff. "No authz check anywhere" is a property of the whole
+  program — check the middleware and route registration before flagging it.
+- **Scope to the component that terminates the request.** TLS termination, security
+  headers, and rate limiting often live in a proxy, gateway, or CDN. Absence in
+  application code is not a violation when the edge owns it.
+
+`Ref` cites CWE numbers because they are stable; OWASP category numbers are renumbered
+between editions (the 2025 edition folded SSRF into A01 and added supply chain at A03).
+
+### 4a. Input and data handling
+
 **Input is validated at the boundary**
 - Trigger: data crossing a trust boundary (request body, query param, external payload).
 - Standard: validate/parse into a typed shape before use.
 - Smell: raw request fields used directly.
-
-**Authorization on every entrypoint**
-- Trigger: a new route/handler/RPC that reads or mutates data.
-- Standard: an authz check, not just authentication.
-- Smell: a handler that assumes the caller is allowed.
 
 **No injection**
 - Trigger: building SQL, a shell command, or a template from variable input.
 - Standard: parameterized queries / safe APIs / escaping.
 - Smell: string interpolation into SQL, `exec`, or HTML.
 
+**Paths from input are confined to a base directory**
+- Trigger: a path segment, upload filename, or archive entry that came from outside.
+- Standard: join, resolve to absolute, then assert the result is still under the base dir.
+- Smell: `path.join(base, input)` with no containment check after resolving; archive
+  extraction that trusts entry names (zip-slip). Traversal reads or overwrites files
+  outside the intended directory.
+- Ref: https://cwe.mitre.org/data/definitions/22.html
+
+**Untrusted bytes are never deserialized into objects**
+- Trigger: deserializing input that crossed a trust boundary.
+- Standard: a data-only format (JSON) with a schema; never an object-graph deserializer.
+- Smell: `pickle.loads(request.data)`, `yaml.load` without `SafeLoader`, Java native
+  deserialization, `unserialize` — each reaches arbitrary code execution, not just bad data.
+- Ref: https://cwe.mitre.org/data/definitions/502.html
+
+**Model fields are allowlisted, not spread**
+- Trigger: constructing or updating a record from a request body.
+- Standard: name the writable fields explicitly.
+- Smell: `User(**body)` / `Object.assign(user, req.body)` → the client supplies `role` or
+  `isAdmin` and escalates privilege through a field nobody meant to expose.
+- Ref: https://cwe.mitre.org/data/definitions/915.html
+
+### 4b. Identity and access
+
+**Authorization on every entrypoint**
+- Trigger: a new route/handler/RPC that reads or mutates data.
+- Standard: an authz check, not just authentication.
+- Smell: a handler that assumes the caller is allowed.
+
+### 4c. Crypto and secrets
+
+**Security values come from a CSPRNG**
+- Trigger: generating a token, session ID, password-reset code, salt, or nonce.
+- Standard: a cryptographic RNG (`secrets`, `crypto.randomBytes`,
+  `crypto.getRandomValues`) with at least 128 bits of entropy.
+- Smell: `Math.random()`, `random.randint`, `uuid1`, or a timestamp-derived value used as
+  a secret → predictable, so guessable offline.
+- Ref: https://cwe.mitre.org/data/definitions/338.html
+
+**Secret comparison is constant-time**
+- Trigger: comparing a token, HMAC, signature, or API key.
+- Standard: `hmac.compare_digest` / `crypto.timingSafeEqual`.
+- Smell: `==` on a secret. Short-circuit comparison leaks the matching prefix length
+  through timing, letting an attacker recover the value byte by byte.
+- Ref: https://cwe.mitre.org/data/definitions/208.html
+
+**Passwords use a memory-hard KDF**
+- Trigger: storing or verifying a user password.
+- Standard: argon2id (or bcrypt/scrypt) with a stated, tuned cost parameter.
+- Smell: `sha256(password)`, `md5`, any bare hash, or a library default cost with no
+  chosen number → GPU-cheap to crack in bulk after a dump.
+- Ref: https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html
+
+**AEAD nonce/IV is unique per key**
+- Trigger: encrypting with AES-GCM or ChaCha20-Poly1305.
+- Standard: a fresh random 96-bit nonce (or a strict counter) per message, plus a bound on
+  messages per key — randomly generated 96-bit nonces collide at roughly 2^32 messages.
+- Smell: a constant or module-level IV, an IV derived from stable data (user ID, filename),
+  or a reused buffer. Reuse repeats the keystream (leaking the XOR of plaintexts) *and*
+  allows recovery of the authentication subkey, which permits forging valid tags for
+  arbitrary messages — integrity fails, not just confidentiality.
+- Ref: https://cwe.mitre.org/data/definitions/323.html ; https://eprint.iacr.org/2015/477.pdf
+
+**TLS verification stays on**
+- Trigger: constructing an HTTP/TLS client or a database connection.
+- Standard: verify certificate chain and hostname; pin a CA bundle if the default store
+  is wrong for the environment.
+- Smell: `verify=False`, `rejectUnauthorized: false`, `InsecureSkipVerify: true`, `curl -k`,
+  `NODE_TLS_REJECT_UNAUTHORIZED=0` — usually added to silence a local dev error and shipped.
+- Ref: https://cwe.mitre.org/data/definitions/295.html
+
 **Secrets not hardcoded**
 - Trigger: a key, token, password, or connection string in source.
-- Standard: from env/secret store.
-- Smell: a literal credential committed.
+- Standard: **rotate the exposed credential first**, then read it from env/secret store.
+  Removing the line does not remediate: the value persists in git history, in every fork
+  and clone, and in CI logs.
+- Smell: a literal credential committed; or a "fix" commit that moves the value to env
+  without revoking it.
+- Ref: https://cwe.mitre.org/data/definitions/798.html
+
+### 4d. Supply chain
+
+**Dependencies and CI actions are pinned**
+- Trigger: adding or bumping a dependency, or a workflow step using a third-party action.
+- Standard: a committed lockfile installed with a frozen resolver (`npm ci`,
+  `uv sync --frozen`); third-party actions pinned to a full-length commit SHA; workflow
+  `permissions:` set to least privilege.
+- Smell: `uses: org/action@v3` (a mutable tag the upstream owner can repoint), a short SHA
+  (forkable to a colliding commit), `npm install` in CI, a missing lockfile, or no
+  `permissions:` block — a compromised action reads every secret in the repo.
+- Ref: https://docs.github.com/en/actions/reference/security/secure-use
+
+### 4e. Error and log hygiene
+
+These two are one convention with two faces: detail goes to the log, redacted; a
+correlation ID goes to the caller. Read alongside "No silently swallowed errors" in §6.
+
+**Error responses carry no internals**
+- Trigger: an error path that crosses a trust boundary.
+- Standard: a generic message plus a correlation ID out; the detail stays in the log.
+- Smell: a stack trace, SQL fragment, hostname, or file path in a 5xx body; a debug flag
+  reachable in production → free reconnaissance for an attacker.
+- Ref: https://cwe.mitre.org/data/definitions/209.html
+
+**Logs exclude credentials and PII**
+- Trigger: a new log or telemetry statement on an auth, payment, or personal-data path.
+- Standard: log identifiers, not payloads; redact tokens, passwords, `Authorization`
+  headers, and full personal identifiers.
+- Smell: `log.info(request.headers)` or logging a whole request body → the secret is now
+  in a log store with much broader read access than the secret store it came from.
+- Ref: https://cwe.mitre.org/data/definitions/532.html
 
 ## 5. API surface
 
@@ -127,7 +245,9 @@ This list is seeded, not exhaustive. When a change touches a convention not list
 
 **No silently swallowed errors**
 - Trigger: a `catch`/`except` block.
-- Standard: log with context, or rethrow/wrap; never an empty handler.
+- Standard: log with context, or rethrow/wrap; never an empty handler. "With context" means
+  identifiers and state, not the raw payload — see §4e for what must be redacted and for
+  what may cross back to the caller.
 - Smell: `catch {}` or `except: pass`.
 
 **Metrics on retries and latency**
