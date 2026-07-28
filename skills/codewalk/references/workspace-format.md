@@ -48,7 +48,7 @@ Scratchpad with two sections:
 # Notes
 
 ## Preferences
-- {How the user likes to be taught: pace, question style, session length…}
+- {How the user likes to be taught: usual gear, pace, question style, session length…}
 
 ## Walk queue
 - {chunk or area} — {source diff/ref} — {one-line why it was deferred}

@@ -1,10 +1,21 @@
 # Pedagogy
 
-How to question, calibrate, and challenge during a walk. The goal is **storage strength** (long-term retention), not fluency (in-the-moment recall) — Bjork. Fluency feels like mastery and fades; effortful retrieval is what makes learning stick.
+How to question, calibrate, and challenge during a walk. The default goal is **storage strength** (long-term retention), not fluency (in-the-moment recall) — Bjork. Fluency feels like mastery and fades; effortful retrieval is what makes learning stick. Sweep gear trades some of that for coverage, knowingly and only when the user picks it (below).
+
+## Gears — depth or coverage
+
+A **gear** is the whole session's shape, fixed once at SKILL.md Step 3. A **mode** is one area's difficulty inside that gear (below). Say *gear* for the session and *mode* for the area — the two never substitute for each other. (Rejected framing: *pass*. Natural to review ears, but it names no tradeoff, so it anchors no behaviour.)
+
+- **walk** — depth. The 4-6 highest-leverage chunks, question before explanation, aimed at storage strength. The default, and what the rest of this file describes unless a line says otherwise.
+- **sweep** — coverage. Every chunk in the target, in reading order, aimed at understanding a diff well enough to review it *today*. Each chunk is one worked example: quote the excerpt, two sentences on what it does and why it is there, then one check the user answers before you move on.
+
+Sweep inverts the ask-first rule deliberately. On unfamiliar material a worked example beats unaided problem-solving (Sweller's worked-example effect), and a check after every small step is what keeps the pace honest (Rosenshine's *Principles of Instruction* — small steps, model it, check for understanding, hold ~80% success). The inversion is scoped to sweep: walk still asks first, because retention is bought with effortful retrieval and coverage does not buy it.
+
+**The check is what makes sweep teaching instead of narration.** One question per chunk, answered, before the next chunk. Keep checks cheap — a one-line prediction, a "which of these two does it do", a "what breaks if this line goes". Sweep buys comprehension you can act on today; walk buys knowing it next month.
 
 ## Question rubric
 
-Ask **before** explaining — retrieval builds storage strength, narration does not. Three question types:
+Ask **before** explaining — retrieval builds storage strength, narration does not. (Sweep gear inverts the order, per above; the three types serve both gears.) Three question types:
 
 - **Prediction** — "What does this function return when `items` is empty?" Use to test whether the user can execute the code mentally. Best for logic, control flow, edge cases.
 - **Explanation** — "Why did the AI route this through the repository layer instead of calling the ORM directly?" Use to test design understanding. Best for architecture, patterns, tradeoffs.
@@ -23,6 +34,8 @@ Each codebase area sits in one mode. A mode describes what one turn looks like:
 - **scaffold** — worked example first: walk one small piece line by line, *then* ask a tiny prediction about the very next piece. High support, small chunks. For areas the user has no footing in.
 - **socratic** — question first, always. Prediction or explanation question on the chunk, judge, explain the delta. The default mode.
 - **flaw-hunt** — challenge mode. Quote real code with injected bugs and let the user hunt (spec below). For areas the user has demonstrated solid understanding of.
+
+In sweep gear the modes still apply, but they tune the **support level** rather than the ordering: scaffold gets a fuller worked example and a tiny check, socratic gets the terse two-sentence gloss and a real prediction, flaw-hunt swaps the gloss for a mutated copy of the chunk. Downshifting in sweep therefore means more support on the same chunk, never subdividing it — the lesson's chunk list was announced to the user and stays fixed.
 
 ## Computing the zone of proximal development
 
@@ -55,7 +68,7 @@ Difficulty is per-area, never global — an expert in the API layer can be a nov
 
 ## Anti-patterns
 
-- **No pure narration.** A tour without questions produces recognition, not learning. Orientation gets 60 seconds; everything after is interactive. Quoting the snippet a question is about is not narration — narration is *explaining* the code before the user has answered.
+- **No pure narration.** A tour without questions produces recognition, not learning. Orientation gets 60 seconds; everything after is interactive. Quoting the snippet a turn is about is not narration, and neither is sweep's two-sentence gloss — narration is leaving a chunk with the user having answered nothing.
 - **No trivia flashcards.** Quiz understanding ("why does this handler re-fetch?"), not facts a grep answers ("what is the function named?").
 - **No marathon sessions.** Past ~15 minutes retention drops and the user stops returning. End early with a clean wrap-up rather than pushing through.
 
