@@ -5,11 +5,11 @@ argument-hint: "[one-sentence description]"
 disable-model-invocation: true
 ---
 
-The **user story is the highlight**. Write it so a product owner, business analyst,
-or project manager with no visibility into this project catches up fast: the why,
-the domain, and where it stands. The **acceptance criteria are checkboxes** that
-carry the status: `[x]` done, `[ ]` outstanding. Those two sections are the whole
-ticket.
+The **user story is the highlight**. Write it for a product owner, business
+analyst, or project manager: someone fluent in the product but with no visibility
+into the code. They get the why, the current behaviour, and where it stands. The
+**acceptance criteria are checkboxes** that carry the status: `[x]` done, `[ ]`
+outstanding. Those two sections are the whole ticket.
 
 > **Model requirement (hard):** the ticket **draft** must be produced by a
 > subagent pinned to **Claude Sonnet 5** or **GPT-5.4 (medium effort)**, nothing
@@ -21,53 +21,18 @@ ticket.
 
 ## House style (ticket output)
 
-The Step 5 subagent writes the ticket to these rules. They govern the drafted
-ticket only, not this doc.
+**`references/house-style.md` is the standard.** Both the Step 5 drafter and the
+Step 6 cut read it in full. It governs the ticket only, not this doc. The short
+form:
 
-- **Add information, don't restate.** The context sentences must give the reader
-  something the seed did not: the domain, the why, current behaviour, where it
-  stands. Cut any sentence that only re-says the title or user story.
-- **Concise over complete.** Explain enough for an outsider to catch up, then
-  stop. Prefer fewer, denser sentences.
-- **No emdashes.** Use full stops, commas, or parentheses. Emdashes read as AI
-  boilerplate.
-- **Pragmatic and plain.** State facts directly. No hype, no filler ("robust",
-  "seamless", "it's worth noting"), no hedging.
-
-**Worked example.**
-
-Seed: research undesired GenAI-search responses for off-topic queries like "who
-is lee kuan yew".
-
-Too fluffy (reject):
-
-> As a partner-facing user of the GenAI Search feature, I want the search to
-> recognise when my query isn't actually asking to find a partner organisation,
-> so that I don't get a list of irrelevant, noisy results that merely share a few
-> words with my question.
->
-> GenAI Search is meant to help people find partner organisations using natural
-> language, not to answer general knowledge questions. Right now, a query like
-> "who is lee kuan yew" — a question about Singapore's first Prime Minister, not a
-> search for a partner — returns a cluttered list of partner records that happen
-> to contain the words "lee", "kuan", or "yew" somewhere in their data. This same
-> weakness likely affects other loosely-matching or off-topic queries too,
-> undermining trust in the feature's results.
-
-Right (accept):
-
-> As a partner-facing user of GenAI Search, I want the search to tell when my
-> query is not looking for a partner organisation, so that off-topic questions
-> stop returning noisy, irrelevant matches.
->
-> GenAI Search finds partner organisations from natural-language queries. It is
-> not a general-knowledge tool. Today a query like "who is lee kuan yew" returns
-> partner records that merely contain the words "lee", "kuan", or "yew", because
-> matching is purely lexical. Other off-topic queries hit the same gap and erode
-> trust in results.
-
-The reject spells out who Lee Kuan Yew is, restates the story, and hedges. The
-accept names the real cause (lexical matching) and stops.
+- **A ticket is not a research report.** It answers what is wrong, what we will
+  try, and how we will know. Nothing else.
+- **The template is the whole ticket.** Never invent sections.
+- **Add information, don't restate.** Cut any sentence that re-says the title or
+  the story.
+- **Speak the team's language.** No file, module, or function names. Product,
+  vendor, and domain nouns the team says out loud stay.
+- **Plain and pragmatic.** No emdashes, no hype, no hedging.
 
 ## Step 1: Get the seed
 
@@ -128,16 +93,16 @@ chosen single-goal ticket in Step 5. The rest are separate ticketsmith runs.
 
 Spawn a subagent on the required model (see the model requirement above) and pass
 it: the seed description, the confirmed `grill-me` decisions, the confirmed
-context and done-state, and the repo path (if any). Instruct the subagent to:
+context and done-state, the repo path (if any), and the **absolute path to this
+skill's `references/house-style.md`**. Instruct the subagent to:
 
 1. **Ground, don't surface.** Read the repo to make the story and criteria
    accurate (use `Explore` for broader sweeps). Grounding informs the content
    only. It never licenses identifiers in the ticket.
-2. **Write for a reader who has never opened the repo.** Both sections are
-   plain-language and **identifier-free**: no file paths, module or framework
-   names, or code identifiers anywhere.
-3. **Follow the House style above** for both sections: add information rather than
-   restate, stay concise, no emdashes, plain and pragmatic.
+2. **Read `house-style.md` in full** and write both sections to it. §5 is the
+   identifier line: codebase-free, not domain-free.
+3. **Write for a peer, not a stranger.** Draft for completeness here. Step 6 does
+   the subtracting — do not try to be concise and complete in one pass.
 4. Fill this template. The two sections are the whole ticket:
 
    ```
@@ -156,20 +121,43 @@ context and done-state, and the repo path (if any). Instruct the subagent to:
 
    Mark `[x]` only for criteria confirmed done in the grill. Every other criterion
    is `[ ]`.
-5. Write it to `./<slug-from-title>.md` in the **current working directory** (the
-   user's folder, not a scratchpad). If that file already exists, suffix to avoid
-   clobbering: `<slug>-2.md`, `<slug>-3.md`, and so on. Return the full ticket
-   text and the path it wrote.
+5. Return the full ticket text in the reply. **Write no file** — Step 6 cuts the
+   draft first, and only the cut ticket reaches the user's disk.
 
-**Done when:** the subagent returns the full ticket text and the path it wrote.
+**Done when:** the subagent returns the full ticket text.
 
-## Step 6: Emit
+## Step 6: The cut
 
-Print the ticket the subagent returned and report the file path.
+Run this in the main session, not a subagent. Read `references/house-style.md`,
+then apply §2's six questions to **every line** of the returned draft, including
+the title and each criterion. Delete a failing line whole rather than trimming it.
+
+Two guards:
+
+- **The floor (§4).** Stop before cutting the symptom, the ask, the done-check, a
+  fact that changes the approach, or a decision with its owner and date.
+- **Question 6 is the stop rule.** Keep a line whenever you can name what breaks
+  without it.
+
+Then re-read the result once against §1: if it still reads as a defence of an idea
+rather than an instruction, the genre is wrong and the cut is unfinished.
+
+Write the cut ticket to `./<slug-from-title>.md` in the **current working
+directory** (the user's folder, not a scratchpad). If that file exists, suffix to
+avoid clobbering: `<slug>-2.md`, `<slug>-3.md`, and so on.
+
+**Done when:** every remaining line survives all six questions and the file is
+written.
+
+## Step 7: Emit
+
+Print the cut ticket and report the file path. Report the draft's line count and
+the cut's, so the user can see what the pass removed.
 
 **Criterion:** a `.md` ticket file exists in the current folder (suffixed per Step
-5.5, never clobbering) whose only sections are an identifier-free **User story**
-and checkbox **Acceptance criteria**, with `[x]` limited to grill-confirmed done
-criteria. The output follows the House style (no emdashes, no fluff). Produced by
-a Sonnet-5 / GPT-5.4-medium subagent from the `grill-me` interview and confirmed
-context, with the same content printed in the chat.
+6, never clobbering) whose only sections are a **User story** and checkbox
+**Acceptance criteria**, with `[x]` limited to grill-confirmed done criteria. It
+was drafted by a Sonnet-5 / GPT-5.5-medium subagent from the `grill-me` interview
+and confirmed context, then put through the Step 6 cut, and every surviving line
+answers all six questions in `references/house-style.md` §2. The same content is
+printed in the chat.
