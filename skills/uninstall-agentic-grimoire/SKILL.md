@@ -19,7 +19,7 @@ Never run `npx skills remove --all`.
   preserving everything the user wrote outside it. No-op on a file without the markers.
 - `npx skills remove` removes the store copy and the conventional-profile symlinks. It removes
   **by skill name**, so we pass exactly the names installed from this source, read live from
-  `~/skills-lock.json` (drift-proof, and it catches stale installs a hardcoded list would miss).
+  `~/.agents/.skill-lock.json` (drift-proof, and it catches stale installs a hardcoded list would miss).
 - Removing the store dirs can leave *legacy* per-skill symlinks (the old symlink-farm layout)
   dangling in a custom profile; a prune of dead store links finishes the job. Profiles on the
   current layout (a single `skills/` dir symlink to root, plus the other config symlinks) are
@@ -37,7 +37,7 @@ on this machine):
 ```sh
 SKILLS="$(jq -r '.skills // {} | to_entries[]
   | select(.value.source == "healthier-vitamins/agentic-grimoire") | .key' \
-  "$HOME/skills-lock.json" 2>/dev/null | tr '\n' ' ')"
+  "$HOME/.agents/.skill-lock.json" 2>/dev/null | tr '\n' ' ')"
 ```
 
 1. **Preview the block removal.** Unsplice into throwaway copies and diff, so the user sees
