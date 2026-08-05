@@ -81,10 +81,10 @@ For each row of the Step 4 table, in order:
 1. Stage exactly that row's files/hunks.
    - Whole-file: `git add <file>`.
    - One file, two concerns: build the patch non-interactively — `git diff -- <file>` → keep only the target hunks → `git apply --cached <patch>`. Commit, then stage and commit the remainder as its own row.
-2. Compose a Conventional Commit message per `commit-format.md` (terse, imperative, why-over-what).
+2. Compose a Conventional Commit message per `commit-format.md` — subject line, then the point-form body shape and its cut.
 3. Commit with the plain `git commit` in `commit-format.md`; identity, signing, and trailers follow the Identity section above.
 
-**Criterion:** one commit per row; each commit touches only its concern (no commit mixes unrelated concerns); unrelated work remains unstaged; **nothing pushed**.
+**Criterion:** one commit per row; each commit touches only its concern (no commit mixes unrelated concerns); every message matches `commit-format.md` — imperative subject, and where a body is present, one lead line plus one-idea bullets; unrelated work remains unstaged; **nothing pushed**.
 
 ## Step 6 — Report
 
