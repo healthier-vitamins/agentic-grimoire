@@ -39,12 +39,14 @@ form:
 Use `$ARGUMENTS` as the description. If empty, ask the user for a one-sentence
 description of what they want built. Do not proceed without it.
 
-## Step 2: Ensure grill-me is installed
+## Step 2: Ensure the interview skill is installed
 
-Check for Matt Pocock's `grill-me` skill (`~/.claude/skills/grill-me/` for Claude
-Code, `~/.agents/skills/grill-me/` for Codex, or the active profile's
-`skills/grill-me/`). If **missing**, show the user the install command and **ask
-before running it**. It mutates their global skill store:
+Check for Matt Pocock's interview skills — **either** `grilling` or `grill-me`
+satisfies this (`~/.claude/skills/<name>/` for Claude Code,
+`~/.agents/skills/<name>/` for Codex, or the active profile's `skills/<name>/`).
+`grilling` is the one Step 4 invokes; `grill-me` is a one-line wrapper that runs it.
+If **both are missing**, show the user the install command and **ask before running
+it**. It mutates their global skill store:
 
 ```sh
 npx skills add mattpocock/skills --skill=grill-me
@@ -68,23 +70,27 @@ subagent. If not in a repo, skip.
 **Done when:** context assumptions and candidate done-state are captured, or the
 step was skipped because there is no repo.
 
-## Step 4: grill-me interview (Matt Pocock's skill), advisory handoff
+## Step 4: The interview (Matt Pocock's skill), run in-session
 
-Hand the interview to `grill-me`. Give the user a one-line seed (the description,
-plus "in repo `<name>`" if Step 3 found one) and ask them to run `/grill-me`. Wait
-for the grilling session to finish, then fold the resolved decisions back into
-this flow. Do **not** re-implement the interview inline; `grill-me` drives the
-questioning.
+Invoke the `grilling` skill with the Skill tool. Do **not** print a seed for the user
+to paste and do **not** wait for a separate session — the interview runs here. Pass
+it the description (plus "in repo `<name>`" if Step 3 found one). Do **not**
+re-implement the interview inline; `grilling` drives the questioning, ticketsmith
+only starts it and folds the resolved decisions back into this flow.
 
-**Goal seed:** direct `grill-me` to surface the **main goal / why** behind the
+Invoke `grilling`, not `grill-me`: `grill-me` sets `disable-model-invocation`, so the
+model cannot call it. **Fallback** — if `grilling` is not available, give the user the
+one-line seed and ask them to run `/grill-me`, then wait for that session to finish.
+
+**Goal seed:** direct the interview to surface the **main goal / why** behind the
 request, the benefit the user story's "so that" needs, not just the what.
 
 **Context-correctness gate:** when Step 3 scoped code, hand the context
-assumptions and candidate done-state to `grill-me` too, so the user **confirms or
+assumptions and candidate done-state to the interview too, so the user **confirms or
 corrects** them. Draft only from confirmed context. A criterion counts as done
 only once the user confirms it.
 
-**One ticket, one goal (re-align gate):** after `grill-me` finishes, before Step
+**One ticket, one goal (re-align gate):** after the interview finishes, before Step
 5, check the resolved scope. If it contains several distinct goals, **stop**: list
 them, recommend one ticket per goal, and ask which to draft first. Draft only the
 chosen single-goal ticket in Step 5. The rest are separate ticketsmith runs.
@@ -92,7 +98,7 @@ chosen single-goal ticket in Step 5. The rest are separate ticketsmith runs.
 ## Step 5: Draft the ticket in a pinned subagent
 
 Spawn a subagent on the required model (see the model requirement above) and pass
-it: the seed description, the confirmed `grill-me` decisions, the confirmed
+it: the seed description, the confirmed interview decisions, the confirmed
 context and done-state, the repo path (if any), and the **absolute path to this
 skill's `references/house-style.md`**. Instruct the subagent to:
 
@@ -157,7 +163,7 @@ the cut's, so the user can see what the pass removed.
 **Criterion:** a `.md` ticket file exists in the current folder (suffixed per Step
 6, never clobbering) whose only sections are a **User story** and checkbox
 **Acceptance criteria**, with `[x]` limited to grill-confirmed done criteria. It
-was drafted by a Sonnet-5 / GPT-5.5-medium subagent from the `grill-me` interview
+was drafted by a Sonnet-5 / GPT-5.5-medium subagent from the `grilling` interview
 and confirmed context, then put through the Step 6 cut, and every surviving line
 answers all six questions in `references/house-style.md` §2. The same content is
 printed in the chat.
