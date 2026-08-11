@@ -73,6 +73,17 @@ default.
   has an axis, follow it.
 - A folder mixing two axes at the same depth (a `services/` beside a `preprocessing/`) is
   the smell that placement stopped being a claim.
+- A framework's prescribed layout (NestJS modules, Rails MVC, Next.js app router) **is**
+  the axis — scaffold with it, never restructure against it.
+- Layered frameworks resolve to **vertical slices**: top level = features, layers live
+  *inside* each slice — never features inside layers. Controller/service is a floor, not
+  a ceiling: when logic outgrows the service, grow the slice with new named files.
+- Orchestration logic has a canonical home — the **use-case** file inside its slice
+  (Clean Architecture's interactors): `partner_merge/merge_partners.usecase.ts`, never a
+  root `agents/` or `orchestration/`.
+- `utilities/` is a **junk drawer** unless every file in it is domain-free *and* consumed
+  by ≥2 slices. One consumer → the code lives in that slice. (Google's Go style guide
+  bans grab-bag `util`/`common` packages for this reason.)
 
 ## 6. The flow lives in one file
 
