@@ -30,6 +30,9 @@ UserSettingsPage         route entry — data fetch + providers
 - Skip tiers you don't need; **never reorder** them. A `Card` never wraps a `Section`.
 - The entry component carries the top suffix (`Page`). That suffix **is** the "main"
   marker — no `Main` prefix, no special casing.
+- The `Page`/`Container` tier **is** the feature's orchestrator file (keystone §6): its
+  render reads top-to-bottom naming every child in order, so tracing the feature means
+  reading that one file.
 
 ## 2. Decompose JSX — no inline walls
 
@@ -59,6 +62,11 @@ return (
 
 Rule: one component = one file, named for what it renders. If a JSX block would earn a
 `{/* comment */}` to explain it, make it a component instead — the name is the comment.
+
+A component earns its own file when it has a name its parent renders — a **deep module**
+(keystone §6) with a small props interface and real markup behind it. Splitting to
+satisfy a size reflex produces shallow pass-through files; those fold back into the
+parent.
 
 ## 3. File-size ceiling
 
@@ -134,7 +142,8 @@ Wire it inline at the call site:
 ```
 
 Same shape for the other event families: `onSubmitResolvers`, `onClickResolvers`. Name
-the object by event, name the key by field/action.
+the object by event, name the key by field/action. Resolver keys are the minimal-pair
+rule (keystone §2) in action: every key shares the frame, only the field token differs.
 
 ## 6. CSS is component-scoped by default
 
