@@ -137,4 +137,4 @@ Brief suggested skills:
 
 Source: [BuilderIO/skills](https://github.com/BuilderIO/skills)
 
-[^storm]: The `storm` skill adapts the STORM method from Stanford OVAL. If you build on this work, please cite: Shao et al., *Assisting in Writing Wikipedia-like Articles From Scratch with Large Language Models*, NAACL 2024 (https://aclanthology.org/2024.naacl-long.347/); and Jiang et al., *Into the Unknown Unknowns: Engaged Human Learning through Participation in Language Model Agent Conversations*, EMNLP 2024 (https://aclanthology.org/2024.emnlp-main.554/).
+[^storm]: The `storm` skill adapts the STORM method from Stanford OVAL. If you build on this work, please cite: Shao et al., *Assisting in Writing Wikipedia-like Articles From Scratch with Large Language Models*, NAACL 2024 (https://www.alphaxiv.org/overview/2402.14207); and Jiang et al., *Into the Unknown Unknowns: Engaged Human Learning through Participation in Language Model Agent Conversations*, EMNLP 2024 (https://www.alphaxiv.org/overview/2408.15232).
