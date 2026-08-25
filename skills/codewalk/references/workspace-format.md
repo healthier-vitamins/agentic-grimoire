@@ -7,6 +7,7 @@
 ├── MISSION.md            # why the user is learning this codebase
 ├── NOTES.md              # teaching preferences + walk queue
 ├── learning-records/     # the learner model — see learning-record-format.md
+├── sweep/chains/         # detected chains, pending and traced — see trace-format.md
 └── reference/            # durable compressed codebase knowledge
 ```
 
@@ -19,7 +20,7 @@
    ```
    (Not a git repo → skip; nothing to exclude from.)
 3. Interview the user for the mission, then write `MISSION.md`.
-4. `learning-records/` and `reference/` are created lazily on first write.
+4. `learning-records/`, `sweep/chains/`, and `reference/` are created lazily on first write.
 
 ## MISSION.md
 
@@ -54,7 +55,7 @@ Scratchpad with two sections:
 - {chunk or area} — {source diff/ref} — {one-line why it was deferred}
 ```
 
-The walk queue holds chunks triaged out of oversized diffs; offer them as targets at the next session's scope step.
+The walk queue holds chunks triaged out of oversized diffs; offer them as targets at the next session's scope step. Deferred **chains** live in `sweep/chains/`, not here.
 
 ## reference/
 

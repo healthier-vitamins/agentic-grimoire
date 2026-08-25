@@ -7,19 +7,19 @@ How to question, calibrate, and challenge during a walk. The default goal is **s
 A **gear** is the whole session's shape, fixed once at SKILL.md Step 3. A **mode** is one area's difficulty inside that gear (below). Say *gear* for the session and *mode* for the area — the two never substitute for each other. (Rejected framing: *pass*. Natural to review ears, but it names no tradeoff, so it anchors no behaviour.)
 
 - **walk** — depth. The 4-6 highest-leverage chunks, question before explanation, aimed at storage strength. The default, and what the rest of this file describes unless a line says otherwise.
-- **sweep** — coverage. An annotated read-through: every chunk in the target, in reading order, snippet quoted, terse gloss, **zero questions** — aimed at understanding a diff or module well enough to act on it *today*.
+- **sweep** — coverage. A granular read-only trace: the target decomposed into atomic steps in reading order, each excerpt quoted under its own why-line, **zero comprehension questions** — aimed at understanding a diff or module well enough to act on it *today*. Shape, granularity, and the chain gate in [trace-format.md](trace-format.md).
 
-Sweep drops retrieval deliberately and runs on the playbook for non-interactive instruction — not on walk-minus-questions. On unfamiliar material a worked example beats unaided problem-solving (Sweller's worked-example effect), so each chunk is one worked example: snippet first, then gloss. Everything else is structure doing the teaching that questions do in walk (Mayer's multimedia principles):
+Sweep drops retrieval deliberately and runs on the playbook for non-interactive instruction — not on walk-minus-questions. On unfamiliar material a worked example beats unaided problem-solving (Sweller's worked-example effect), so each step is one worked example: excerpt first, then the why. Everything else is structure doing the teaching that questions do in walk (Mayer's multimedia principles):
 
-- **Segmenting** — learner-paced parts beat a continuous stream: at most 8 chunks per part (Miller's working-memory limit); the user says "next" between parts. That "next" is pacing, never a quiz.
-- **Coherence** — extraneous material hurts learning: the gloss is 2-4 sentences — what it does, why it is there, what it connects to — nothing decorative, nothing convoluted.
-- **Signaling** — structural cues (the orientation map, numbered reading order, part map) carry the reader through the material.
+- **Segmenting** — learner-paced parts beat a continuous stream: at most 8 steps per part (Miller's working-memory limit); the user says "next" between parts. That "next" is pacing, never a quiz.
+- **Coherence** — extraneous material hurts learning: one why-line, then at most five bullets of one idea each — nothing decorative, nothing convoluted.
+- **Signaling** — structural cues (the chain map, the part map, numbered steps) carry the reader through the material.
 
 The tradeoff stays stated: sweep buys comprehension you can act on today; walk buys knowing it next month.
 
 ## Question rubric
 
-Walk gear only — sweep asks nothing. Ask **before** explaining — retrieval builds storage strength, narration does not. Three question types:
+Walk gear only — sweep asks nothing but its chain gate and the "next" between parts. Ask **before** explaining — retrieval builds storage strength, narration does not. Three question types:
 
 - **Prediction** — "What does this function return when `items` is empty?" Use to test whether the user can execute the code mentally. Best for logic, control flow, edge cases.
 - **Explanation** — "Why did the AI route this through the repository layer instead of calling the ORM directly?" Use to test design understanding. Best for architecture, patterns, tradeoffs.
@@ -39,7 +39,7 @@ Each codebase area sits in one mode. A mode describes what one turn looks like:
 - **socratic** — question first, always. Prediction or explanation question on the chunk, judge, explain the delta. The default mode.
 - **flaw-hunt** — challenge mode. Quote real code with injected bugs and let the user hunt (spec below). For areas the user has demonstrated solid understanding of.
 
-Modes are walk gear's dial. Sweep ignores them — the only record-driven adjustment is terseness: an area recorded `solid` gets a shorter gloss.
+Modes are walk gear's dial. Sweep ignores them — the only record-driven adjustment is terseness: a step in an area recorded `solid` ships as header and excerpt, bullets cut.
 
 ## Computing the zone of proximal development
 
@@ -72,7 +72,7 @@ Walk gear only. **Injected bugs live only in chat code blocks — never written 
 
 ## Anti-patterns
 
-- **In walk, no pure narration; in sweep, no wall of text.** A walk without questions produces recognition, not learning — orientation gets 60 seconds, everything after ends with the user answering; narration is leaving a chunk with the user having answered nothing. Sweep teaches through structure instead, and an unsegmented, unsignaled dump defeats it as surely as a quizless walk — parts of ≤8 chunks, glosses of ≤4 sentences, map first.
+- **In walk, no pure narration; in sweep, no wall of text.** A walk without questions produces recognition, not learning — orientation gets 60 seconds, everything after ends with the user answering; narration is leaving a chunk with the user having answered nothing. Sweep teaches through structure instead, and an unsegmented, unsignaled dump defeats it as surely as a quizless walk — parts of ≤8 steps, bullets capped at five, chain map first.
 - **No trivia flashcards.** Quiz understanding ("why does this handler re-fetch?"), not facts a grep answers ("what is the function named?").
 - **No marathon sessions.** Past ~15 minutes retention drops and the user stops returning. End early with a clean wrap-up rather than pushing through.
 

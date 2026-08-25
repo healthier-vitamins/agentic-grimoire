@@ -39,7 +39,7 @@ If you also want my CLAUDE.md guidelines, run `/setup-agentic-grimoire` after in
 | oracle | Goes one level deeper on a topic. Surfaces the unknown-unknowns beneath your prompt. **Use when you want to gain deeper knowledge.** |
 | compass | **Goes wide instead of deep.** Lays out the alternatives to a chosen solution and recommends one. Use when you want options. |
 | storm[^storm] | Heavy research before a big decision. Five expert lenses, contradictions mapped, one confidence-rated pick. Uses Matt Pocock's `batch-grill-me` for intake. |
-| codewalk | Socratic walkthrough of provided topic/commit SHA/code. Two gears: `--walk` quizzes you on the highest-leverage snippets, `--sweep` covers every snippet to review a diff today. Tracks what you know per project. |
+| codewalk | Socratic walkthrough of provided topic/commit SHA/code. Two gears: `--walk` quizzes you on the highest-leverage snippets, `--sweep` traces the code into atomic steps, one chain at a time, to review a diff today. Tracks what you know per project. |
 | keystone | Clean code pedagogy. GoF patterns, functions over inline code, OOP. To be applied for all types of code. |
 | keystone-react | Same idea as `keystone`, but for React only. Decomposed components, context over prop-drilling, co-located CSS. |
 | playbook | Audit changed code against your engineering conventions (race conditions, idempotency, etc) and flag what is missing. |
