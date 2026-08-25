@@ -71,7 +71,7 @@ The map and any oversize are handled by the gear:
 Work the chunks in the session's gear — turn shapes in [pedagogy.md](references/pedagogy.md). Both gears **quote the focused excerpt** the turn is about (chat code block, `file:line` ref) and tie the code to codebase idioms and `reference/glossary.md` terms.
 
 - **walk** — each chunk in its area's mode: ask, judge the answer, explain only the delta. Calibrate continuously — downshift and upshift per pedagogy.md; the user can override with "easier" / "harder" at any time.
-- **sweep** — each step in the shape and granularity of [trace-format.md](references/trace-format.md): header, excerpt, why-line, one-idea bullets, one connective line to the previous step or a codebase idiom. Zero comprehension questions; next step.
+- **sweep** — each step in the shape and granularity of [trace-format.md](references/trace-format.md): header, excerpt, why-line, one-idea bullets, one connective line to the previous step or a codebase idiom, and — only when the code genuinely earns one — an improve-line. Zero comprehension questions; next step.
 
 The user may stop at any point — jump straight to Step 9; a cut-short session still gets a full wrap-up.
 
@@ -87,7 +87,7 @@ Walk gear only — when an area's mode is flaw-hunt, or the user passed `--flaw-
 
 Runs on **any** exit, including mid-walk quits. In order:
 
-1. **Walk:** write learning records for anything that passed the evidence gate in [learning-record-format.md](references/learning-record-format.md) — including warmup results that changed a record's standing (supersede, don't delete). **Sweep:** no learning records — no answers means no fluency evidence. Flip the traced chain's file to `Status: traced` and append one "covered" line to NOTES.md (target, date, chain, parts delivered): exposure, not fluency.
+1. **Walk:** write learning records for anything that passed the evidence gate in [learning-record-format.md](references/learning-record-format.md) — including warmup results that changed a record's standing (supersede, don't delete). **Sweep:** no learning records — no answers means no fluency evidence. Flip the traced chain's file to `Status: traced`, append any flagged improve-lines to it (`- improve: {file:line} — {suggestion}`, per [trace-format.md](references/trace-format.md)), and append one "covered" line to NOTES.md (target, date, chain, parts delivered): exposure, not fluency. Roll flagged improvements up to the user in one short chat list — nothing flagged, nothing said; the user acts on them outside the walk.
 2. Update `reference/` docs with any durable codebase facts the walk surfaced (glossary terms, architecture insights).
 3. Update NOTES.md: teaching preferences observed — including the gear, once the user's choice is settling into a habit — and walk queue additions.
 4. Append at most **one** line to `~/.claude/codewalk/field-notes.md`, only if a question style or calibration move clearly worked or flopped this session.
