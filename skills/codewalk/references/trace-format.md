@@ -70,6 +70,10 @@ A keystroke-per-request search burns the API quota.
   The floor: the *why*, and any fact that changes how the next step reads.
 - A step whose why the header already carries ships as header plus excerpt alone.
 - One connective line ties the step to the previous step or a `reference/glossary.md` term.
+- **Improve-line** — at most one trailing line, `improve — <the suggestion>` (≤72 chars),
+  only when the excerpt holds a change you would genuinely flag in code review — most
+  steps hold none, and silence is the norm. Your own knowledge decides what counts; no
+  taxonomy. It is a note, not a task: sweep stays read-only, the line changes nothing.
 
 ## Chain files
 
@@ -92,5 +96,7 @@ Detected-from: {the sweep target}
 ```
 
 Write the step list at detection time, before the user picks. On tracing a chain, flip
-`Status: traced` rather than deleting it — the traced set is the coverage record. Offer
-`pending` chains as targets at the next session's scope step.
+`Status: traced` rather than deleting it — the traced set is the coverage record — and
+append each improve-line the trace flagged under the step list, one per line:
+`- improve: {file:line} — {suggestion}`. Offer `pending` chains as targets at the next
+session's scope step.
