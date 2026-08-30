@@ -36,6 +36,13 @@ miss would be costly to recover from (a failed worker bounces back to the orches
 at full price). Codex only spawns subagents when asked, so treat this as a standing
 instruction to delegate.
 
+## Keystone
+
+Read `~/.claude/skills/keystone/SKILL.md` before implementing non-trivial logic, structuring
+a module, or judging whether existing code reads well — it carries the reading standard all
+code is written to. React components, pages, and features also take
+`~/.claude/skills/keystone-react/SKILL.md`.
+
 ## 1. Think Before Coding
 
 **Don't assume. Don't hide confusion. Surface tradeoffs.**
