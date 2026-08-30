@@ -29,6 +29,12 @@ For codebase search, delegate to the built-in `Explore` agent rather than readin
 inline, so the orchestrator's context stays clean. This complements opusplan, which
 already covers execution cost within the session.
 
+## Keystone
+
+Invoke the `keystone` skill before implementing non-trivial logic, structuring a module,
+or judging whether existing code reads well — it carries the reading standard all code is
+written to. React components, pages, and features take `keystone-react` on top of it.
+
 ## 1. Think Before Coding
 
 **Don't assume. Don't hide confusion. Surface tradeoffs.**

@@ -30,6 +30,12 @@ Do not downgrade further (e.g. Haiku) for non-trivial work — failed loops cost
 For codebase search, delegate to the built-in `Explore` agent rather than reading widely
 inline, so the orchestrator's context stays clean.
 
+## Keystone
+
+Invoke the `keystone` skill before implementing non-trivial logic, structuring a module,
+or judging whether existing code reads well — it carries the reading standard all code is
+written to. React components, pages, and features take `keystone-react` on top of it.
+
 ## 1. Think Before Coding
 
 **Don't assume. Don't hide confusion. Surface tradeoffs.**
