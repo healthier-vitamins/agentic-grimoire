@@ -26,8 +26,8 @@ implementation detail.
 
 - **Guideline block** (a.k.a. **managed block**) — the passage of agentic-grimoire guidelines
   spliced into a memory file, delimited by the `AGENTIC-GRIMOIRE: MANAGED FILE` markers. The
-  only region the setup skills own; everything outside it belongs to the user and is never
-  touched.
+  only region the guideline prompt edits; everything outside it belongs to the user and is
+  never touched.
 
 - **Onboard** — the act of installing this repo's skills and guideline block into a machine's
   profiles: one `npx skills add` plus the setup slash command(s).
