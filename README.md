@@ -115,6 +115,7 @@ Brief suggested skills:
 - `/batch-grill-me` same idea but asks the whole round of questions at once, faster. Still in-progress in his repo.
 - `/handoff` compresses the current conversation into a handoff doc so another agent can pick up where you left off.
 - `/teach` builds a personalized curriculum to teach you *anything*. Matt used it to learn to solve a Rubik's cube. Custom lessons, diagrams, and practice drills; not limited to code.
+- `/wait-what` tells the agent its last message did not land, so it explains the point again a different way.
 
 Sources: [mattpocock/skills](https://github.com/mattpocock/skills), [skills.sh listing](https://www.skills.sh/mattpocock/skills)
 
