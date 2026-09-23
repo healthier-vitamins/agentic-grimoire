@@ -1,11 +1,11 @@
 ---
-name: writer
+name: scribe
 description: Write the way I write, for one reader, in the voice of my samples.
 argument-hint: "[what to write, or a draft to cut]"
 disable-model-invocation: true
 ---
 
-# Writer
+# Scribe
 
 **Write for one reader.** A model defaults to a reader who could be anyone, so it explains
 what the real reader already knows: the timezone, how a table works, why a date shows up
