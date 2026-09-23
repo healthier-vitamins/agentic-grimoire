@@ -48,7 +48,6 @@ If you also want my CLAUDE.md guidelines, run `/setup-agentic-grimoire` after in
 | watermark | Turn uncommitted work into clean atomic conventional commits for user to review code easily. Never pushes. |
 | scribe | Write for one reader, in the voice of your samples. Mechanism over concept, length borrowed from the document, and a cleanup pass against AI tells. |
 | ste | Rewrite the last message into ASD-STE100 Simplified Technical English. Runs after the thinking, so it simplifies wording without touching reasoning, code, or quotes. |
-| consequence | Rewrite a report, spec, or description so every line names what breaks rather than what is. Fixes the document a reader calls convoluted, or a section they dismiss when it actually matters. |
 | setup-agentic-grimoire | One-time setup. Splices the guideline block into your CLAUDE.md and AGENTS.md. |
 | link-agentic-grimoire-custom | Mirror root ~/.claude config into other claude profiles on same device.|
 | unlink-agentic-grimoire-custom | Reverse the link. Restores each custom profile's own config from backups. |
@@ -82,7 +81,6 @@ STORM is extremely heavy, but it provides the most detailed output compared to `
 **Plain language**
 - Write or cut prose for one reader, in your own voice: `scribe`
 - Rewrite the last message in Simplified Technical English: `ste`
-- Fix a report or spec that reads as fluff, or that a reader called convoluted: `consequence`
 
 **Configurations**
 - CLAUDE.md and AGENTS.md: `setup-agentic-grimoire`
@@ -99,7 +97,6 @@ You do not need to write code to get value here. The knowledge skills work on an
 - `storm` does serious research before a big call, with a confidence-rated recommendation.
 - `ticketsmith` turns a plain description into a proper Jira ticket, no coding needed.
 - `scribe` writes or cuts any prose for one reader, no coding needed.
-- `consequence` rewrites any report or proposal so a reader can act on it, no coding needed.
 
 The rest of the skills are aimed at people writing or reviewing code.
 
