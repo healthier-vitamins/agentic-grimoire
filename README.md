@@ -59,10 +59,6 @@ For Codex, use `guidelines/codex.md` and `~/.codex/AGENTS.md` in the same prompt
 | ticketsmith | Draft a Jira story with checkbox acceptance criteria from a description or the codebase. Uses Matt Pocock's `grill-me` (prompts to install if missing). |
 | watermark | Turn uncommitted work into clean atomic conventional commits for user to review code easily. Never pushes. |
 | scribe | Write for one reader, in the voice of your samples. Mechanism over concept, length borrowed from the document, and a cleanup pass against AI tells. |
-| link-agentic-grimoire-custom | Mirror root ~/.claude config into other claude profiles on same device.|
-| unlink-agentic-grimoire-custom | Reverse the link. Restores each custom profile's own config from backups. |
-| sync-agentic-grimoire | Update this machine's skills from the repo and prune ones deleted upstream. |
-| uninstall-agentic-grimoire | Full removal. Strips the guideline block and removes this repo's skills everywhere. |
 
 ### STORM
 STORM is extremely heavy, but it provides the most detailed output compared to `oracle` and `compass`. My personal approach is first tackle unknowns with `oracle` and `compass`. Once you feel relatively comfortable in diving deeper, proceed with `storm`.
@@ -90,11 +86,6 @@ STORM is extremely heavy, but it provides the most detailed output compared to `
 
 **Plain language**
 - Write or cut prose for one reader, in your own voice: `scribe`
-
-**Configurations**
-- Extend to custom profiles: `link-agentic-grimoire-custom`
-- Keep in sync: `sync-agentic-grimoire`
-- Undo/Uninstall: `unlink-agentic-grimoire-custom`, `uninstall-agentic-grimoire`
 
 ## For non-development work
 
