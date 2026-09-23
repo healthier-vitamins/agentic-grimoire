@@ -64,10 +64,10 @@ When the skill being forged is itself educational, spend interview time on:
 
 The interview discipline, everywhere a skill talks to its user:
 
-- **One question at a time.** Multiple questions at once are bewildering.
+- **Ask in rounds.** Each round asks every question whose prerequisites are settled, numbered. A question whose answer depends on another open question waits for a later round.
 - **Recommended answer first**, every question — sparring partner, not blank slate.
 - **Decisions are the user's; facts are looked up.** Anything the filesystem or tools can answer is never a question. An agent that answers its own questions has broken the interview.
-- **Dependency order** — resolve the decision other decisions hang on first.
+- **Dependency order** — the decisions other decisions hang on go in the earliest round.
 
 ## 9. Style rules
 

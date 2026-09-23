@@ -31,17 +31,33 @@ Facts are looked up; only decisions are asked. Before any question, gather from 
 
 **Done when:** you can state the target directory, the frontmatter fields the repo uses, and any collision — without asking the user any of it.
 
-### Step 2 — Grill (5 questions, hard cap)
+### Step 2 — Grill (3 rounds, hard cap)
 
-Interview the user one question at a time, each with your recommended answer first, in this dependency order. An adaptive follow-up is allowed but **spends a slot** — five questions total, then stop.
+Interview the user in **rounds**. Each round asks every question whose prerequisites are settled, all at once, numbered, each with your recommended answer. Wait for the answers before the next round. A question that depends on another question still open belongs to a later round. Adaptive follow-ups join the next round; after round 3, stop.
+
+Format each question as:
+
+```
+❓ **Q1** - **<question title>**: <question body, including the choices>
+
+➡️ <your recommended answer>
+```
+
+**Round 1**
 
 1. **Purpose + leading word** — what the skill does in one sentence, and the single pretrained concept that anchors it (*forge*, *triage*, *fog of war*). Propose a candidate.
 2. **Invocation** — model-invoked (agent can fire it; description costs context load every turn) or user-invoked (zero context load; the user's memory pays cognitive load). Recommend user-invoked unless the agent or another skill must reach it autonomously.
+
+**Round 2** (depends on the purpose)
+
 3. **Branches** — the genuinely distinct ways the skill gets used. Each branch earns a trigger and shapes disclosure.
 4. **Content shape + completion criteria** — steps, reference, or a mix; and for each step, what checkable condition means *done*. Push for exhaustive criteria ("every X accounted for"), never vibes ("looks good").
-5. **Wildcard** — whatever the answers above left genuinely unresolved. If the skill teaches a human, spend this slot on the ZPD set in `style.md` §7 (mission, fluency vs storage, retrieval/spacing).
 
-**Done when:** all five slots are resolved or the user says proceed. Decisions the user declined to make fall to your recommendations — say so in the draft review.
+**Round 3**
+
+5. **Wildcard** — whatever the answers above left genuinely unresolved, plus follow-ups from rounds 1 and 2. If the skill teaches a human, spend this round on the ZPD set in `style.md` §7 (mission, fluency vs storage, retrieval/spacing).
+
+**Done when:** all three rounds are resolved or the user says proceed. Decisions the user declined to make fall to your recommendations — say so in the draft review.
 
 ### Step 3 — Derive
 
@@ -87,7 +103,7 @@ Walk **every rubric row** against the skill. Report findings ranked most-damagin
 
 ### Step 3 — Pick + grill
 
-The user picks which findings to fix. Grill only where a fix is a genuine decision (which leading word, whether to split a skill) — usually 0–2 questions, recommended answer each.
+The user picks which findings to fix. Grill only where a fix is a genuine decision (which leading word, whether to split a skill) — usually 0–2 questions, asked together in one round in the Step 2 format, recommended answer each.
 
 ### Step 4 — Apply
 
