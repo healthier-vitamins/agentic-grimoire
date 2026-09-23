@@ -56,7 +56,7 @@ For Codex, use `guidelines/codex.md` and `~/.codex/AGENTS.md` in the same prompt
 | keystone-react | Same idea as `keystone`, but for React only. Decomposed components, context over prop-drilling, co-located CSS. |
 | playbook | Audit changed code against your engineering conventions (race conditions, idempotency, etc) and flag what is missing. |
 | skillsmith | Create a new skill or audit an existing one, attempted Matt Pocock philosophies. |
-| ticketsmith | Draft a Jira story with checkbox acceptance criteria from a description or the codebase. Uses Matt Pocock's `grill-me` (prompts to install if missing). |
+| ticketsmith | Draft a Jira story with checkbox acceptance criteria from a description or the codebase. Interviews you in rounds with Matt Pocock's `grilling`, writes in `scribe` style (prompts to install either if missing). |
 | watermark | Turn uncommitted work into clean atomic conventional commits for user to review code easily. Never pushes. |
 | scribe | Write for one reader, in the voice of your samples. Mechanism over concept, length borrowed from the document, and a cleanup pass against AI tells. |
 
