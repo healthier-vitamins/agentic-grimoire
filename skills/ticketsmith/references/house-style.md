@@ -3,7 +3,11 @@
 The standard for the drafted ticket: a teammate reads it in under a minute and knows what
 to do. These rules govern the ticket output only, not this doc.
 
-The skill runs Socrates twice. `grill-me` is **maieutics** — questioning that delivers what
+This file owns **what a ticket contains**. How each sentence reads (voice, length of prose,
+dashes, hedges, hype, AI tells) belongs to the `scribe` skill. Where the two overlap, this
+file decides what stays in the ticket and `scribe` decides how it is worded.
+
+The skill runs Socrates twice. `grilling` is **maieutics** — questioning that delivers what
 the user already knows. The cut (Step 6) is **elenchus** — cross-examining the draft's own
 claims until each one survives or collapses. Drafting adds; only the cut subtracts.
 
@@ -21,6 +25,11 @@ travels with it and buries the ask.
 
 **The template is the whole ticket.** Do not invent sections. If the material will not fit
 under *User story* and *Acceptance criteria*, it belongs in the research doc.
+
+**Cap each unit, not the ticket.** The story's context is at most three sentences. Each
+acceptance criterion is one verifiable check on one line. A complex issue gets more
+criteria, not longer ones. The criteria count has no cap; the §2 questions remove the lines
+that carry nothing.
 
 ## 2. The elenchus
 
@@ -49,14 +58,9 @@ whole, not trimmed.
   to build. Keep them in the research doc.
 - **Rejected options.** A rejected option earns a line only when someone will otherwise
   re-propose it. Eight ruled-out rows collapse to zero.
-- **Glossing.** "In plain words", "essentially", "what this means is". If the sentence needs
-  a gloss, rewrite the sentence.
 - **Meta-commentary.** Any sentence explaining the document's own machinery ("the From
   column shows...") is scaffolding left standing after the build.
 - **Restatement.** A context sentence that re-says the title or the story adds nothing.
-- **Hedges and hype.** "Robust", "seamless", "it's worth noting", "may potentially". One
-  hedge survives only when it marks a real, load-bearing uncertainty.
-- **Emdashes.** Use full stops, commas, or parentheses. Emdashes read as AI boilerplate.
 
 ## 4. What always stays
 

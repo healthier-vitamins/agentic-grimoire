@@ -21,9 +21,16 @@ outstanding. Those two sections are the whole ticket.
 
 ## House style (ticket output)
 
-**`references/house-style.md` is the standard.** Both the Step 5 drafter and the
-Step 6 cut read it in full. It governs the ticket only, not this doc. The short
-form:
+Two standards govern the ticket, and both the Step 5 drafter and the Step 6 cut
+read them in full. Neither governs this doc.
+
+- **`references/house-style.md`** decides **what the ticket contains**: the
+  template, what always goes, what always stays, the cut.
+- **The `scribe` skill** (`SKILL.md` plus `references/ai-tells.md`) decides **how
+  each sentence reads**: one named reader, mechanism over concept, no AI tells.
+  The reader is the product owner, analyst, or project manager named above.
+
+The short form:
 
 - **A ticket is not a research report.** It answers what is wrong, what we will
   try, and how we will know. Nothing else.
@@ -32,24 +39,29 @@ form:
   the story.
 - **Speak the team's language.** No file, module, or function names. Product,
   vendor, and domain nouns the team says out loud stay.
-- **Plain and pragmatic.** No emdashes, no hype, no hedging.
+- **Short units.** Story context at most three sentences. One check per
+  criterion, one line each. A complex issue gets more criteria, not longer ones.
 
 ## Step 1: Get the seed
 
 Use `$ARGUMENTS` as the description. If empty, ask the user for a one-sentence
 description of what they want built. Do not proceed without it.
 
-## Step 2: Ensure the interview skill is installed
+## Step 2: Ensure the dependencies are installed
 
-Check for Matt Pocock's interview skills — **either** `grilling` or `grill-me`
-satisfies this (`~/.claude/skills/<name>/` for Claude Code,
-`~/.agents/skills/<name>/` for Codex, or the active profile's `skills/<name>/`).
-`grilling` is the one Step 4 invokes; `grill-me` is a one-line wrapper that runs it.
-If **both are missing**, show the user the install command and **ask before running
+Check for two skills in `~/.claude/skills/<name>/` (Claude Code),
+`~/.agents/skills/<name>/` (Codex), or the active profile's `skills/<name>/`:
+
+- **`grilling`** (Matt Pocock's), which runs the Step 4 interview.
+- **`scribe`** (this repo's), which sets the ticket's prose. Record the absolute
+  path of its directory for Step 5.
+
+For each one missing, show the user its install command and **ask before running
 it**. It mutates their global skill store:
 
 ```sh
-npx skills add mattpocock/skills --skill=grill-me
+npx skills add mattpocock/skills --skill=grilling
+npx skills add healthier-vitamins/agentic-grimoire --skill=scribe
 ```
 
 Run it only on the user's yes. If they decline, stop.
@@ -72,15 +84,12 @@ step was skipped because there is no repo.
 
 ## Step 4: The interview (Matt Pocock's skill), run in-session
 
-Invoke the `grilling` skill with the Skill tool. Do **not** print a seed for the user
-to paste and do **not** wait for a separate session — the interview runs here. Pass
-it the description (plus "in repo `<name>`" if Step 3 found one). Do **not**
-re-implement the interview inline; `grilling` drives the questioning, ticketsmith
-only starts it and folds the resolved decisions back into this flow.
-
-Invoke `grilling`, not `grill-me`: `grill-me` sets `disable-model-invocation`, so the
-model cannot call it. **Fallback** — if `grilling` is not available, give the user the
-one-line seed and ask them to run `/grill-me`, then wait for that session to finish.
+Invoke the `grilling` skill with the Skill tool, in this session. Pass it the
+description (plus "in repo `<name>`" if Step 3 found one). `grilling` drives the
+questioning in **rounds**: every question whose prerequisites are settled is asked
+at once, numbered, each with a recommended answer, and the next round waits for the
+user's answers. Ticketsmith only starts it and folds the resolved decisions back
+into this flow.
 
 **Goal seed:** direct the interview to surface the **main goal / why** behind the
 request, the benefit the user story's "so that" needs, not just the what.
@@ -99,14 +108,16 @@ chosen single-goal ticket in Step 5. The rest are separate ticketsmith runs.
 
 Spawn a subagent on the required model (see the model requirement above) and pass
 it: the seed description, the confirmed interview decisions, the confirmed
-context and done-state, the repo path (if any), and the **absolute path to this
-skill's `references/house-style.md`**. Instruct the subagent to:
+context and done-state, the repo path (if any), the **absolute path to this
+skill's `references/house-style.md`**, and the **absolute path to the `scribe`
+directory** from Step 2. Instruct the subagent to:
 
 1. **Ground, don't surface.** Read the repo to make the story and criteria
    accurate (use `Explore` for broader sweeps). Grounding informs the content
    only. It never licenses identifiers in the ticket.
-2. **Read `house-style.md` in full** and write both sections to it. §5 is the
-   identifier line: codebase-free, not domain-free.
+2. **Read `house-style.md` and scribe's `SKILL.md` in full.** Write both sections
+   to `house-style.md` for content and to scribe for wording. `house-style.md` §5
+   is the identifier line: codebase-free, not domain-free.
 3. **Write for a peer, not a stranger.** Draft for completeness here. Step 6 does
    the subtracting — do not try to be concise and complete in one pass.
 4. Fill this template. The two sections are the whole ticket:
@@ -117,8 +128,8 @@ skill's `references/house-style.md`**. Instruct the subagent to:
    ## User story
    As a <role>, I want <capability> so that <benefit>.
 
-   <2-3 plain sentences of context per the House style: the why, the domain, and
-   where it stands.>
+   <at most 3 plain sentences of context per the House style: the why, the domain,
+   and where it stands.>
 
    ## Acceptance criteria
    - [x] <criterion the confirmed context shows already done>
@@ -137,6 +148,8 @@ skill's `references/house-style.md`**. Instruct the subagent to:
 Run this in the main session, not a subagent. Read `references/house-style.md`,
 then apply §2's six questions to **every line** of the returned draft, including
 the title and each criterion. Delete a failing line whole rather than trimming it.
+Then run scribe's cleanup pass over the survivors: edit them against scribe's
+`references/ai-tells.md`.
 
 Two guards:
 
@@ -148,12 +161,15 @@ Two guards:
 Then re-read the result once against §1: if it still reads as a defence of an idea
 rather than an instruction, the genre is wrong and the cut is unfinished.
 
+If more than eight criteria survive, ask the user whether the ticket holds one goal
+or several. On "several", return to the Step 4 re-align gate.
+
 Write the cut ticket to `./<slug-from-title>.md` in the **current working
 directory** (the user's folder, not a scratchpad). If that file exists, suffix to
 avoid clobbering: `<slug>-2.md`, `<slug>-3.md`, and so on.
 
-**Done when:** every remaining line survives all six questions and the file is
-written.
+**Done when:** every remaining line survives all six questions, every pattern in
+scribe's `references/ai-tells.md` has been checked, and the file is written.
 
 ## Step 7: Emit
 
@@ -164,6 +180,6 @@ the cut's, so the user can see what the pass removed.
 6, never clobbering) whose only sections are a **User story** and checkbox
 **Acceptance criteria**, with `[x]` limited to grill-confirmed done criteria. It
 was drafted by a Sonnet-5 / GPT-5.5-medium subagent from the `grilling` interview
-and confirmed context, then put through the Step 6 cut, and every surviving line
-answers all six questions in `references/house-style.md` §2. The same content is
+and confirmed context, then put through the Step 6 cut and scribe's cleanup pass.
+Every surviving line answers all six questions in `references/house-style.md` §2. The same content is
 printed in the chat.
