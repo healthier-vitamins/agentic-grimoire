@@ -22,7 +22,7 @@ Do **not** add the `Claude-Session` session-id/URL trailer to commit messages.
 
 ## Model Selection
 
-For cost efficiency without quality loss, use the `opusplan` alias (`/model opus-plan`):
+For cost efficiency without quality loss, use the `opusplan` alias (`/model opusplan`):
 Opus plans and reviews, then auto-switches to Sonnet for execution within the same session.
 Keep planning and final review on the top model and let Sonnet handle mechanical execution.
 Do not downgrade further (e.g. Haiku) for non-trivial work — failed loops cost more than they save.
