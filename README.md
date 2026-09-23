@@ -28,7 +28,19 @@ npx skills add healthier-vitamins/agentic-grimoire --global -a claude-code codex
 
 _This shows a picker so you choose which skills to install. In a non-TTY shell add `--yes`._
 
-If you also want my CLAUDE.md guidelines, run `/setup-agentic-grimoire` after installing. It splices the guideline block into your `~/.claude/CLAUDE.md` and `~/.codex/AGENTS.md` without touching anything you already wrote.
+### Optional: guidelines
+
+If you also want my CLAUDE.md guidelines, paste this prompt into Claude Code:
+
+```text
+Fetch https://raw.githubusercontent.com/healthier-vitamins/agentic-grimoire/main/guidelines/claude.md.
+In ~/.claude/CLAUDE.md, replace the text between the lines
+<!-- AGENTIC-GRIMOIRE: MANAGED FILE --> and <!-- END AGENTIC-GRIMOIRE: MANAGED FILE -->
+with the fetched text. If the markers are absent, append both markers with the fetched text
+between them. Do not change anything outside the markers.
+```
+
+For Codex, use `guidelines/codex.md` and `~/.codex/AGENTS.md` in the same prompt. Run it again to update. To remove the guidelines, delete the marked region.
 
 >The CLAUDE.md and AGENTS.md guidelines delegate work to subagents. There **will** be an increased in tokens consumption rate. Worth it for cleaner context on big tasks, skip it if you want a lean setup.
 
@@ -47,7 +59,6 @@ If you also want my CLAUDE.md guidelines, run `/setup-agentic-grimoire` after in
 | ticketsmith | Draft a Jira story with checkbox acceptance criteria from a description or the codebase. Uses Matt Pocock's `grill-me` (prompts to install if missing). |
 | watermark | Turn uncommitted work into clean atomic conventional commits for user to review code easily. Never pushes. |
 | scribe | Write for one reader, in the voice of your samples. Mechanism over concept, length borrowed from the document, and a cleanup pass against AI tells. |
-| setup-agentic-grimoire | One-time setup. Splices the guideline block into your CLAUDE.md and AGENTS.md. |
 | link-agentic-grimoire-custom | Mirror root ~/.claude config into other claude profiles on same device.|
 | unlink-agentic-grimoire-custom | Reverse the link. Restores each custom profile's own config from backups. |
 | sync-agentic-grimoire | Update this machine's skills from the repo and prune ones deleted upstream. |
@@ -81,7 +92,6 @@ STORM is extremely heavy, but it provides the most detailed output compared to `
 - Write or cut prose for one reader, in your own voice: `scribe`
 
 **Configurations**
-- CLAUDE.md and AGENTS.md: `setup-agentic-grimoire`
 - Extend to custom profiles: `link-agentic-grimoire-custom`
 - Keep in sync: `sync-agentic-grimoire`
 - Undo/Uninstall: `unlink-agentic-grimoire-custom`, `uninstall-agentic-grimoire`
