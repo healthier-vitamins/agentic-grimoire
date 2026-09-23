@@ -47,7 +47,6 @@ If you also want my CLAUDE.md guidelines, run `/setup-agentic-grimoire` after in
 | ticketsmith | Draft a Jira story with checkbox acceptance criteria from a description or the codebase. Uses Matt Pocock's `grill-me` (prompts to install if missing). |
 | watermark | Turn uncommitted work into clean atomic conventional commits for user to review code easily. Never pushes. |
 | scribe | Write for one reader, in the voice of your samples. Mechanism over concept, length borrowed from the document, and a cleanup pass against AI tells. |
-| ste | Rewrite the last message into ASD-STE100 Simplified Technical English. Runs after the thinking, so it simplifies wording without touching reasoning, code, or quotes. |
 | setup-agentic-grimoire | One-time setup. Splices the guideline block into your CLAUDE.md and AGENTS.md. |
 | link-agentic-grimoire-custom | Mirror root ~/.claude config into other claude profiles on same device.|
 | unlink-agentic-grimoire-custom | Reverse the link. Restores each custom profile's own config from backups. |
@@ -80,7 +79,6 @@ STORM is extremely heavy, but it provides the most detailed output compared to `
 
 **Plain language**
 - Write or cut prose for one reader, in your own voice: `scribe`
-- Rewrite the last message in Simplified Technical English: `ste`
 
 **Configurations**
 - CLAUDE.md and AGENTS.md: `setup-agentic-grimoire`
