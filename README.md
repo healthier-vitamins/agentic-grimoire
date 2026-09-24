@@ -82,7 +82,7 @@ and everything between them. Do not change anything outside the markers.
 |---|---|
 | oracle | Goes one level deeper on a topic. Surfaces the unknown-unknowns beneath your prompt. **Use when you want to gain deeper knowledge.** |
 | compass | **Goes wide instead of deep.** Lays out the alternatives to a chosen solution and recommends one. Use when you want options. |
-| storm[^storm] | Heavy research before a big decision. Five expert lenses, contradictions mapped, one confidence-rated pick. Uses Matt Pocock's `batch-grill-me` for intake. |
+| storm[^storm] | Heavy research before a big decision. Five expert lenses, contradictions mapped, one confidence-rated pick. Uses Matt Pocock's `grilling` for intake. |
 | codewalk | Socratic walkthrough of provided topic/commit SHA/code. Two gears: `--walk` quizzes you on the highest-leverage snippets, `--sweep` traces the code into atomic steps, one chain at a time, to review a diff today. Tracks what you know per project. |
 | keystone | Clean code pedagogy. GoF patterns, functions over inline code, OOP. To be applied for all types of code. |
 | keystone-react | Same idea as `keystone`, but for React only. Decomposed components, context over prop-drilling, co-located CSS. |
@@ -143,8 +143,7 @@ npx skills@latest add mattpocock/skills
 
 Brief suggested skills:
 
-- `/grill-me` interviews you about a plan one question at a time until every branch is resolved.
-- `/batch-grill-me` same idea but asks the whole round of questions at once, faster. Still in-progress in his repo.
+- `/grill-me` interviews you about a plan until every branch is resolved. Each round asks every question that is ready at once, with a recommended answer for each.
 - `/handoff` compresses the current conversation into a handoff doc so another agent can pick up where you left off.
 - `/teach` builds a personalized curriculum to teach you *anything*. Matt used it to learn to solve a Rubik's cube. Custom lessons, diagrams, and practice drills; not limited to code.
 - `/wait-what` tells the agent its last message did not land, so it explains the point again a different way.
