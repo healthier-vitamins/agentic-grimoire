@@ -30,7 +30,9 @@ _This shows a picker so you choose which skills to install. In a non-TTY shell a
 
 ### Optional: guidelines
 
-If you also want my CLAUDE.md guidelines, paste this prompt into Claude Code:
+If you also want my guidelines, paste the prompt for your agent. Run it again to update.
+
+**Claude Code** (`~/.claude/CLAUDE.md`):
 
 ```text
 Fetch https://raw.githubusercontent.com/healthier-vitamins/agentic-grimoire/main/guidelines/claude.md.
@@ -40,7 +42,37 @@ with the fetched text. If the markers are absent, append both markers with the f
 between them. Do not change anything outside the markers.
 ```
 
-For Codex, use `guidelines/codex.md` and `~/.codex/AGENTS.md` in the same prompt. Run it again to update. To remove the guidelines, delete the marked region.
+<details>
+<summary>Remove from Claude Code</summary>
+
+```text
+In ~/.claude/CLAUDE.md, delete the lines
+<!-- AGENTIC-GRIMOIRE: MANAGED FILE --> and <!-- END AGENTIC-GRIMOIRE: MANAGED FILE -->
+and everything between them. Do not change anything outside the markers.
+```
+
+</details>
+
+**Codex** (`~/.codex/AGENTS.md`):
+
+```text
+Fetch https://raw.githubusercontent.com/healthier-vitamins/agentic-grimoire/main/guidelines/codex.md.
+In ~/.codex/AGENTS.md, replace the text between the lines
+<!-- AGENTIC-GRIMOIRE: MANAGED FILE --> and <!-- END AGENTIC-GRIMOIRE: MANAGED FILE -->
+with the fetched text. If the markers are absent, append both markers with the fetched text
+between them. Do not change anything outside the markers.
+```
+
+<details>
+<summary>Remove from Codex</summary>
+
+```text
+In ~/.codex/AGENTS.md, delete the lines
+<!-- AGENTIC-GRIMOIRE: MANAGED FILE --> and <!-- END AGENTIC-GRIMOIRE: MANAGED FILE -->
+and everything between them. Do not change anything outside the markers.
+```
+
+</details>
 
 >The CLAUDE.md and AGENTS.md guidelines delegate work to subagents. There **will** be an increased in tokens consumption rate. Worth it for cleaner context on big tasks, skip it if you want a lean setup.
 
