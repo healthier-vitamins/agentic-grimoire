@@ -1,7 +1,7 @@
 ---
 name: storm
 disable-model-invocation: true
-description: Decide anything the heavy way — a batch-grill-me interview to shared understanding, then autonomous rounds of multi-lens research, contradiction-mapped, moderator-driven, and peer-reviewed into a confidence-gated pick.
+description: Decide anything the heavy way — a grilling interview to shared understanding, then autonomous rounds of multi-lens research, contradiction-mapped, moderator-driven, and peer-reviewed into a confidence-gated pick.
 ---
 
 Goal: take any problem statement — technical or not, from a user who may know nothing
@@ -21,15 +21,14 @@ to `compass` (breadth across named alternatives) and `oracle` (vertical unknown-
 
 ### Step 1 — Interview to shared understanding
 
-Check for `batch-grill-me` (`~/.claude/skills/batch-grill-me/` for Claude Code,
-`~/.agents/skills/batch-grill-me/` for Codex, or the active profile's
-`skills/batch-grill-me/`).
+Check for Matt Pocock's `grilling` (`~/.claude/skills/grilling/` for Claude Code,
+`~/.agents/skills/grilling/` for Codex, or the active profile's `skills/grilling/`).
 
-**Found:** hand the interview to `batch-grill-me` — it drives the questioning round by
+**Found:** invoke `grilling` with the Skill tool — it drives the questioning round by
 round and dispatches its own sub-agents for facts; seed it and wait.
 
 **Missing:** run the same interview inline with the `AskUserQuestion` tool, keeping the
-batch-grill-me contract: ask the whole frontier each round — every question whose
+grilling contract: ask the whole frontier each round — every question whose
 prerequisites are settled — with a recommended answer per question; look facts up
 yourself instead of asking the user; recompute the frontier after each round of answers;
 the interview ends when the frontier is empty.
