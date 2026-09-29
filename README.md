@@ -82,7 +82,7 @@ and everything between them. Do not change anything outside the markers.
 |---|---|
 | oracle | Goes one level deeper on a topic. Surfaces the unknown-unknowns beneath your prompt. **Use when you want to gain deeper knowledge.** |
 | compass | **Goes wide instead of deep.** Lays out the alternatives to a chosen solution and recommends one. Use when you want options. |
-| storm[^storm] | Heavy research before a big decision. Five expert lenses, contradictions mapped, one confidence-rated pick. Uses Matt Pocock's `grilling` for intake. |
+| storm[^storm] | Decide one thing with the least bias. Interview to one decision, pre-registered pick and falsifier, five lenses (two hunting against the pick), contradictions mapped, premortem, fresh Critic, confidence-gated verdict that seeds a `wayfinder` map. `--light` skips research for judgment calls. Uses Matt Pocock's `grilling` for intake. |
 | codewalk | Socratic walkthrough of provided topic/commit SHA/code. Two gears: `--walk` quizzes you on the highest-leverage snippets, `--sweep` traces the code into atomic steps, one chain at a time, to review a diff today. Tracks what you know per project. |
 | keystone | Clean code pedagogy. GoF patterns, functions over inline code, OOP. To be applied for all types of code. |
 | keystone-react | Same idea as `keystone`, but for React only. Decomposed components, context over prop-drilling, co-located CSS. |
@@ -93,7 +93,7 @@ and everything between them. Do not change anything outside the markers.
 | scribe | Write for one reader, in the voice of your samples. Mechanism over concept, length borrowed from the document, and a cleanup pass against AI tells. |
 
 ### STORM
-STORM is extremely heavy, but it provides the most detailed output compared to `oracle` and `compass`. My personal approach is first tackle unknowns with `oracle` and `compass`. Once you feel relatively comfortable in diving deeper, proceed with `storm`.
+STORM is extremely heavy, but it provides the most detailed output compared to `oracle` and `compass`. My personal approach is first tackle unknowns with `oracle` and `compass`. Once you feel relatively comfortable in diving deeper, proceed with `storm`. Its report ends in a **Wayfinder seed**: run Matt Pocock's `/wayfinder <report path>` to chart the remaining decisions, then `/to-spec` → `/to-tickets` → `/implement`. For a call that evidence cannot settle (ship now or hold, cut scope or keep it), `storm --light` convenes four voices and skips the research.
 
 ## When to reach for what
 
@@ -101,6 +101,7 @@ STORM is extremely heavy, but it provides the most detailed output compared to `
 - Deeper on one thing: `oracle`
 - Wider across options: `compass`
 - Serious research before deciding: `storm`
+- Judgment call, no research needed: `storm --light`
 - Learn any code/module: `codewalk`
 - Review a diff before you approve it: `codewalk --sweep`
 
