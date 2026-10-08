@@ -29,6 +29,13 @@ simple lookup, higher for interdependent changes or debugging — and reach for 
 effort whenever a cheap miss would be costly to recover from. Codex only spawns
 subagents when asked, so treat this as a standing instruction to delegate.
 
+Route subagents by difficulty — each agent's own `model` sets its cost, whatever model the
+main session runs:
+
+- research and hard analysis → `researcher` (GPT-6 Astra)
+- implementing an already-decided plan → `executor` (GPT-6.1 Sol)
+- codebase search → `explorer` (GPT-6 Luna)
+
 ## Keystone
 
 Read `~/.claude/skills/keystone/SKILL.md` before implementing non-trivial logic, structuring
