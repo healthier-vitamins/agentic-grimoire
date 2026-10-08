@@ -18,14 +18,14 @@ controls from open science (**pre-registration** and Popper's **falsifier**), Kl
 (fresh voices that see only the question). Companion to `compass` (breadth across named
 alternatives) and `oracle` (vertical unknown-unknowns); `storm` is the heavier sibling.
 
-**The interview is the only gate** (plus one skippable checkpoint, Step 6). After the
+**The interview is the only gate** (plus one skippable checkpoint, Step 7). After the
 user confirms shared understanding, every remaining step runs autonomously through to
 the recommendation.
 
 ## Gears
 
 - **Heavy** (default) — the full loop below: research, ledger, report file, wayfinder seed.
-- **Light** (`--light`) — no research, no file. Steps 1–3, then Step 3L, then Step 10's
+- **Light** (`--light`) — no research, no file. Steps 0–3, then Step 3L, then Step 10's
   verdict rules in chat. For judgment calls that evidence cannot settle: ship now or hold,
   cut scope or keep it, one repo or two. When the voices split on a *fact*, say so and
   offer heavy.
@@ -41,10 +41,25 @@ the recommendation.
 
 ## Steps
 
+### Step 0 — Misfit check
+
+`storm` misfits when there is no decision to make — a factual lookup with a determinate
+answer, or open exploration with nothing to choose between. Without a decision there is
+no pick to pre-register and no falsifier to hunt. That is the whole test; a small decision
+is **not** a misfit, since `--light` exists for it.
+
+On misfit, name the absent trigger in one line, then answer directly and skip the rest:
+
+> Skipping `storm`: no decision pending — nothing to pick between. Answering directly.
+
+When the decision exists but a solution is already chosen and only needs attacking, say in
+one line that `compass` is the lighter fit, and let the user choose before Step 1.
+
 ### Step 1 — Interview to shared understanding
 
-Check for Matt Pocock's `grilling` (`~/.claude/skills/grilling/` for Claude Code,
-`~/.agents/skills/grilling/` for Codex, or the active profile's `skills/grilling/`).
+Look in the available-skills listing for Matt Pocock's `grilling`, bare (`grilling`) or
+plugin-namespaced (`<plugin>:grilling`, e.g. `mattpocock-skills:grilling`). Without a
+listing (Codex), check `~/.agents/skills/grilling/`.
 
 **Found:** invoke `grilling` with the Skill tool — it drives the questioning round by
 round and dispatches its own sub-agents for facts; seed it and wait.
@@ -64,7 +79,7 @@ the report file destination (default `./storm-report-<topic-slug>.md`).
 surfaces more than one, put each to the user by name and ask which one this run takes;
 the rest are listed in chat as *separate storm candidates* and land in the report's
 Out of scope. When the problem lives in a repository, the interview also records the
-repo path — Step 5 measures there.
+repo path — Step 6 measures there.
 
 **Done when:** exactly one decision is named in one line, the extra decisions are listed,
 and the user confirms shared understanding — the last interactive moment before the
@@ -94,11 +109,12 @@ observation that would kill it. When a repo is in play, the falsifier is a measu
 
 ### Step 3L — Light gear only: council
 
-Launch three fresh sub-agents in parallel — **Skeptic**, **Pragmatist** (shipping speed,
-user impact, operational reality), **Critic** (edge cases, downside risk, failure modes).
-Each receives only the decision line, the constraints, and the compact context the
-decision needs, never the conversation. Each returns: position (1–2 sentences), three
-reasons, biggest risk, one thing the other voices may miss. Under 300 words. Your
+Launch two fresh sub-agents in parallel — **Pragmatist** (shipping speed, user impact,
+operational reality), **Critic** (edge cases, downside risk, failure modes). Each
+receives only the decision line, the constraints, and the compact context the decision
+needs, never the conversation. Each returns: position (1–2 sentences), three reasons,
+biggest risk, one thing the other voices may miss. Under 300 words. The Step 2
+**Skeptic** is the third voice — its three answers stand as its position. Your
 pre-registered pick is the fourth voice, the **Architect**.
 
 Then go to Step 10 and apply its synthesis rules to the four positions; the verdict goes
@@ -161,7 +177,7 @@ every retrieved source in the ledger, and the falsifier is marked *hit*, *missed
 3. **Pivotal question** — the one that resolves the biggest conflict.
 4. **Consensus** — what every lens agrees on; even opponents confirm it.
 5. **Blind spot** — what no lens addressed. Hunt it with `oracle`'s descent move
-   (`../oracle/SKILL.md` Step 3): dispatch one sub-agent to ask, for each gap, what
+   (`../oracle/SKILL.md` Step 4): dispatch one sub-agent to ask, for each gap, what
    concept it presupposes, what mechanism it hides, what failure mode it papers over —
    and recurse. Gaps found feed the moderator (Step 9).
 
@@ -232,8 +248,10 @@ and the round count.
     neutrality instead. Tag each candidate heading with the advisor's call: **picked**
     (+ role, e.g. backbone / add-on), **rejected: <one-line reason>**, or
     **conditional: <condition>**.
-11. **Wayfinder seed** — the last body section, in the shape of a wayfinder map body so
-    `/wayfinder <report path>` charts from it with a short interview:
+11. **Wayfinder seed** — the last body section, the input to wayfinder's *Chart the map*
+    mode. Destination, Notes, Not yet specified and Out of scope map onto the map body;
+    sharp questions become its first tickets. Storm's settled decisions ride in Notes,
+    since wayfinder's Decisions-so-far indexes closed tickets only:
 
     ```markdown
     ## Wayfinder seed
@@ -243,13 +261,15 @@ and the round count.
 
     ### Notes
     <constraints from the interview; skills every session should consult>
-
-    ### Decisions so far
+    Settled by storm — <report path>:
     - <the pick>: <one-line gist> — <finding>
     - <each settled finding that closes a question>
 
+    ### Sharp questions
+    - <each remaining unknown from rule 9 you can state precisely now, one line, typed research / prototype / grilling / task>
+
     ### Not yet specified
-    - <each remaining unknown from rule 9, one line, typed research / prototype / grilling / task>
+    <the loose fog: unknowns not yet sharp enough to phrase as a question, written as loosely as the view allows, untyped>
 
     ### Out of scope
     - <each rejected candidate>: <reason>
@@ -281,7 +301,7 @@ Formatting contract — the body is written to be skimmed:
 **Done when:** the report file exists at the agreed path, its body reads in ≤5 minutes,
 the bold lead-ins alone summarize the report (skim test), the Critic is quoted, the
 falsifier's fate is stated, and chat shows the unknowns-first verdict + recommended path
-+ `next: /wayfinder <report path>`.
++ `next: /wayfinder chart the map from the Wayfinder seed in <report path>`.
 
 ## Output shape
 

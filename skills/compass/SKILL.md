@@ -32,7 +32,9 @@ Companion to `oracle` (which explores one stack vertically — depth, unknown-un
 
    This quota is the point of the skill — the alternative the user would never have thought to ask about is the payload. Surface it even when it loses.
 
-   Aim: ≥3 genuinely distinct approaches stand, none a config variation of another.
+   **Do nothing** — keep the status quo or defer the choice — is always placed on the axes too, on top of the three. It is the baseline the proposed solution must beat; when nothing wins on the axes that matter, it is the verdict.
+
+   Aim: ≥3 genuinely distinct approaches stand, none a config variation of another, plus do-nothing.
 
 5. **Per alternative, give four facets:**
    - **What it is** — one line.
@@ -54,5 +56,5 @@ A default, not a template — reshape when the material calls for it.
 
 - **Proposed solution + intent** — one line.
 - **Axes that matter** — short bulleted list.
-- **Alternatives** — ≥3, each with what / why / why-not / when-to-pick (+ a cited source).
+- **Alternatives** — ≥3 plus do-nothing, each with what / why / why-not / when-to-pick (+ a cited source).
 - **Verdict** — recommended pick + the "pick X instead if …" condition.
