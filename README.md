@@ -68,6 +68,11 @@ In ~/.codex/AGENTS.md, replace the text between the lines
 <!-- AGENTIC-GRIMOIRE: MANAGED FILE --> and <!-- END AGENTIC-GRIMOIRE: MANAGED FILE -->
 with the fetched text. If the markers are absent, append both markers with the fetched text
 between them. Do not change anything outside the markers.
+Then fetch researcher.toml, executor.toml and explorer.toml from
+https://raw.githubusercontent.com/healthier-vitamins/agentic-grimoire/main/agents/codex/
+and write each to ~/.codex/agents/ under the same name, replacing any existing copy.
+In ~/.codex/config.toml, set default_subagent_model = "gpt-6.1-sol" under [agents] and keep
+every other key unchanged.
 ```
 
 <details>
@@ -77,6 +82,8 @@ between them. Do not change anything outside the markers.
 In ~/.codex/AGENTS.md, delete the lines
 <!-- AGENTIC-GRIMOIRE: MANAGED FILE --> and <!-- END AGENTIC-GRIMOIRE: MANAGED FILE -->
 and everything between them. Do not change anything outside the markers.
+Delete ~/.codex/agents/researcher.toml, executor.toml and explorer.toml, and remove
+default_subagent_model from [agents] in ~/.codex/config.toml.
 ```
 
 </details>
