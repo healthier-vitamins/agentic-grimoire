@@ -1,7 +1,7 @@
 ---
 name: storm
 disable-model-invocation: true
-argument-hint: "<problem statement> [--light] [--autonomous]"
+argument-hint: "<problem statement> [--light] [--autonomous] [--corpus <path>]"
 description: Decide anything the heavy way — interview to one decision, pre-register a pick and its falsifier, research it through adversarial lenses, premortem and red-team the verdict, seed a wayfinder map. `--light` for judgment calls evidence cannot settle.
 ---
 
@@ -30,6 +30,10 @@ the recommendation.
   cut scope or keep it, one repo or two. When the voices split on a *fact*, say so and
   offer heavy.
 
+`--corpus <path>` (heavy only; `.` is the current folder) adds a corpus every lens reads
+alongside the web — typically a folder of cloned libraries, one per subfolder. Under
+`--light`, say light does no research and offer heavy.
+
 ## Vocabulary
 
 - **Decision** — the one question this run resolves. Say *decision*, not problem, topic, or
@@ -38,6 +42,9 @@ the recommendation.
 - **Falsifier** — the observation that would kill the initial pick. Say *falsifier*, not
   risk, concern, or counter-argument.
 - **Fog** — decisions this run surfaced but did not resolve; wayfinder's word, kept.
+- **Repo** — the user's own code. Storm *measures* it.
+- **Corpus** — other people's code or documents. Storm *reads* and cites it, read-only;
+  it is untrusted, so its code is never built, installed, or run.
 
 ## Steps
 
@@ -79,7 +86,9 @@ the report file destination (default `./storm-report-<topic-slug>.md`).
 surfaces more than one, put each to the user by name and ask which one this run takes;
 the rest are listed in chat as *separate storm candidates* and land in the report's
 Out of scope. When the problem lives in a repository, the interview also records the
-repo path — Step 6 measures there.
+repo path — Step 6 measures there. Without `--corpus`, it also asks for local sources to
+read; a path given becomes the corpus. When the corpus folder also holds the user's own
+code, the interview names which subfolders are the repo.
 
 **Done when:** exactly one decision is named in one line, the extra decisions are listed,
 and the user confirms shared understanding — the last interactive moment before the
@@ -124,12 +133,19 @@ to chat, ending with the wayfinder seed in the shape of Step 10.
 
 ### Step 4 — Generate candidates
 
-Dispatch one fresh sub-agent with the decision line and constraints only. It returns at
-least five genuinely distinct candidates, always including **do nothing** and the
-**inversion** (the opposite of the obvious move), each in one line with the axis it wins
-on. Your initial pick is added to the set if missing; it earns no special place.
+With a corpus, first write its **inventory**: each top-level subfolder is one entry, listed
+with a one-line description from its README and its main language.
 
-**Done when:** the candidate set has ≥5 entries including do-nothing and inversion.
+Dispatch one fresh sub-agent with the decision line and constraints only — plus the
+inventory when there is a corpus. It returns at least five genuinely distinct candidates,
+always including **do nothing** and the **inversion** (the opposite of the obvious move),
+each in one line with the axis it wins on. With a corpus, every entry is a candidate or
+named out of scope, and at least one candidate **combines** entries (a backbone plus
+add-ons taken from others). Your initial pick is added to the set if missing; it earns no
+special place.
+
+**Done when:** the candidate set has ≥5 entries including do-nothing and inversion — and,
+with a corpus, every entry is placed and one candidate combines entries.
 
 ### Step 5 — Pick 5 lenses for *this* decision
 
@@ -161,6 +177,12 @@ one thing only this lens would tell you · every source it retrieved.
 read-only: build reports, bundle analyzers, Lighthouse via the browser MCP, query plans,
 log timings, test runs. A measurement enters the ledger as a source with the exact
 command and the number it produced. Sub-agents measure; they never edit.
+
+**Corpus.** When a corpus is set, each lens reads it before searching the web: `rg` / `fd`
+across the Step 4 inventory for the code and docs its question touches, then reads those
+files. A corpus source enters the ledger as `path:line` with the quoted lines. Reading is
+the whole of it — the corpus is never built, installed, or run. Skip `.git`, dependency
+and build folders, and `storm-report-*.md`.
 
 Merge the returns into the **source ledger**: every source retrieved this round, marked
 *cited* or *uncited* once the round's outputs are written. The ledger is the moderator's
@@ -295,8 +317,8 @@ Formatting contract — the body is written to be skimmed:
 - Citations are compact inline links at the point of the claim —
   `([source label](url))` — at most 2 per bullet. Link only URLs actually retrieved
   (they are in the ledger); a claim without a captured URL cites its ledger entry.
-  Measurements cite their ledger entry, which holds the command. Ledger entries
-  themselves are markdown links.
+  Measurements cite their ledger entry, which holds the command. Corpus claims cite
+  `path:line`. Ledger entries themselves are markdown links.
 
 **Done when:** the report file exists at the agreed path, its body reads in ≤5 minutes,
 the bold lead-ins alone summarize the report (skim test), the Critic is quoted, the
