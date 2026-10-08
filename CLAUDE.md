@@ -25,9 +25,15 @@ Opus plans and reviews, then auto-switches to Sonnet for execution within the sa
 Keep planning and final review on the top model and let Sonnet handle mechanical execution.
 Do not downgrade further (e.g. Haiku) for non-trivial work — failed loops cost more than they save.
 
-For codebase search, delegate to the built-in `Explore` agent rather than reading widely
-inline, so the orchestrator's context stays clean. This complements opusplan, which
-already covers execution cost within the session.
+Route subagents by difficulty — each agent's own `model` sets its cost, whatever model the
+main session runs:
+
+- research and hard analysis → `researcher` (Opus)
+- implementing an already-decided plan → `executor` (Sonnet)
+- codebase search → `Explore` (Haiku), rather than reading widely inline, so the
+  orchestrator's context stays clean
+
+Keep planning and review on the main thread.
 
 ## Keystone
 
