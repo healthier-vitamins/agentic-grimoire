@@ -20,15 +20,17 @@ Companion to `compass` (breadth across competing approaches). `oracle` descends 
 
 1. **Restate + infer intent.** Restate the prompt and state its underlying intention in one line.
 
-2. **Calibrate depth, not scope.** Read the prompt's vocabulary for the level the user works at, and let it set *how much explanation each gap gets* — never which gaps you reach. Fluency at one layer says nothing about the layers beneath, so calibration must not prune step 3's descent. Descend fully; explain briefly where the user is plainly fluent.
+2. **Calibrate depth, not scope.** Read the prompt's vocabulary for the level the user works at, and let it set *how much explanation each gap gets* — never which gaps you reach. Fluency at one layer says nothing about the layers beneath, so calibration must not prune step 4's descent. Descend fully; explain briefly where the user is plainly fluent.
 
-3. **Descend.** List the concepts, constraints, trade-offs, prerequisites, and failure modes the prompt never touches. For each gap, ask what lies beneath it — the concept it presupposes, the mechanism it hides, the failure mode it papers over — and recurse.
+3. **Ground.** Search before mapping any gap: `WebSearch` for what practitioners actually do; `Context7` MCP for library/framework/API documentation. Rank sources by [`references/source-priority.md`](references/source-priority.md) — read it before searching. Read each source for what it presupposes, what it warns about, and what it cites — that is the raw material step 4 descends from.
+
+   Aim: the descent starts from retrieved sources, not from the model's own map of the domain.
+
+4. **Descend.** List the concepts, constraints, trade-offs, prerequisites, and failure modes the prompt never touches — drawn from what step 3's sources presuppose, warn about, or cite. For each gap, ask what lies beneath it — the concept it presupposes, the mechanism it hides, the failure mode it papers over — and recurse. When a layer reaches past the sources in hand, search again for that layer.
 
    Example descent: connection pooling → connection lifecycle → TCP handshake cost → file-descriptor limits → why the pool-size default exists.
 
-   Aim: every gap bottoms out at first principles or a layer the prompt shows the user already knows.
-
-4. **Research.** `WebSearch` for what practitioners actually do; `Context7` MCP for library/framework/API documentation. Rank sources by [`references/source-priority.md`](references/source-priority.md) — read it before searching. Cite what is non-obvious, contested, or version-specific; undisputed statements need no footnote.
+   Aim: every gap bottoms out at first principles or a layer the prompt shows the user already knows, and every layer rests on a retrieved source. Cite what is non-obvious, contested, or version-specific; undisputed statements need no footnote.
 
 5. **Teach each gap:**
    - **What it is** — one line.
@@ -45,4 +47,4 @@ A default, not a template — reshape when the material calls for it.
 
 - **Intent** — one line.
 - **Descent map** — each gap with the chain beneath it.
-- **Per gap** — the three teach lines from step 5, cited per step 4.
+- **Per gap** — the three teach lines from step 5, cited per steps 3–4.
