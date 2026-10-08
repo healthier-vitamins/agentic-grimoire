@@ -40,6 +40,11 @@ In ~/.claude/CLAUDE.md, replace the text between the lines
 <!-- AGENTIC-GRIMOIRE: MANAGED FILE --> and <!-- END AGENTIC-GRIMOIRE: MANAGED FILE -->
 with the fetched text. If the markers are absent, append both markers with the fetched text
 between them. Do not change anything outside the markers.
+Then fetch researcher.md, executor.md and Explore.md from
+https://raw.githubusercontent.com/healthier-vitamins/agentic-grimoire/main/agents/
+and write each to ~/.claude/agents/ under the same name, replacing any existing copy.
+In ~/.claude/settings.json, set env.CLAUDE_CODE_SUBAGENT_MODEL to "sonnet" and keep every
+other key unchanged.
 ```
 
 <details>
@@ -49,6 +54,8 @@ between them. Do not change anything outside the markers.
 In ~/.claude/CLAUDE.md, delete the lines
 <!-- AGENTIC-GRIMOIRE: MANAGED FILE --> and <!-- END AGENTIC-GRIMOIRE: MANAGED FILE -->
 and everything between them. Do not change anything outside the markers.
+Delete ~/.claude/agents/researcher.md, executor.md and Explore.md, and remove
+env.CLAUDE_CODE_SUBAGENT_MODEL from ~/.claude/settings.json.
 ```
 
 </details>
