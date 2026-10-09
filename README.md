@@ -150,11 +150,14 @@ The rest of the skills are aimed at people writing or reviewing code.
 
 ### Matt Pocock's Skills
 
-A separate collection worth installing alongside these. Install with:
+A separate collection worth installing alongside these. Install the plugin with:
 
 ```sh
-npx skills@latest add mattpocock/skills
+claude plugin install mattpocock-skills@claude-plugins-official   # Claude Code
+codex plugin add mattpocock-skills@openai-curated-remote          # Codex
 ```
+
+Plugin skills are namespaced, for example `/mattpocock-skills:grill-me`.
 
 Brief suggested skills:
 

@@ -49,18 +49,24 @@ description of what they want built. Do not proceed without it.
 
 ## Step 2: Ensure the dependencies are installed
 
-Check for two skills in `~/.claude/skills/<name>/` (Claude Code),
-`~/.agents/skills/<name>/` (Codex), or the active profile's `skills/<name>/`:
+Check for two skills:
 
-- **`grilling`** (Matt Pocock's), which runs the Step 4 interview.
-- **`scribe`** (this repo's), which sets the ticket's prose. Record the absolute
-  path of its directory for Step 5.
+- **`grilling`** (Matt Pocock's), which runs the Step 4 interview. It ships in the
+  `mattpocock-skills` plugin, so look for it in your available skills, where it may
+  be listed as `mattpocock-skills:grilling`.
+- **`scribe`** (this repo's), which sets the ticket's prose. Look in
+  `~/.claude/skills/scribe/` (Claude Code), `~/.agents/skills/scribe/` (Codex), or
+  the active profile's `skills/scribe/`. Record the absolute path of its directory
+  for Step 5.
 
 For each one missing, show the user its install command and **ask before running
 it**. It mutates their global skill store:
 
 ```sh
-npx skills add mattpocock/skills --skill=grilling
+# grilling: Claude Code, then Codex
+claude plugin install mattpocock-skills@claude-plugins-official
+codex plugin add mattpocock-skills@openai-curated-remote
+# scribe
 npx skills add healthier-vitamins/agentic-grimoire --skill=scribe
 ```
 
