@@ -13,7 +13,7 @@ This skill is user-invoked only. Read `commit-format.md` (same directory) before
 The single source of truth for identity, signing, and trailers — `commit-format.md` and every step point here:
 
 - Author identity and any GPG signature come from the user's normal git config (`%an`/`%ae` and the signature are expected — nothing overridden).
-- Claude's default `Co-Authored-By: Claude` trailer stays. Fabricate no session id/URL trailers.
+- Under Claude Code, end every commit with the classic attribution in `commit-format.md` → Trailers. It replaces any model-named co-author line or session id/URL trailer the harness suggests. Under Codex, attach no trailer.
 - Keep the user's personal name/email out of the subject, body, and trailers.
 
 ## Step 1 — Inspect the worktree

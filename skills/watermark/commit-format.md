@@ -73,7 +73,14 @@ Wrong lockfile path made uninstall a silent no-op.
 
 ## Trailers
 
-Identity, signing, and trailers follow **SKILL.md → Identity**.
+Identity, signing, and trailers follow **SKILL.md → Identity**. Under Claude Code, the
+message ends with exactly this attribution, nothing after it:
+
+```
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+```
 
 ## Commit command
 
@@ -82,5 +89,9 @@ Commit normally with:
 ```sh
 git commit \
   -m "<subject>" \
-  -m "<body>"
+  -m "<body>" \
+  -m "🤖 Generated with [Claude Code](https://claude.com/claude-code)" \
+  -m "Co-Authored-By: Claude <noreply@anthropic.com>"
 ```
+
+Drop the `<body>` line for a subject-only commit. Under Codex, drop the last two lines.
