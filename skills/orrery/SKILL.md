@@ -25,8 +25,8 @@ Step 6 reads two skills' files directly (both are user-invoked, so the Skill too
 For each one missing, show its install command and **ask before running it** — it mutates the global skill store:
 
 ```sh
-npx skills add healthier-vitamins/agentic-grimoire --skill=scribe
-npx skills add mattpocock/skills --skill=wait-what
+npx skills add healthier-vitamins/agentic-grimoire -g -s scribe
+npx skills add mattpocock/skills -g -s wait-what
 ```
 
 If the user declines, continue and write step 6 in ASD-STE100 Simplified Technical English without the scribe pass; say so in the hand-off.

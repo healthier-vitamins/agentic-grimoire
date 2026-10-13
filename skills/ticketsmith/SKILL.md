@@ -67,7 +67,7 @@ it**. It mutates their global skill store:
 claude plugin install mattpocock-skills@claude-plugins-official
 codex plugin add mattpocock-skills@openai-curated-remote
 # scribe
-npx skills add healthier-vitamins/agentic-grimoire --skill=scribe
+npx skills add healthier-vitamins/agentic-grimoire -g -s scribe
 ```
 
 Run it only on the user's yes. If they decline, stop.
