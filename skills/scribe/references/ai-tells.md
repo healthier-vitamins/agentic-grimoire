@@ -59,7 +59,7 @@ A person may do any one of these on purpose, so the weaker ones need company fro
 
 ### 8. Dashes as the universal connector
 
-**Rule:** The final rewrite must not contain em dashes (—) or en dashes (–) unless the writer's sample uses them; then match the sample's rate. Replace each dash with a period, comma, colon, or parentheses, or rewrite the sentence. This includes spaced dashes and double hyphens (` -- `) used as dashes. Leave dashes and hyphens inside code blocks, inline code, commands, paths, and URLs alone.
+**Rule:** The final rewrite must not contain em dashes (—) or en dashes (–). Replace each dash with a period, comma, colon, or parentheses, or rewrite the sentence. This includes spaced dashes and double hyphens (` -- `) used as dashes. Leave dashes and hyphens inside code blocks, inline code, commands, paths, and URLs alone.
 **Problem:** A dash lets the writer skip choosing how two clauses relate, so a model reaches for it everywhere. Many editors and journalists also use dashes, so one dash is *weak alone*; a text full of them is not.
 
 ### 9. Stacked qualifiers
@@ -82,7 +82,7 @@ The fact underneath is usually sound. Keep it and remove the dressing.
 
 ### 12. Overused AI words
 
-**Watch for:** Actually, additionally, align with, bolstered, crucial, deep dive, delve, emphasizing, enduring, enhance, fostering, garner, gate/gated/gating (figurative; keep technical uses), highlight (verb), interplay, intricate/intricacies, key (adjective), landscape (abstract noun), meticulous/meticulously, pivotal, quietly, robust (figurative; keep technical uses), showcase, tapestry (abstract noun), testament, underscore (verb), valuable, vibrant  
+**Watch for:** Actually, align with, bolstered, crucial, deep dive, delve, emphasizing, enduring, enhance, fostering, garner, gate/gated/gating (figurative; keep technical uses), highlight (verb), interplay, intricate/intricacies, key (adjective), landscape (abstract noun), meticulous/meticulously, pivotal, quietly, robust (figurative; keep technical uses), showcase, tapestry (abstract noun), testament, underscore (verb), valuable, vibrant  
 **Problem:** Models use these words far more often than people do, especially in groups. This is the only vocabulary list in the skill. A formal word outside it is not a tell by itself.
 
 ### 13. Inflated significance

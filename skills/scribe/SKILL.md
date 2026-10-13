@@ -1,6 +1,6 @@
 ---
 name: scribe
-description: Write the way I write, for one reader, in the voice of my samples.
+description: Write the way I write, for one reader.
 argument-hint: "[what to write, or a draft to cut]"
 disable-model-invocation: true
 ---
@@ -13,19 +13,10 @@ twice. Name the actual reader first (the teammate on the ticket, the manager ski
 summary, the examiner marking the answer) and leave out whatever they already share with the
 writer.
 
-## Match the sample
-
-Before drafting, read whichever file in `samples/` fits the medium, plus any sample the user
-passes in. Match its line length, punctuation, labels, openings and sign-offs. A sample
-outranks every rule below.
-
-Two habits from the samples are worth reaching for when they suit the reader. An update
-says who was told and what happens next. A table doubles as the work surface when items get
-worked through one by one, with a status per row (`[FIXED]`, `[ALREADY ALIGNED]`). Choose a
-different form whenever the medium, the reader or their level calls for one.
-
-`samples/` is local only and never committed. If it is missing or nothing in it fits, work
-from the rules below.
+Two habits are worth reaching for when they suit the reader. An update says who was told and
+what happens next. A table doubles as the work surface when items get worked through one by
+one, with a status per row (`[FIXED]`, `[ALREADY ALIGNED]`). Choose a different form whenever
+the medium, the reader or their level calls for one.
 
 ## Rules
 
@@ -82,11 +73,26 @@ Primary sources only: court filings, SEC filings, a company's own statement, the
 Print only figures visible in a document actually read, and say plainly what could not be
 confirmed.
 
-### 7. Polished prose
+### 7. Linked sentences
 
-In essays and set answers, vary sentence length, break with a comma or full stop where a dash
-would go, and carry transitions in words ("This is mitigated by...") rather than label colons.
-Working notes between colleagues follow the sample instead, labels and parallel lists included.
+Write subject, verb, object, with counts and times after the verb. Join each sentence to the
+one before with a word that names the relation, so the reader follows the reasoning without
+supplying it:
+
+- Cause and result: *because*, *since*, *so*, *therefore*, *thus*, *consequently*, *as a result*
+- Addition: *also*, *moreover*, *furthermore*, *additionally*, *in addition*
+- Contrast: *but*, *however*, *although*, *whereas*, *nevertheless*
+- Condition: *if*, *unless*, *provided that*
+- Sequence: *then*, *after*, *subsequently*
+
+Rejected. *Twice, the gateway returned 403 to our calls, within 3 to 4 ms. Sentinel never saw
+either call.*
+
+Accepted. *The gateway returned 403 to our calls twice, within 3 to 4 ms. Therefore Sentinel
+did not receive either call.*
+
+In essays and set answers, also vary sentence length and break with a comma or full stop
+where a dash would go. Working notes between colleagues may use labels and parallel lists.
 
 ## Answering a set question
 
@@ -100,12 +106,11 @@ Working notes between colleagues follow the sample instead, labels and parallel 
 
 After drafting, read [`references/ai-tells.md`](references/ai-tells.md) and edit the draft
 against it. Act on §1 to §5 at one sighting and on a *weak alone* pattern only when others
-share its passage. Where the sample does something the file lists as a tell, keep the sample's
-habit.
+share its passage.
 
 ## Done when
 
 - The reader is named, and nothing in the text explains what that reader already shares.
-- The draft matches the sample's line length and punctuation, or rules 1 to 7 where no sample fits.
+- The draft follows rules 1 to 7.
 - Every figure traces to a document actually opened (rule 6).
 - Every pattern in `references/ai-tells.md` has been checked, and each one left in is deliberate.

@@ -104,7 +104,7 @@ default_subagent_model from [agents] in ~/.codex/config.toml.
 | skillsmith | Create a new skill or audit an existing one, attempted Matt Pocock philosophies. |
 | ticketsmith | Draft a Jira story with checkbox acceptance criteria from a description or the codebase. Interviews you in rounds with Matt Pocock's `grilling`, writes in `scribe` style (prompts to install either if missing). |
 | watermark | Turn uncommitted work into clean atomic conventional commits for user to review code easily. Never pushes. |
-| scribe | Write for one reader, in the voice of your samples. Mechanism over concept, length borrowed from the document, and a cleanup pass against AI tells. |
+| scribe | Write for one reader, in plain linked sentences. Mechanism over concept, length borrowed from the document, and a cleanup pass against AI tells. |
 
 ### STORM
 STORM is extremely heavy, but it provides the most detailed output compared to `oracle` and `compass`. My personal approach is first tackle unknowns with `oracle` and `compass`. Once you feel relatively comfortable in diving deeper, proceed with `storm`. Its report ends in a **Wayfinder seed**: run Matt Pocock's `/wayfinder <report path>` to chart the remaining decisions, then `/to-spec` → `/to-tickets` → `/implement`. For a call that evidence cannot settle (ship now or hold, cut scope or keep it), `storm --light` convenes four voices and skips the research.
