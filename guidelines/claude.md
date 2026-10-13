@@ -16,8 +16,16 @@ Do not finish with known safe-to-fix issues in the changed scope. Do not weaken 
 
 ## Commits
 
-Keep the default `Co-Authored-By` trailer that the harness adds — do not strip it.
-Do **not** add the `Claude-Session` session-id/URL trailer to commit messages.
+End every commit message with Claude Code's classic attribution, exactly:
+
+```
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+```
+
+This replaces the model-named `Co-Authored-By` line and the `Claude-Session` session-id/URL
+trailer the harness suggests — add neither.
 (Codex has no default co-author trailer, so it attaches nothing — that is expected.)
 
 ## Model Selection
