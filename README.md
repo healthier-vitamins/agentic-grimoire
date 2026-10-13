@@ -109,6 +109,12 @@ default_subagent_model from [agents] in ~/.codex/config.toml.
 ### STORM
 STORM is extremely heavy, but it provides the most detailed output compared to `oracle` and `compass`. My personal approach is first tackle unknowns with `oracle` and `compass`. Once you feel relatively comfortable in diving deeper, proceed with `storm`. Its report ends in a **Wayfinder seed**: run Matt Pocock's `/wayfinder <report path>` to chart the remaining decisions, then `/to-spec` → `/to-tickets` → `/implement`. For a call that evidence cannot settle (ship now or hold, cut scope or keep it), `storm --light` convenes four voices and skips the research.
 
+## Academic skills
+
+| Skill | What it does |
+|---|---|
+| orrery | Turns one formula into an interactive page: drag the inputs, watch every part move. Graphs are drawn by code, so they are exact. **Use when a formula makes no sense on paper.** Edits its notes with `scribe` and Matt Pocock's `wait-what` (prompts to install either if missing). |
+
 ## When to reach for what
 
 **Understanding something**
@@ -118,6 +124,9 @@ STORM is extremely heavy, but it provides the most detailed output compared to `
 - Judgment call, no research needed: `storm --light`
 - Learn any code/module: `codewalk`
 - Review a diff before you approve it: `codewalk --sweep`
+
+**Academic**
+- See what a formula does, as an interactive page: `orrery`
 
 **Writing code**
 - General: `keystone`
