@@ -76,24 +76,31 @@ step was skipped because there is no repo.
 ## Step 4: The interview (Matt Pocock's skill), run in-session
 
 Invoke the `grilling` skill with the Skill tool, in this session. Pass it the description
-(plus "in repo `<name>`" if Step 3 found one). `grilling` asks in **rounds**, at most five
-questions per round, each with a recommended answer. Ticketsmith starts it and folds the
-resolved decisions back into this flow. Point the interview at three things:
+(plus "in repo `<name>`" if Step 3 found one). `grilling` asks in **rounds**, each question
+with a recommended answer. Ticketsmith starts it and folds the resolved decisions back into
+this flow.
+
+**Ask what only the user can settle.** Tell the interview to ask only the decisions it
+cannot look up and cannot safely default, and to state each default in one line that the
+user can override. A round may hold one question, or none; five is the ceiling. The Step 7
+preview catches a wrong default, so lean on defaults. Point the interview at three things:
 
 - **The why.** The goal behind the work, which the explanation needs.
 - **The context.** Hand over Step 3's context assumptions and candidate done items, so
   the user confirms or corrects them. Draft only from confirmed context. An item counts
   as done once the user confirms it.
 - **The fields** from `ticket.md`: issue type, parent, label, sprint, assignee, status,
-  estimate.
+  estimate. Default each from the context (an earlier ticket, the current sprint, the user
+  as assignee); ask only for one you cannot infer.
 
 **One ticket, one goal (re-align gate):** after the interview, check the resolved scope.
 When it holds several distinct goals, list them, recommend one ticket per goal, and ask
 which to draft first. When the user folds related work into one ticket instead, that work
 goes in the template's *Also* section with its own sub-tasks.
 
-**Done when:** every interview branch is resolved or the user said to proceed, every done
-item is confirmed, and the scope holds one goal.
+**Done when:** every decision that changes the ticket is settled by the user, the
+environment, or a stated default; every done item is confirmed; and the scope holds one
+goal.
 
 ## Step 5: Draft the ticket in a pinned subagent
 
