@@ -102,7 +102,7 @@ default_subagent_model from [agents] in ~/.codex/config.toml.
 | keystone-react | Same idea as `keystone`, but for React only. Decomposed components, context over prop-drilling, co-located CSS. |
 | playbook | Audit changed code against your engineering conventions (race conditions, idempotency, etc) and flag what is missing. |
 | skillsmith | Create a new skill or audit an existing one, attempted Matt Pocock philosophies. |
-| ticketsmith | Draft a Jira story with checkbox acceptance criteria from a description or the codebase. Interviews you in rounds with Matt Pocock's `grilling`, writes in `scribe` style (prompts to install either if missing). |
+| ticketsmith | Draft a Jira ticket template from a description or the codebase: a short explanation of the work, an item table, and one sub-task per item. Interviews you in rounds with Matt Pocock's `grilling`, writes in `scribe` style (prompts to install either if missing). |
 | watermark | Turn uncommitted work into clean atomic conventional commits for user to review code easily. Never pushes. |
 | scribe | Write for one reader, in plain linked sentences. Mechanism over concept, length borrowed from the document, and a cleanup pass against AI tells. |
 
@@ -135,7 +135,7 @@ STORM is extremely heavy, but it provides the most detailed output compared to `
 
 **Shipping**
 - Commits: `watermark`
-- Jira story: `ticketsmith`
+- Jira ticket: `ticketsmith`
 
 **Authoring skills**
 - Attempted Matt Pocock's philosophies on writing skills: `skillsmith`
