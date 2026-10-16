@@ -72,7 +72,7 @@ listing (Codex), check `~/.agents/skills/grilling/`.
 round and dispatches its own sub-agents for facts; seed it and wait.
 
 **Missing:** run the same interview inline with the `AskUserQuestion` tool, keeping the
-grilling contract: ask the whole frontier each round — every question whose
+grilling contract: each round asks the frontier's open decisions — those whose
 prerequisites are settled — with a recommended answer per question; look facts up
 yourself instead of asking the user; recompute the frontier after each round of answers;
 the interview ends when the frontier is empty.
@@ -81,6 +81,13 @@ Either way, seed the interview with the problem statement and direct it to surfa
 user's domain knowledge (assume none until shown otherwise), hard constraints (budget,
 deadline, locale, stack), the goal behind the ask, preferences and dealbreakers, and
 the report file destination (default `./storm-report-<topic-slug>.md`).
+
+**Ask what only the user can settle.** Pass this to the interview either way. Look up
+what the environment holds. For the rest, state a safe default in one line that the user
+can override. Ask only the decisions you cannot look up and cannot safely default. A
+round may hold one question, or none; five is the ceiling. The decision and the hard
+constraints are always confirmed with the user: the run after this step is long and
+autonomous, so a wrong guess there costs the whole run.
 
 **One decision per storm.** A big problem is several decisions. When the interview
 surfaces more than one, put each to the user by name and ask which one this run takes;
@@ -91,7 +98,9 @@ read; a path given becomes the corpus. When the corpus folder also holds the use
 code, the interview names which subfolders are the repo.
 
 **Done when:** exactly one decision is named in one line, the extra decisions are listed,
-and the user confirms shared understanding — the last interactive moment before the
+every choice that changes the run is settled by the user, the environment, or a stated
+default, and the user confirms the decision and the hard constraints — the last
+interactive moment before the
 checkpoint. Announce that storm now runs autonomously, then continue without stopping.
 
 ### Step 2 — Premise challenge
