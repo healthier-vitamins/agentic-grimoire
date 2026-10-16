@@ -14,7 +14,7 @@ claims until each one survives or collapses. Drafting adds; only the cut subtrac
 ## 1. The genre rule
 
 **A ticket is not a research report.** A report answers *what did we learn and how do we
-know it's true*. A ticket answers *what is wrong, what we will try, how we will know*.
+know it's true*. A ticket answers *what the work is, what changes, and where it stands*.
 Every sentence serving the first question is cut.
 
 This is the failure mode when the seed is research. The ticket is the research's
@@ -23,13 +23,17 @@ what we do next crosses over. Reformatting a report into ticket headings is the 
 the report's own scaffolding (options tables, provenance columns, grounding citations)
 travels with it and buries the ask.
 
-**The template is the whole ticket.** Do not invent sections. If the material will not fit
-under *User story* and *Acceptance criteria*, it belongs in the research doc.
+**The template is the whole ticket.** Use only the sections `ticket.md` lists. Material
+that fits none of them belongs in the research doc.
 
-**Cap each unit, not the ticket.** The story's context is at most three sentences. Each
-acceptance criterion is one verifiable check on one line. A complex issue gets more
-criteria, not longer ones. The criteria count has no cap; the §2 questions remove the lines
-that carry nothing.
+**Cap each unit, not the ticket.** The explanation is at most three sentences. Each table
+cell and each sub-task point carries one fact on one line. A complex issue gets more items,
+not longer ones. The item count has no cap; the §2 questions remove the lines that carry
+nothing.
+
+**Points, not paragraphs.** Below the explanation, write every table cell and every sub-task
+description as points. Number them only when the order is the content (a new reading
+order, a sequence of steps).
 
 ## 2. The elenchus
 
@@ -60,15 +64,17 @@ whole, not trimmed.
   re-propose it. Eight ruled-out rows collapse to zero.
 - **Meta-commentary.** Any sentence explaining the document's own machinery ("the From
   column shows...") is scaffolding left standing after the build.
-- **Restatement.** A context sentence that re-says the title or the story adds nothing.
+- **Restatement.** An explanation sentence that re-says the title, or a sub-task point that
+  re-says its title, adds nothing.
 
 ## 4. What always stays
 
 The floor. Cutting stops before it takes any of these:
 
 - **The symptom** — what is wrong, concretely, ideally with the input that reproduces it.
+  On a review list, the reviewer's comment, with any wording they suggested kept in quotes.
 - **The ask** — what we will try.
-- **The done-check** — how we will know.
+- **Where it stands** — each item's change made, or its next step.
 - **A fact that changes the approach** — a deprecation, a constraint, a dependency.
 - **A decision, with its owner and date.** This is the one provenance that earns its place.
   A finding needs no source; a decision does, because it can be reversed and someone has to
