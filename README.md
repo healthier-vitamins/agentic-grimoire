@@ -97,7 +97,7 @@ default_subagent_model from [agents] in ~/.codex/config.toml.
 | oracle | Goes one level deeper on a topic. Surfaces the unknown-unknowns beneath your prompt. **Use when you want to gain deeper knowledge.** |
 | compass | **Goes wide instead of deep.** Lays out the alternatives to a chosen solution and recommends one. Use when you want options. |
 | storm[^storm] | Decide one thing with the least bias. Interview to one decision, pre-registered pick and falsifier, five lenses (two hunting against the pick), contradictions mapped, premortem, fresh Critic, confidence-gated verdict that seeds a `wayfinder` map. `--light` skips research for judgment calls. Uses Matt Pocock's `grilling` for intake. |
-| codewalk | Socratic walkthrough of provided topic/commit SHA/code. Two gears: `--walk` quizzes you on the highest-leverage snippets, `--sweep` traces the code into atomic steps, one chain at a time, to review a diff today. Tracks what you know per project. |
+| codewalk | Records a real run of a workflow (Python, JavaScript or TypeScript) and publishes a page: the workflow map, a captioned walkthrough, and a time-travel debugger that steps into, over, out, back or to the next stop with every variable at every step. Works on existing code, a diff, or a prototype staged before it is applied. |
 | keystone | Clean code pedagogy. GoF patterns, functions over inline code, OOP. To be applied for all types of code. |
 | keystone-react | Same idea as `keystone`, but for React only. Decomposed components, context over prop-drilling, co-located CSS. |
 | playbook | Audit changed code against your engineering conventions (race conditions, idempotency, etc) and flag what is missing. |
@@ -122,8 +122,9 @@ STORM is extremely heavy, but it provides the most detailed output compared to `
 - Wider across options: `compass`
 - Serious research before deciding: `storm`
 - Judgment call, no research needed: `storm --light`
-- Learn any code/module: `codewalk`
-- Review a diff before you approve it: `codewalk --sweep`
+- Learn any code/module by stepping through a real run: `codewalk <path>`
+- Review a diff before you approve it: `codewalk HEAD`
+- See a prototype run before it touches the project: `codewalk <idea>`
 
 **Academic**
 - See what a formula does, as an interactive page: `orrery`
