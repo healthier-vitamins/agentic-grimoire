@@ -1,96 +1,137 @@
 ---
 name: codewalk
-description: Socratic walkthrough of AI-generated code — quiz-first walk or a granular read-only trace, difficulty-calibrated, remembers what you know per project.
-argument-hint: "[diff-ref | path] [--walk | --sweep] [--flaw-hunt]"
+description: Record a real run of a workflow — existing code, a diff, or a prototype not written yet — and publish it as a time-travel debugger page.
+argument-hint: "[path | diff-ref | idea to prototype]"
 disable-model-invocation: true
 ---
 
-The user has asked to be walked through code — usually code an LLM just generated — so they genuinely understand it and learn the codebase in the process. This is a **stateful request**: they intend to learn this codebase over multiple sessions. Treat `<project>/.codewalk/` as the teaching workspace ([workspace-format.md](references/workspace-format.md)).
+The user wants to *see* code run: the workflows it holds, a captioned walkthrough, and a
+**time-travel debugger** — step into, over, out, back, or to the next stop, with every
+variable's value at every step. The page replays a **recording** of one real run, so what
+the user steps through is what actually happened.
 
-In walk gear you are the guide, not the narrator: every chunk ends with the user answering something, and every question stays inside their **zone of proximal development** (Vygotsky) — challenged just enough, never overwhelmed, never bored. In sweep gear you are the tracer: the target broken into atomic steps, each excerpt quoted under its own why-line, zero comprehension questions — structure does the teaching. Both per [pedagogy.md](references/pedagogy.md).
+**Iron rule: project files change only at Step 10, on the user's "apply".** Everything
+before writes to `<project>/.codewalk/`, added to `.git/info/exclude` on first use.
 
-**Iron rule: never modify project files during a walk. Flaw-hunt bugs exist only in chat.** The only writes are inside `.codewalk/`, `.git/info/exclude`, and `~/.claude/codewalk/`.
+Scripts live in this skill's `scripts/` folder; `<skill>` below is this skill's directory.
 
-Run the steps in order. A session targets 10-15 minutes — end early cleanly rather than push past attention.
+## Vocabulary
 
-## Step 1 — Load the workspace
+- **Workflow** — one end-to-end path from an entry point until it leaves the target. Say
+  *workflow*, not chain or flow.
+- **Recording** — the JSON one run produces: frames, steps, changed variables.
+- **Stop** — a step the debugger's "next stop" lands on: the first run of a walkthrough
+  step's lines, or a breakpoint function's call.
+- **Staging** — `.codewalk/staging/<slug>/`, where prototype code lives before it is applied.
 
-Read `.codewalk/`: `MISSION.md`, `NOTES.md`, every **active** learning record, and skim `reference/`. Also read `~/.claude/codewalk/field-notes.md` if it exists.
+Rejected framings: the old *walk* (quiz-first) and *sweep* (chat trace) gears — a recording
+shows real state, which neither could.
 
-- No workspace → bootstrap per [workspace-format.md](references/workspace-format.md).
-- `MISSION.md` missing or vague → interview the user on *why* they're learning this codebase before anything else. Without a mission you cannot judge what to teach next.
+## Step 1 — Resolve the target
 
-**Done when:** the mission is known and every active learning record has been skimmed — or the workspace was just bootstrapped with a mission the user confirmed.
+Fix one target and its branch:
 
-## Step 2 — Resolve scope
+| Branch | Argument | Code that runs |
+|---|---|---|
+| **existing** | a path or symbol | the project as it is |
+| **diff** | `HEAD`, a SHA, `A...B`, or nothing with a dirty tree | the project as it is |
+| **prototype** | an idea, or code not yet in the project | staging — read [staging.md](references/staging.md) |
 
-Fix exactly **one** walk target. Priority:
+Languages: Python, JavaScript, TypeScript. A target in any other language → tell the user
+codewalk cannot record it, and stop.
 
-1. **User named a target** (a path, `HEAD`, a SHA, `origin/<branch>`, an `A...B` range) → use it verbatim. A path means "teach me this existing module".
-2. **Working-tree changes exist** and nothing was named → walk them (`git status --porcelain`, `git diff`, `git diff --cached`).
-3. **Ambiguous** — clean tree, or you cannot tell which the user means → `AskUserQuestion` with concrete options, including any entries from the NOTES.md walk queue. Never assume a target.
+**Done when:** one target, its branch, and every language it touches are named back to the
+user in one line.
 
-For a remote ref, `git fetch` before diffing. **Size gate:** an unbounded target — the whole repo, a root path — is too big to teach well in a session. Kindly decline and offer 2-4 concrete flows or modules from it as targets instead. A bounded target holding several flows is in scope: walk triages it at Step 6, sweep gates it into chains.
+## Step 2 — Map the workflows
 
-**Done when:** one target is fixed, it passes the size gate, and its full diff (or file set, for a path) is in hand.
+From the target's entry points (exported functions, route handlers, CLI commands, changed
+lines of a diff), follow calls until they leave the target. Two entry points that never
+converge are two workflows.
 
-## Step 3 — Pick the gear
+**Done when:** every entry point belongs to exactly one workflow, and each workflow lists its
+functions in call order with `file:line`.
 
-One gear for the whole session — depth or coverage, defined in [pedagogy.md](references/pedagogy.md). Difficulty still calibrates per area inside it (Step 4).
+## Step 3 — Confirm the workflows
 
-- `--walk` or `--sweep` passed → use it, no question.
-- Otherwise → `AskUserQuestion`, one question, recommending the gear NOTES.md records as this user's usual and `walk` when it records none: **walk** (depth — the highest-leverage chunks, quizzed before explained, built for remembering this next month) or **sweep** (coverage — the target decomposed into atomic steps, each excerpt quoted with its why, zero comprehension questions, built for consuming a diff or module today).
+Show the map — per workflow: its name, its entry point, and its functions in call order with
+`file:line` — and ask the user to confirm it, or to merge, split, drop, or add workflows.
+Redo Step 2 on their edits and show the map again.
 
-**Done when:** the session's gear is fixed and named back to the user in one line.
+**Done when:** the user has confirmed the map as shown.
 
-## Step 4 — Compute the zone of proximal development
+## Step 4 — Pick each workflow's entry
 
-Walk gear only — sweep goes straight to Step 6 (learning records only shorten steps on `solid` areas, per [pedagogy.md](references/pedagogy.md)). Derive a mode — scaffold, socratic, or flaw-hunt — for each codebase area the target touches, from the active learning records weighed against the mission, per the heuristic in pedagogy.md. First session: everything starts socratic.
+1. A **test** that runs through the workflow: a pytest node id, or `<test file>::<test name>`
+   for the project's vitest or jest.
+2. None → write a **driver** in `.codewalk/drivers/<workflow>.{py,ts,js}` that calls the
+   workflow's entry point with realistic inputs.
 
-**Done when:** every area the target touches has a mode.
+**Done when:** every workflow has an entry, and its kind (test or driver) is noted for Step 9.
 
-## Step 5 — Recall warmup
+## Step 5 — Gate the outside world
 
-Skip on the first session and in sweep gear. Ask 1-3 questions drawn from the oldest or `shaky` active learning records — retrieval spaced across sessions is what converts fluency into storage strength. Keep it under 2 minutes; hold the results for wrap-up.
+Runs are real by default. List every call in each workflow that writes to the outside world
+— database writes, emails, payments, messages, file writes outside `.codewalk/` — and ask the
+user, per call, real or fake. Fake only those the user picks, plus any service the run cannot
+reach (no credentials, no network), and say which.
 
-**Done when:** each warmup answer is judged right / partial / wrong.
+**Done when:** every outside-world write has the user's answer, and every fake is listed.
 
-## Step 6 — Orientation map
+## Step 6 — Record
 
-A 60-second tour (Ausubel's advance organizer — orient before detail). **Walk:** slice the target into working-memory-sized chunks and show a map — one line per chunk (chunk → file(s) → role), in suggested reading order, each with a short **representative excerpt** (a few core/entry lines, `file:line` ref) so the tour shows code, not just names. Keep excerpts tiny to stay inside the 60-second budget — full detail waits for Step 7. **Sweep:** the chain map is the organizer.
+Run each entry with the project's own runtime, so its imports resolve:
 
-The map and any oversize are handled by the gear:
+```sh
+<project python> <skill>/scripts/record_py.py <flags>   # Python 3.12+
+node <skill>/scripts/record_js.mjs <flags>              # JS/TS, Node 22+
 
-- **walk** — more than 6 chunks → triage to the 4-6 highest-leverage ones (core logic over boilerplate and generated noise) and append the rest to the NOTES.md walk queue, telling the user what was deferred.
-- **sweep** — detect the chains and run the chain gate ([trace-format.md](references/trace-format.md)): one chain proceeds; two or more stop, show the chain map, and ask which the user wants first, every chain written to `.codewalk/sweep/chains/` before the question. Inside the chosen chain, more than 8 steps → number them into **parts** of at most 8 (working-memory limit), show the part map up front, deliver part 1, and continue when the user says "next" — same session, learner-paced (Mayer's segmenting principle, per [pedagogy.md](references/pedagogy.md)). "Next" is pacing, never a quiz. Coverage is kept by segmenting, never by dropping.
+<flags> = --root <project> --watch <paths…> --entry <test | driver> \
+          --out .codewalk/recordings/<workflow>.json
+```
 
-**Done when:** the map is shown — walk: the user confirmed it or picked their chunks; sweep: one chain is fixed (the only chain, or the user's pick) and every detected chain has a file.
+`--watch` is the target's files and folders: code outside them runs without being stepped
+into, the way a debugger's "just my code" steps over libraries. A `.ts` driver runs through
+the project's `tsx` when installed. A run that fails still records — the page shows where it
+raised.
 
-## Step 7 — Walk the chunks
+**Done when:** every workflow has a recording with at least one step, and its exit status is
+noted.
 
-Work the chunks in the session's gear — turn shapes in [pedagogy.md](references/pedagogy.md). Both gears **quote the focused excerpt** the turn is about (chat code block, `file:line` ref) and tie the code to codebase idioms and `reference/glossary.md` terms.
+## Step 7 — Write the walkthrough
 
-- **walk** — each chunk in its area's mode: ask, judge the answer, explain only the delta. Calibrate continuously — downshift and upshift per pedagogy.md; the user can override with "easier" / "harder" at any time.
-- **sweep** — each step in the shape and granularity of [trace-format.md](references/trace-format.md): header, excerpt, why-line, one-idea bullets, one connective line to the previous step or a codebase idiom, and — only when the code genuinely earns one — an improve-line. Zero comprehension questions; next step.
+Per workflow, write `.codewalk/walkthrough/<workflow>.json` in the shape of
+[page-format.md](references/page-format.md): the confirmed map from Step 3, the fakes from
+Step 5, then one walkthrough step per idea — a line range and a caption saying *why*.
 
-The user may stop at any point — jump straight to Step 9; a cut-short session still gets a full wrap-up.
+**Done when:** every workflow has a walkthrough, and every range in it lies inside a file its
+recording ran.
 
-**Done when:** walk — every selected chunk got at least one answered question; sweep — every step of every part in the chosen chain delivered; or the user opted out.
+## Step 8 — Build
 
-## Step 8 — Flaw-hunt
+```sh
+uv run <skill>/scripts/build.py --root <project> --title "<title>"
+```
 
-Walk gear only — when an area's mode is flaw-hunt, or the user passed `--flaw-hunt`. Quote real snippets from the target into a chat code block with 1-3 injected plausible bugs per the spec in [pedagogy.md](references/pedagogy.md) — count announced, files untouched — and let the user hunt. Reveal and explain anything unfound.
+The build checks Step 7's ranges, hides secrets, and writes `.codewalk/page.html`. It fails
+over 14 MB; then narrow `--watch` and re-record.
 
-**Done when:** every injected bug is found or revealed with its explanation.
+**Done when:** the build exits 0.
 
-## Step 9 — Wrap-up
+## Step 9 — Publish
 
-Runs on **any** exit, including mid-walk quits. In order:
+Publish `.codewalk/page.html` as an artifact, then tell the user, in chat:
 
-1. **Walk:** write learning records for anything that passed the evidence gate in [learning-record-format.md](references/learning-record-format.md) — including warmup results that changed a record's standing (supersede, don't delete). **Sweep:** no learning records — no answers means no fluency evidence. Flip the traced chain's file to `Status: traced`, append any flagged improve-lines to it (`- improve: {file:line} — {suggestion}`, per [trace-format.md](references/trace-format.md)), and append one "covered" line to NOTES.md (target, date, chain, parts delivered): exposure, not fluency. Roll flagged improvements up to the user in one short chat list — nothing flagged, nothing said; the user acts on them outside the walk.
-2. Update `reference/` docs with any durable codebase facts the walk surfaced (glossary terms, architecture insights).
-3. Update NOTES.md: teaching preferences observed — including the gear, once the user's choice is settling into a habit — and walk queue additions.
-4. Append at most **one** line to `~/.claude/codewalk/field-notes.md`, only if a question style or calibration move clearly worked or flopped this session.
-5. Give the user a one-line summary: what they demonstrated, what's queued next.
+- the link;
+- every hidden variable the build printed — they may want more hidden before sharing;
+- each workflow's entry kind (test or driver), and every fake.
 
-**Done when:** all workspace writes are complete and the summary is delivered.
+**Done when:** all three are in the reply.
+
+## Step 10 — Apply (prototype only, on the user's "apply")
+
+Copy each staged file to its mirrored path in the project, then run the project's own
+validation for those files.
+
+**Done when:** every staged file is in place and validation passes — or its failures are
+reported in full.

@@ -1,0 +1,573 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>__TITLE__</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: three tabs over one set of recorded workflows. Workflows maps them; Walkthrough tours
+   their code with captions; Debugger replays each recording step by step, VS Code style. */
+:root {
+  --bg: #f3f5f2; --surface: #ffffff; --sunk: #e9ece8; --ink: #18201c; --muted: #59645e;
+  --line: #d5dbd6; --accent: #0d7468; --accent-ink: #ffffff; --mark: #fbe7a6; --mark-strong: #f2c94c;
+  --ok: #24804f; --err: #c0392f;
+  --tk-kw: #8a2f8f; --tk-str: #2c6e2f; --tk-doc: #5d6b3a; --tk-com: #6f7a74; --tk-fn: #1c5aa8;
+  --tk-cls: #9b4d00; --tk-num: #a3381f; --tk-dec: #8a5a00;
+  --f-display: "Bricolage Grotesque", "Avenir Next Condensed", "Arial Narrow", sans-serif;
+  --f-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111513; --surface: #181d1a; --sunk: #202622; --ink: #e4e9e5; --muted: #98a39d;
+    --line: #2d3530; --accent: #4cc0ae; --accent-ink: #0b1210; --mark: #3b3418; --mark-strong: #6e5a1c;
+    --ok: #5cc48a; --err: #ef766b;
+    --tk-kw: #d7a0f0; --tk-str: #9fd38f; --tk-doc: #b8c48d; --tk-com: #7f8b85; --tk-fn: #8ab8f5;
+    --tk-cls: #f0b170; --tk-num: #f29a84; --tk-dec: #e0c070;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111513; --surface: #181d1a; --sunk: #202622; --ink: #e4e9e5; --muted: #98a39d;
+  --line: #2d3530; --accent: #4cc0ae; --accent-ink: #0b1210; --mark: #3b3418; --mark-strong: #6e5a1c;
+  --ok: #5cc48a; --err: #ef766b;
+  --tk-kw: #d7a0f0; --tk-str: #9fd38f; --tk-doc: #b8c48d; --tk-com: #7f8b85; --tk-fn: #8ab8f5;
+  --tk-cls: #f0b170; --tk-num: #f29a84; --tk-dec: #e0c070;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 16px; line-height: 1.5; }
+.wrap { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); max-width: 1500px; margin: 0 auto; }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; }
+code, pre, .mono { font-family: var(--f-mono); }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* header */
+.top { padding-block: 22px 0; border-bottom: 1px solid var(--line); background: var(--surface); }
+.top h1 { font-size: clamp(24px, 3vw, 34px); letter-spacing: -0.01em; }
+.lede { color: var(--muted); max-width: 70ch; margin: 6px 0 14px; }
+.facts { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 14px; color: var(--muted); margin-bottom: 14px; }
+.facts b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.tabrow { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.tabs { display: flex; flex-wrap: wrap; gap: 2px; }
+.tab { border: 0; background: none; padding: 10px 14px; border-bottom: 3px solid transparent; cursor: pointer; white-space: nowrap; color: var(--muted); font-weight: 600; }
+.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+.tab .n { font-size: 12px; background: var(--sunk); border-radius: 8px; padding: 1px 6px; margin-left: 6px; color: var(--muted); }
+.lines { display: flex; align-items: center; gap: 4px; font-size: 13px; color: var(--muted); padding-bottom: 6px; }
+.lines button { border: 1px solid var(--line); background: var(--surface); border-radius: 6px; padding: 3px 10px; cursor: pointer; font-weight: 600; font-size: 13px; }
+.lines button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+main { padding-block: 20px 60px; }
+
+/* workflows */
+.cards { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 460px), 1fr)); align-items: start; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; display: grid; gap: 10px; min-width: 0; }
+.card h2 { font-size: 22px; }
+.card h4 { margin: 0; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.card ol, .card ul { margin: 0; padding-left: 22px; display: grid; gap: 2px; }
+.card .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.card .actions button { border: 1px solid var(--line); background: var(--surface); border-radius: 6px; padding: 6px 12px; cursor: pointer; font-weight: 600; }
+.card .actions button:hover { border-color: var(--accent); }
+.fnlink { border: 0; background: none; padding: 0; cursor: pointer; color: var(--accent); font-family: var(--f-mono); font-size: 14px; text-decoration: underline; }
+.fnlink:disabled { color: var(--muted); text-decoration: none; cursor: default; }
+.where { font-family: var(--f-mono); font-size: 12.5px; color: var(--muted); overflow-wrap: anywhere; }
+
+/* rail + stage */
+.walk { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 20px; align-items: start; }
+.rail { position: sticky; top: 12px; max-height: calc(100vh - 24px); overflow: auto; display: grid; gap: 2px; padding-right: 4px; }
+.rail h3 { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-family: var(--f-body); font-weight: 600; margin-bottom: 4px; }
+.rail button { display: block; width: 100%; text-align: left; border: 0; background: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 15px; line-height: 1.3; }
+.rail button:hover { background: var(--sunk); }
+.rail button[aria-current="true"] { background: var(--accent); color: var(--accent-ink); }
+.stage { min-width: 0; display: grid; gap: 16px; }
+.story-head { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; display: grid; gap: 10px; }
+.eyebrow { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+.story-head h2 { font-size: 25px; }
+.query { font-family: var(--f-mono); font-size: 14px; background: var(--sunk); padding: 8px 10px; border-radius: 6px; overflow-wrap: anywhere; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font-size: 13px; border: 1px solid var(--line); border-radius: 999px; padding: 2px 9px; font-variant-numeric: tabular-nums; }
+.chip.ok { border-color: var(--ok); color: var(--ok); } .chip.err { border-color: var(--err); color: var(--err); }
+.chip.staged { border-color: var(--mark-strong); background: var(--mark); }
+.note { font-size: 14px; color: var(--muted); margin: 0; }
+
+/* stepper */
+.stepper { position: sticky; top: 0; z-index: 5; background: var(--bg); padding-block: 8px; display: grid; gap: 8px; }
+.stepbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.stepbar button { border: 1px solid var(--line); background: var(--surface); border-radius: 6px; padding: 6px 12px; cursor: pointer; font-weight: 600; }
+.stepbar button:disabled { opacity: .4; cursor: default; }
+.stepbar input[type=range] { flex: 1 1 160px; accent-color: var(--accent); min-width: 0; }
+.stepbar .sep { width: 1px; align-self: stretch; background: var(--line); }
+.stepcount { font-variant-numeric: tabular-nums; color: var(--muted); font-size: 14px; min-width: 9ch; }
+.caption { background: var(--surface); border-left: 4px solid var(--accent); padding: 10px 14px; border-radius: 0 8px 8px 0; display: grid; gap: 4px; }
+.caption .t { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.caption .exit { color: var(--err); font-weight: 600; }
+.debug { display: grid; gap: 4px; }
+.track { position: relative; padding-bottom: 12px; }
+.track input[type=range] { width: 100%; accent-color: var(--accent); margin: 0; }
+.ticks { position: absolute; left: 8px; right: 8px; bottom: 0; height: 10px; }
+.ticks i { position: absolute; top: 0; width: 3px; height: 10px; margin-left: -1px; background: var(--muted); border-radius: 1px; cursor: pointer; opacity: .55; }
+.ticks i:hover, .ticks i.on { background: var(--accent); opacity: 1; }
+.stops { font-size: 13px; color: var(--muted); }
+
+/* panes */
+.panes { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.side { display: grid; gap: 16px; min-width: 0; }
+.pane { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; min-width: 0; overflow: hidden; }
+.pane > header { padding: 9px 14px; border-bottom: 1px solid var(--line); display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.pane > header h3 { font-size: 16px; }
+.pane > header .sub { font-size: 13px; color: var(--muted); font-family: var(--f-mono); overflow-wrap: anywhere; }
+.pane .body { padding: 12px 14px; display: grid; gap: 14px; }
+.pane .body > * { min-width: 0; }
+.linkish { border: 0; background: none; color: var(--accent); cursor: pointer; padding: 0; font-size: 14px; font-weight: 600; text-decoration: underline; justify-self: start; }
+
+/* code */
+.code { font-family: var(--f-mono); font-size: 13.5px; line-height: 1.55; background: var(--surface); }
+.code.scrolls { max-height: 70vh; overflow-y: auto; }
+.code table { border-collapse: collapse; width: 100%; }
+.code td { padding: 0; vertical-align: top; white-space: pre-wrap; }
+.code td.ln { user-select: none; text-align: right; color: var(--muted); padding: 0 10px 0 12px; font-variant-numeric: tabular-nums; width: 1%; opacity: .7; }
+.code td.src { padding-right: 16px; overflow-wrap: anywhere; }
+.code tr.ran td { background: color-mix(in srgb, var(--mark) 50%, transparent); }
+.code tr.hit td { background: var(--mark); }
+.code tr.hit td.ln { box-shadow: inset 3px 0 0 var(--mark-strong); opacity: 1; color: var(--ink); }
+.k, .kn, .kc, .kd, .kr, .kt, .ow { color: var(--tk-kw); font-weight: 600; }
+.s, .s1, .s2, .sa, .se, .si, .sb, .sr, .sx { color: var(--tk-str); }
+.sd { color: var(--tk-doc); font-style: italic; }
+.c, .c1, .cm, .ch, .cs, .cp { color: var(--tk-com); font-style: italic; }
+.nf, .fm { color: var(--tk-fn); }
+.nc { color: var(--tk-cls); font-weight: 600; }
+.mi, .mf, .mh, .mo, .mb { color: var(--tk-num); }
+.nd { color: var(--tk-dec); }
+.nb, .bp { color: var(--tk-cls); }
+
+/* call stack + variables */
+.stack { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.stack button { width: 100%; text-align: left; border: 0; background: none; padding: 4px 8px; border-radius: 6px; cursor: pointer; display: flex; flex-wrap: wrap; gap: 2px 10px; align-items: baseline; }
+.stack button:hover { background: var(--sunk); }
+.stack button[aria-current="true"] { background: var(--mark); }
+.stack .fn { font-family: var(--f-mono); font-size: 13.5px; font-weight: 600; }
+.vars { display: grid; gap: 6px; font-family: var(--f-mono); font-size: 13px; }
+.vars details, .vars .one { background: var(--sunk); border-radius: 6px; padding: 6px 10px; }
+.vars .one { white-space: pre-wrap; overflow-wrap: anywhere; }
+.vars summary { cursor: pointer; font-size: 13px; overflow-wrap: anywhere; }
+.vars details[open] .label { display: none; }
+.vars .name { color: var(--tk-fn); font-weight: 600; }
+.vars .value { white-space: pre-wrap; overflow-wrap: anywhere; margin-top: 6px; }
+.vars .changed { background: var(--mark); box-shadow: inset 3px 0 0 var(--mark-strong); }
+
+/* Scroll mode: every long line stays whole and its box scrolls sideways instead of wrapping. */
+:root.scroll .vars > * { min-width: 0; }
+:root.scroll .code, :root.scroll .vars .one, :root.scroll .vars .value, :root.scroll .query { overflow-x: auto; }
+:root.scroll .code td, :root.scroll .vars .one, :root.scroll .vars .value, :root.scroll .query { white-space: pre; overflow-wrap: normal; }
+
+@media (max-width: 1100px) { .panes { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 820px) {
+  .walk { grid-template-columns: minmax(0, 1fr); }
+  .rail { position: static; max-height: none; }
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <h1>__TITLE__</h1>
+    <p class="lede">Each workflow ran once for real and was recorded. Read its map, take the captioned walkthrough, then replay it in the debugger: step into, over, out, back, or to the next stop, with every variable at every step.</p>
+    <div class="facts" id="facts"></div>
+    <div class="tabrow">
+      <nav class="tabs" role="tablist" id="tabs"></nav>
+      <div class="lines" role="group" aria-label="Long lines" id="lines">Long lines <button data-mode="wrap">Wrap</button><button data-mode="scroll">Scroll</button></div>
+    </div>
+  </div>
+</header>
+<main class="wrap" id="main"></main>
+
+<script type="application/json" id="data">/*__DATA__*/null</script>
+<script>
+(function () {
+  "use strict";
+  const DATA = JSON.parse(document.getElementById("data").textContent);
+  const WORKFLOWS = DATA.workflows;
+  const $ = (sel, root) => (root || document).querySelector(sel);
+  const el = (tag, attrs, ...kids) => {
+    const node = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs || {})) {
+      if (k === "class") node.className = v;
+      else if (k === "html") node.innerHTML = v;
+      else if (k.startsWith("on")) node.addEventListener(k.slice(2), v);
+      else if (v !== null && v !== undefined && v !== false) node.setAttribute(k, v);
+    }
+    for (const kid of kids.flat()) if (kid !== null && kid !== undefined) node.append(kid.nodeType ? kid : document.createTextNode(String(kid)));
+    return node;
+  };
+  const textOf = (html) => { const d = document.createElement("div"); d.innerHTML = html; return d.textContent; };
+  const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
+  // `text` in a caption is a name from the code.
+  const prose = (text) => text.split("`").map((part, i) => i % 2 ? el("code", {}, part) : part);
+  const shortName = (fn) => fn.split(".").slice(1).join(".") || fn;
+
+  // The workflow every tab shows; picking one in any tab picks it in all.
+  const remembered = store.get("cw-workflow");
+  let current = WORKFLOWS.some(w => w.key === remembered) ? remembered : WORKFLOWS[0].key;
+  const workflow = () => WORKFLOWS.find(w => w.key === current);
+  function pick(key) { current = key; store.set("cw-workflow", key); }
+
+  // ---- facts ----------------------------------------------------------------------------------
+  $("#facts").append(
+    el("span", {}, el("b", {}, WORKFLOWS.length), " workflow(s)"),
+    el("span", {}, el("b", {}, Object.keys(DATA.sources).length), " file(s)"),
+    el("span", {}, el("b", {}, WORKFLOWS.filter(w => w.exit.ok).length), " of ", el("b", {}, WORKFLOWS.length), " runs passed"),
+    el("span", {}, el("b", {}, WORKFLOWS.reduce((n, w) => n + w.fakes.length, 0)), " faked call(s)"));
+
+  // ---- long lines: wrap in place, or keep each line whole and scroll sideways -----------------
+  const lineButtons = [...$("#lines").querySelectorAll("button")];
+  function setLines(mode) {
+    document.documentElement.classList.toggle("scroll", mode === "scroll");
+    for (const b of lineButtons) b.setAttribute("aria-pressed", String(b.dataset.mode === mode));
+    store.set("cw-lines", mode);
+  }
+  for (const b of lineButtons) b.addEventListener("click", () => setLines(b.dataset.mode));
+  setLines(store.get("cw-lines") === "scroll" ? "scroll" : "wrap");
+
+  // ---- tabs -----------------------------------------------------------------------------------
+  const TABS = [
+    { key: "workflows", title: "Workflows", n: WORKFLOWS.length, render: renderWorkflows },
+    { key: "walkthrough", title: "Walkthrough", n: WORKFLOWS.reduce((n, w) => n + w.walkthrough.length, 0), render: renderWalkthrough },
+    { key: "debugger", title: "Debugger", n: WORKFLOWS.length, render: renderDebugger },
+  ];
+  const tabsNode = $("#tabs");
+  for (const t of TABS) tabsNode.append(el("button", { class: "tab", role: "tab", id: "tab-" + t.key, "aria-selected": "false", onclick: () => showTab(t.key) }, t.title, el("span", { class: "n" }, t.n)));
+  function showTab(key, opts) {
+    const tab = TABS.find(t => t.key === key) || TABS[0];
+    for (const b of tabsNode.children) b.setAttribute("aria-selected", String(b.id === "tab-" + tab.key));
+    const main = $("#main"); main.innerHTML = "";
+    main.append(tab.render(opts || {}));
+    store.set("cw-tab", tab.key);
+    if (location.hash.slice(1) !== tab.key) history.replaceState(null, "", "#" + tab.key);
+  }
+
+  // ---- code rendering -------------------------------------------------------------------------
+  // `opts.hit` is a Set of marked lines; `opts.ran` a Set of tinted ones.
+  function codeTable(path, from, to, opts) {
+    const lines = DATA.sources[path] || [];
+    const table = el("table");
+    for (let n = Math.max(1, from); n <= to && n <= lines.length; n++) {
+      const line = lines[n - 1];
+      const cls = [opts.hit && opts.hit.has(n) ? "hit" : "", opts.ran && opts.ran.has(n) ? "ran" : ""].join(" ").trim();
+      // A wrapped line continues 4 columns past its own indent, so the block structure stays visible.
+      const hang = textOf(line || "").match(/^ */)[0].length + 4;
+      table.append(el("tr", { class: cls || null, id: opts.idPrefix ? opts.idPrefix + n : null }, el("td", { class: "ln" }, n), el("td", { class: "src", style: `padding-left:${hang}ch;text-indent:-${hang}ch`, html: line || " " })));
+    }
+    return el("div", { class: "code" }, table);
+  }
+
+  function rail(onPick) {
+    const nav = el("nav", { class: "rail", "aria-label": "Workflows" }, el("h3", {}, "Workflows"));
+    for (const w of WORKFLOWS) nav.append(el("button", { "aria-current": String(w.key === current), onclick: () => { pick(w.key); onPick(); } }, w.title));
+    return nav;
+  }
+
+  function keepFocus() { const r = document.getElementById("step-range"); if (r) r.focus({ preventScroll: true }); }
+
+  // Staged code is a prototype: it ran, but it is not in the project yet.
+  function stagedChip(w) {
+    return w.staged.length ? el("span", { class: "chip staged" }, `${w.staged.length} staged file(s), not applied`) : null;
+  }
+  const stagedMark = (w, path) => w.staged.includes(path) ? el("span", { class: "chip staged" }, "staged, not applied") : null;
+
+  function exitChip(w) {
+    return el("span", { class: "chip " + (w.exit.ok ? "ok" : "err") }, (w.exit.ok ? "passed · " : "failed · ") + w.exit.detail);
+  }
+
+  // ---- workflows: the map the user confirmed, one card each -----------------------------------
+  function renderWorkflows() {
+    const cards = el("div", { class: "cards" });
+    for (const w of WORKFLOWS) {
+      const run = debugRun(w);
+      const firstCall = (name) => run.steps.findIndex(s => s.kind === "call" && run.frames[s.frame].function === name);
+      cards.append(el("section", { class: "card" },
+        el("div", { class: "eyebrow" }, `${w.language} · ${w.entry.kind}`),
+        el("h2", {}, w.title),
+        w.summary ? el("p", { style: "margin:0" }, prose(w.summary)) : null,
+        el("div", { class: "query" }, w.entry.target),
+        el("div", { class: "chips" }, exitChip(w),
+          el("span", { class: "chip" }, `${run.steps.length} steps`),
+          el("span", { class: "chip" }, `${run.frames.length} calls`),
+          stagedChip(w),
+          w.truncated ? el("span", { class: "chip err" }, "truncated at --max-steps") : null),
+        el("h4", {}, "Functions, in call order"),
+        el("ol", {}, w.functions.map(f => {
+          const at = firstCall(f.name);
+          return el("li", {},
+            el("button", { class: "fnlink", disabled: at < 0 ? "" : null, title: at < 0 ? "Not called in this run" : "Open the debugger at its first call", onclick: () => openDebugger(w.key, at) }, f.name),
+            " ", el("span", { class: "where" }, `${f.path}:${f.line}`, at < 0 ? " · not called in this run" : ""));
+        })),
+        el("h4", {}, "Fakes"),
+        w.fakes.length ? el("ul", {}, w.fakes.map(f => el("li", {}, prose(f)))) : el("p", { class: "note" }, "None: every call ran for real."),
+        el("div", { class: "actions" },
+          el("button", { onclick: () => { pick(w.key); showTab("walkthrough", { step: 0 }); } }, "Walk through"),
+          el("button", { onclick: () => openDebugger(w.key, 0) }, "Debug"))));
+    }
+    return cards;
+  }
+
+  function openDebugger(key, step) { pick(key); showTab("debugger", { step }); }
+
+  // ---- walkthrough: the code tour, one captioned range per step -------------------------------
+  function renderWalkthrough(opts) {
+    const stage = el("div", { class: "stage" }, guideView(workflow(), opts.step || 0));
+    return el("div", { class: "walk" }, rail(() => showTab("walkthrough", { step: 0 })), stage);
+  }
+
+  function guideView(w, step) {
+    const box = el("div", { class: "stage" });
+    const head = el("section", { class: "story-head" }, el("div", { class: "eyebrow" }, "Walkthrough"), el("h2", {}, w.title), w.summary ? el("p", { style: "margin:0" }, prose(w.summary)) : null);
+    const steps = w.walkthrough;
+    if (!steps.length) { box.append(head, el("p", { class: "note" }, "This workflow has no walkthrough steps.")); return box; }
+    const go = (n) => { if (n >= 0 && n < steps.length) { box.replaceWith(guideView(w, n)); keepFocus(); } };
+    const s = steps[step];
+    const range = el("input", { type: "range", min: 0, max: steps.length - 1, value: step, "aria-label": "Step", id: "step-range", oninput: (e) => go(Number(e.target.value)) });
+    const bar = el("div", { class: "stepbar" },
+      el("button", { onclick: () => go(step - 1), disabled: step <= 0 ? "" : null }, "← Back"),
+      el("button", { onclick: () => go(step + 1), disabled: step >= steps.length - 1 ? "" : null }, "Next →"),
+      el("span", { class: "stepcount" }, `Step ${step + 1} / ${steps.length}`), range);
+    const lines = new Set(); for (let n = s.from; n <= s.to; n++) lines.add(n);
+    box.append(head,
+      el("div", { class: "stepper" }, bar, el("div", { class: "caption" }, el("div", { class: "t" }, `${s.path}:${s.from}-${s.to}`), el("div", {}, prose(s.caption)))),
+      el("section", { class: "pane" },
+        el("header", {}, el("h3", { class: "mono", style: "font-family:var(--f-mono);font-size:15px" }, s.path), el("span", { class: "sub" }, `lines ${s.from}-${s.to}`), stagedMark(w, s.path)),
+        el("div", { class: "body", style: "padding-block:8px" }, s.at === null
+          ? el("p", { class: "note" }, "These lines did not run in this recording.")
+          : el("button", { class: "linkish", onclick: () => openDebugger(w.key, s.at) }, `See them run: debugger step ${s.at + 1}`)),
+        codeTable(s.path, s.from - 3, s.to + 3, { hit: lines })));
+    box.addEventListener("keydown", (e) => { if (e.key === "ArrowRight" && e.target.id !== "step-range") go(step + 1); if (e.key === "ArrowLeft" && e.target.id !== "step-range") go(step - 1); });
+    return box;
+  }
+
+  // ---- the debugger: every step of a recorded run, stepped like VS Code ----------------------
+  // The recorder kept one step per line, call, await, resume and return, packed as ints by the
+  // build. `debugRun` unpacks a workflow once; the step commands only search that array.
+  const ENDS = new Set(["return", "unwind"]);
+  const STEP_WORDS = { call: "called", line: "about to run this line", await: "suspended at an await", yield: "yielded a value", resume: "resumed", return: "returning", raise: "raised", unwind: "left by an exception" };
+  const runs = new Map();
+
+  function debugRun(w) {
+    if (runs.has(w.key)) return runs.get(w.key);
+    const steps = [];
+    const packed = w.steps;
+    for (let i = 0; i < packed.length;) {
+      const step = { frame: packed[i], line: packed[i + 1], kind: DATA.step_kinds[packed[i + 2]], changed: {} };
+      const count = packed[i + 3];
+      i += 4;
+      for (let k = 0; k < count; k++, i += 2) step.changed[DATA.texts[packed[i]]] = packed[i + 1] === -1 ? null : DATA.texts[packed[i + 1]];
+      steps.push(step);
+    }
+    const anchorOfStep = new Map(); // a walkthrough step's first run -> its index
+    w.walkthrough.forEach((s, index) => { if (s.at !== null && !anchorOfStep.has(s.at)) anchorOfStep.set(s.at, index); });
+    const run = { steps, frames: w.frames, anchorOfStep, breakpoints: new Set(w.breakpoints), ancestors: new Map() };
+    runs.set(w.key, run);
+    return run;
+  }
+
+  function ancestorsOf(run, frame) {
+    if (!run.ancestors.has(frame)) {
+      const up = new Set();
+      for (let f = run.frames[frame].parent; f !== -1; f = run.frames[f].parent) up.add(f);
+      run.ancestors.set(frame, up);
+    }
+    return run.ancestors.get(frame);
+  }
+
+  function isStop(run, j) {
+    const s = run.steps[j];
+    return run.anchorOfStep.has(j) || (s.kind === "call" && run.breakpoints.has(run.frames[s.frame].function));
+  }
+
+  // The step commands as VS Code defines them; each gives a step index, or null at either end.
+  // Over and out follow the call stack, so while this frame awaits, other tasks' steps are passed.
+  function stepCommands(run, i) {
+    const here = run.steps[i];
+    const up = ancestorsOf(run, here.frame);
+    const ended = ENDS.has(here.kind);
+    const next = (test) => { for (let j = i + 1; j < run.steps.length; j++) if (test(run.steps[j], j)) return j; return null; };
+    const prev = (test) => { for (let j = i - 1; j >= 0; j--) if (test(run.steps[j], j)) return j; return null; };
+    const into = i + 1 < run.steps.length ? i + 1 : null;
+    const inCaller = (s) => up.has(s.frame);
+    return {
+      back: i > 0 ? i - 1 : null,
+      backOver: prev(s => s.frame === here.frame || inCaller(s)),
+      into,
+      over: (ended ? next(inCaller) : next(s => s.frame === here.frame || inCaller(s))) ?? (ended ? into : null),
+      out: (ended ? next(inCaller) : next(s => (s.frame === here.frame && ENDS.has(s.kind)) || inCaller(s))) ?? (ended ? into : null),
+      prevStop: prev((s, j) => isStop(run, j)),
+      nextStop: next((s, j) => isStop(run, j)),
+    };
+  }
+
+  // One frame as of step i: its variables (in the order they appeared), the lines it has run
+  // since it was called, and the line it is on.
+  function frameAt(run, frame, i) {
+    let called = i;
+    while (called > 0 && !(run.steps[called].frame === frame && run.steps[called].kind === "call")) called--;
+    const vars = {}; const ran = new Set(); let line = null;
+    for (let j = called; j <= i; j++) {
+      const s = run.steps[j];
+      if (s.frame !== frame) continue;
+      line = s.line;
+      if (s.kind === "line") ran.add(s.line);
+      for (const [name, text] of Object.entries(s.changed)) {
+        if (text === null) delete vars[name]; // the variable left the frame
+        else if (!name.startsWith("(")) vars[name] = text;
+      }
+    }
+    const here = run.steps[i];
+    const changed = here.frame === frame && here.kind !== "call" ? new Set(Object.keys(here.changed).filter(name => here.changed[name] !== null)) : new Set();
+    if (here.frame === frame) for (const [name, text] of Object.entries(here.changed)) if (name.startsWith("(") && text !== null) vars[name] = text;
+    return { vars, ran, line, changed };
+  }
+
+  function callStack(run, frame) {
+    const stack = [frame];
+    for (let f = run.frames[frame].parent; f !== -1; f = run.frames[f].parent) stack.push(f);
+    return stack;
+  }
+
+  function renderDebugger(opts) {
+    const stage = el("div", { class: "stage" });
+    const w = workflow();
+    const run = debugRun(w);
+    if (run.steps.length) stage.append(debugView(w, Math.min(opts.step || 0, run.steps.length - 1)));
+    else stage.append(el("p", { class: "note" }, "This recording has no steps: the entry never reached the watched code."));
+    return el("div", { class: "walk" }, rail(() => showTab("debugger", { step: 0 })), stage);
+  }
+
+  function debugView(w, step, view) {
+    const run = debugRun(w);
+    const box = el("div", { class: "stage" });
+    const here = run.steps[step];
+    const selected = view && view.frame !== undefined ? view.frame : here.frame;
+    const go = (n) => { if (n !== null && n >= 0 && n < run.steps.length) { box.replaceWith(debugView(w, n)); keepFocus(); } };
+    const commands = stepCommands(run, step);
+    const head = el("section", { class: "story-head" },
+      el("div", { class: "eyebrow" }, `${w.language} · ${w.entry.kind}`),
+      el("h2", {}, w.title),
+      el("div", { class: "query" }, w.entry.target),
+      el("div", { class: "chips" }, exitChip(w),
+        el("span", { class: "chip" }, `${run.steps.length} steps`),
+        el("span", { class: "chip" }, `${run.frames.length} calls`),
+        el("span", { class: "chip" }, w.fakes.length ? `${w.fakes.length} faked call(s)` : "no fakes"),
+        stagedChip(w),
+        w.truncated ? el("span", { class: "chip err" }, "truncated at --max-steps") : null));
+    const bar = el("div", { class: "stepper" }, debugBar(run, w, step, commands, go), stepCaption(run, w, step));
+    box.append(head, bar, el("div", { class: "panes" },
+      codePane(w, run, selected, step),
+      el("div", { class: "side" }, stackPane(run, selected, step, (frame) => box.replaceWith(debugView(w, step, { frame }))), varsPane(run, selected, step))));
+    box.addEventListener("keydown", (e) => {
+      const onRange = e.target.id === "step-range";
+      const key = { F10: "over", F11: e.shiftKey ? "out" : "into", F5: e.shiftKey ? "prevStop" : "nextStop", o: "over", i: "into", u: "out", c: "nextStop", C: "prevStop", b: "back", ArrowRight: onRange ? null : "into", ArrowLeft: onRange ? null : "back" }[e.key];
+      if (key) { e.preventDefault(); go(commands[key]); }
+    });
+    return box;
+  }
+
+  function debugBar(run, w, step, commands, go) {
+    const button = (label, command, title) => el("button", { onclick: () => go(commands[command]), disabled: commands[command] === null ? "" : null, title }, label);
+    const total = run.steps.length;
+    const range = el("input", { type: "range", min: 0, max: total - 1, value: step, "aria-label": "Step", id: "step-range", oninput: (e) => go(Number(e.target.value)) });
+    const ticks = el("div", { class: "ticks", "aria-hidden": "true" });
+    for (const [at, index] of run.anchorOfStep) {
+      ticks.append(el("i", { style: `left:${(at / Math.max(1, total - 1)) * 100}%`, class: at === step ? "on" : null, title: `step ${at + 1}: walkthrough ${index + 1}`, onclick: () => go(at) }));
+    }
+    const stops = ["the first run of each walkthrough step", ...w.breakpoints.map(b => shortName(b) + "()")].join(", ");
+    return el("div", { class: "debug" },
+      el("div", { class: "stepbar" },
+        button("◀◀ Prev stop", "prevStop", "Back to the previous stop (Shift+F5, C)"),
+        button("Next stop ▶▶", "nextStop", "Continue to the next stop (F5, c)"),
+        el("span", { class: "sep" }),
+        button("← Back", "back", "One step back (←, b)"),
+        button("⤺ Back over", "backOver", "Back to the previous step in this function or its caller"),
+        button("Over ⤼", "over", "Step over (F10, o): next line here, skipping the calls it makes"),
+        button("Into ↓", "into", "Step into (F11, i, →): the very next step, wherever it is"),
+        button("Out ↑", "out", "Step out (Shift+F11, u): to this function's return, then its caller"),
+        el("span", { class: "stepcount" }, `Step ${step + 1} / ${total}`)),
+      el("div", { class: "track" }, range, ticks),
+      el("div", { class: "stops" }, "Stops at: ", stops, ". Ticks mark the walkthrough steps; click one to jump."));
+  }
+
+  // What this step is, and the walkthrough caption for the lines it is on.
+  function stepCaption(run, w, step) {
+    const here = run.steps[step];
+    const frame = run.frames[here.frame];
+    const box = el("div", { class: "caption" },
+      el("div", { class: "t" }, `${shortName(frame.function)}() ${STEP_WORDS[here.kind]} · ${frame.path}:${here.line} · ${frame.task}`));
+    const index = w.walkthrough.findIndex(s => s.path === frame.path && s.from <= here.line && here.line <= s.to);
+    if (index >= 0) box.append(el("div", {}, el("b", {}, `Walkthrough ${index + 1}/${w.walkthrough.length}: `), prose(w.walkthrough[index].caption)));
+    if (step === run.steps.length - 1) box.append(el("div", { class: w.exit.ok ? null : "exit" }, `End of the recording. The run ${w.exit.ok ? "passed" : "failed"}: ${w.exit.detail}`));
+    return box;
+  }
+
+  function codePane(w, run, frameIndex, step) {
+    const frame = run.frames[frameIndex];
+    const at = frameAt(run, frameIndex, step);
+    const current = frameIndex === run.steps[step].frame;
+    const code = codeTable(frame.path, frame.start, frame.end, { hit: new Set([at.line]), ran: at.ran, idPrefix: "dbg-" });
+    code.classList.add("scrolls");
+    requestAnimationFrame(() => {
+      const row = document.getElementById("dbg-" + at.line);
+      if (row) code.scrollTop = row.offsetTop - code.clientHeight / 2;
+    });
+    return el("section", { class: "pane" },
+      el("header", {}, el("h3", {}, shortName(frame.function) + "()"), el("span", { class: "sub" }, `${frame.path}:${at.line}`), stagedMark(w, frame.path)),
+      el("div", { class: "body note", style: "padding-block:8px" }, current
+        ? "Marked: the line this step is on. Tinted: the lines this call has run so far."
+        : "A caller, picked in the call stack. Marked: the line waiting on the call above it."),
+      code);
+  }
+
+  function stackPane(run, selected, step, pickFrame) {
+    const stack = callStack(run, run.steps[step].frame);
+    const root = run.frames[stack[stack.length - 1]];
+    const list = el("ol", { class: "stack" }, stack.map(f => {
+      const frame = run.frames[f];
+      return el("li", {}, el("button", { "aria-current": String(f === selected), onclick: () => pickFrame(f) },
+        el("span", { class: "fn" }, shortName(frame.function) + "()"), el("span", { class: "where" }, `${frame.path}:${frameAt(run, f, step).line}`)));
+    }));
+    const origin = root.task !== "main"
+      ? `${root.task}: an async task, so nothing watched is above it; the event loop started it.`
+      : "Called from the entry (the test or driver), which is not stepped into.";
+    return el("section", { class: "pane" },
+      el("header", {}, el("h3", {}, "Call stack"), el("span", { class: "sub" }, "innermost first; click a frame to view it")),
+      el("div", { class: "body" }, list, el("p", { class: "note" }, origin)));
+  }
+
+  function varsPane(run, frameIndex, step) {
+    const at = frameAt(run, frameIndex, step);
+    const names = Object.keys(at.vars);
+    return el("section", { class: "pane" },
+      el("header", {}, el("h3", {}, `Variables in ${shortName(run.frames[frameIndex].function)}()`), el("span", { class: "sub" }, "as print() would show them; marked: changed by the last line")),
+      el("div", { class: "body" }, names.length
+        ? el("div", { class: "vars" }, names.map(name => variable(name, at.vars[name], at.changed.has(name))))
+        : el("p", { class: "note" }, "No variables yet.")));
+  }
+
+  // One-line values print inline. Multi-line ones fold: small ones open, big objects start
+  // folded with their first line as the label.
+  function variable(name, text, changed) {
+    const lines = text.split("\n");
+    if (lines.length === 1) return el("div", { class: "one" + (changed ? " changed" : ""), style: `padding-left:${name.length + 7}ch;text-indent:-${name.length + 3}ch` }, el("span", { class: "name" }, name), ` = ${text}`);
+    const body = el("div", { class: "value" }, lines.map(line => {
+      const hang = line.match(/^ */)[0].length + 4;
+      return el("div", { style: `padding-left:${hang}ch;text-indent:-${hang}ch` }, line || " ");
+    }));
+    const box = el("details", { class: changed ? "changed" : null }, el("summary", {}, el("span", { class: "name" }, name), " = ", el("span", { class: "label" }, `${lines[0]} … (${lines.length} lines)`)), body);
+    box.open = lines.length <= 12; // set directly: `el` reads any "on…" key as an event handler
+    return box;
+  }
+
+  const fromHash = location.hash.slice(1);
+  showTab(TABS.some(t => t.key === fromHash) ? fromHash : (store.get("cw-tab") || "workflows"));
+})();
+</script>
+</body>
+</html>
