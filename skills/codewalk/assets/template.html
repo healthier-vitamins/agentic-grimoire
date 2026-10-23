@@ -156,6 +156,8 @@ main { padding-block: 20px 60px; }
 .vars .name { color: var(--tk-fn); font-weight: 600; }
 .vars .value { white-space: pre-wrap; overflow-wrap: anywhere; margin-top: 6px; }
 .vars .changed { background: var(--mark); box-shadow: inset 3px 0 0 var(--mark-strong); }
+.vars .ask { margin-left: 10px; text-indent: 0; font-family: var(--f-body); font-size: 12px; font-weight: 400; }
+.vars .ask-text { display: block; width: 100%; margin-top: 6px; font: 12px var(--f-mono); text-indent: 0; }
 
 /* Scroll mode: every long line stays whole and its box scrolls sideways instead of wrapping. */
 :root.scroll .vars > * { min-width: 0; }
@@ -462,7 +464,7 @@ main { padding-block: 20px 60px; }
     const bar = el("div", { class: "stepper" }, debugBar(run, w, step, commands, go), stepCaption(run, w, step));
     box.append(head, bar, el("div", { class: "panes" },
       codePane(w, run, selected, step),
-      el("div", { class: "side" }, stackPane(run, selected, step, (frame) => box.replaceWith(debugView(w, step, { frame }))), varsPane(run, selected, step))));
+      el("div", { class: "side" }, stackPane(run, selected, step, (frame) => box.replaceWith(debugView(w, step, { frame }))), varsPane(w, run, selected, step))));
     box.addEventListener("keydown", (e) => {
       const onRange = e.target.id === "step-range";
       const key = { F10: "over", F11: e.shiftKey ? "out" : "into", F5: e.shiftKey ? "prevStop" : "nextStop", o: "over", i: "into", u: "out", c: "nextStop", C: "prevStop", b: "back", ArrowRight: onRange ? null : "into", ArrowLeft: onRange ? null : "back" }[e.key];
@@ -541,28 +543,71 @@ main { padding-block: 20px 60px; }
       el("div", { class: "body" }, list, el("p", { class: "note" }, origin)));
   }
 
-  function varsPane(run, frameIndex, step) {
+  function varsPane(w, run, frameIndex, step) {
     const at = frameAt(run, frameIndex, step);
     const names = Object.keys(at.vars);
+    const where = { w, frame: run.frames[frameIndex], line: at.line, step, total: run.steps.length };
+    const variable = (name, text, changed) => variableRow(name, text, changed, where);
     return el("section", { class: "pane" },
       el("header", {}, el("h3", {}, `Variables in ${shortName(run.frames[frameIndex].function)}()`), el("span", { class: "sub" }, "as print() would show them; marked: changed by the last line")),
       el("div", { class: "body" }, names.length
-        ? el("div", { class: "vars" }, names.map(name => variable(name, at.vars[name], at.changed.has(name))))
+        ? el("div", { class: "vars" }, [...names.filter(name => !isMember(name)).map(name => variable(name, at.vars[name], at.changed.has(name))), memberGroup(names.filter(isMember), at, variable)])
         : el("p", { class: "note" }, "No variables yet.")));
   }
 
-  // One-line values print inline. Multi-line ones fold: small ones open, big objects start
-  // folded with their first line as the label.
-  function variable(name, text, changed) {
+  // The recorders spread the receiver into one entry per attribute: `self.x` (Python), `this.x` (JS).
+  const isMember = (name) => /^(self|this)\./.test(name);
+
+  // The receiver's attributes, folded under `self` or `this` until clicked.
+  function memberGroup(names, at, variable) {
+    if (!names.length) return null;
+    const changed = names.some(name => at.changed.has(name));
+    return el("details", { class: changed ? "changed" : null },
+      el("summary", {}, el("span", { class: "name" }, names[0].split(".")[0]), ` (${names.length} attributes)`),
+      el("div", { class: "vars value" }, names.map(name => variable(name, at.vars[name], at.changed.has(name)))));
+  }
+
+  // Short one-line values print inline. Long or multi-line ones fold: small ones open, long
+  // ones start folded with their opening as the label.
+  function variableRow(name, text, changed, where) {
     const lines = text.split("\n");
-    if (lines.length === 1) return el("div", { class: "one" + (changed ? " changed" : ""), style: `padding-left:${name.length + 7}ch;text-indent:-${name.length + 3}ch` }, el("span", { class: "name" }, name), ` = ${text}`);
+    const long = lines.length > 12 || text.length > 200;
+    const ask = askButton(name, text, where);
+    if (lines.length === 1 && !long) return el("div", { class: "one" + (changed ? " changed" : ""), style: `padding-left:${name.length + 7}ch;text-indent:-${name.length + 3}ch` }, el("span", { class: "name" }, name), ` = ${text}`, ask);
+    const label = lines.length > 1 ? `${lines[0].slice(0, 120)} … (${lines.length} lines)` : `${text.slice(0, 120)} … (${text.length} characters)`;
     const body = el("div", { class: "value" }, lines.map(line => {
       const hang = line.match(/^ */)[0].length + 4;
       return el("div", { style: `padding-left:${hang}ch;text-indent:-${hang}ch` }, line || " ");
     }));
-    const box = el("details", { class: changed ? "changed" : null }, el("summary", {}, el("span", { class: "name" }, name), " = ", el("span", { class: "label" }, `${lines[0]} … (${lines.length} lines)`)), body);
-    box.open = lines.length <= 12; // set directly: `el` reads any "on…" key as an event handler
+    const box = el("details", { class: changed ? "changed" : null }, el("summary", {}, el("span", { class: "name" }, name), " = ", el("span", { class: "label" }, label), ask), body);
+    box.open = !long; // set directly: `el` reads any "on…" key as an event handler
     return box;
+  }
+
+  // Copies a question naming exactly where this value lives, to paste into a Claude Code session
+  // in the project: .codewalk/texts.json holds every value in full, so the answer is read, not
+  // re-run. Where the clipboard is blocked, the question shows selected instead.
+  function askButton(name, text, where) {
+    const { w, frame, line, step, total } = where;
+    const question = [
+      `Codewalk page, workflow \`${w.key}\` ("${w.title}"), step ${step + 1} of ${total}, frame \`${frame.function}\` at ${frame.path}:${line}.`,
+      `Variable \`${name}\` is texts[${DATA.texts.indexOf(text)}] in .codewalk/texts.json (the full value; the page may show only its start).`,
+      "Question: ",
+    ].join("\n");
+    const button = el("button", { class: "linkish ask", title: "Copy a question about this value, to paste into Claude Code", onclick: async (event) => {
+      event.preventDefault(); event.stopPropagation(); // a click in a summary would fold it
+      try {
+        await navigator.clipboard.writeText(question);
+        button.textContent = "copied";
+      } catch {
+        const box = el("textarea", { class: "ask-text", readonly: "", rows: 4 }, question);
+        button.replaceWith(box);
+        box.select();
+        return;
+      }
+      setTimeout(() => { button.textContent = "ask"; }, 1500);
+    } }, "ask");
+    return button;
   }
 
   const fromHash = location.hash.slice(1);

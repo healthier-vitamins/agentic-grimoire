@@ -59,8 +59,10 @@ Lines are 1-based.
 - `steps` — `[frame, line, kind, changed]`. `kind` is one of `call line await yield resume
   return raise unwind`. `changed` maps each variable that changed since this frame's
   previous step to an index into `values`, or `-1` when it left the frame. The names
-  `(return value)` and `(raised)` carry a return's value and an exception.
-- `values` — every printed value once, as `print` would show it, cut at 4000 characters.
+  `(return value)` and `(raised)` carry a return's value and an exception. The receiver is
+  spread into one name per attribute, `self.<name>` (Python) or `this.<name>` (JS).
+- `values` — every printed value once, in full, as `print` would show it. Collections still
+  stop after 50 items and nesting after 4 levels.
 - `truncated` — the run passed `--max-steps`; the steps stop there.
 - `staging` — the staging folder the run imported first, relative to the root, or `null`.
   `staged` — the project paths that ran from it ([staging.md](staging.md)). Every other path

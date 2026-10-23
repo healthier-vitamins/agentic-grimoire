@@ -24,8 +24,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { inspect, parseArgs } from "node:util";
 
 const GONE = -1; // a variable that left the frame since its previous step
-const VALUE_LIMIT = 4000; // characters; a longer value is cut, as a debugger's variables panel cuts it
-const INSPECT = { depth: 4, maxArrayLength: 50, maxStringLength: VALUE_LIMIT, breakLength: 72, compact: 3 };
+const INSPECT = { depth: 4, maxArrayLength: 50, maxStringLength: Infinity, breakLength: 72, compact: 3 };
 const SOURCE_EXTENSIONS = [".js", ".mjs", ".cjs", ".jsx", ".ts", ".mts", ".cts", ".tsx"];
 const TEST_FILE = /(\.(test|spec)\.[cm]?[jt]sx?$)|(__tests__\/)/;
 const INSPECTOR_CHATTER = /^(Debugger listening on |For help, see: |Debugger attached\.|Waiting for the debugger to disconnect)/;
@@ -347,13 +346,17 @@ class Session {
   }
 
   /** The paused frame's own variables (block scopes in, closures out), read off its scope
-   * objects. Nothing is evaluated inside the frame: V8 can crash evaluating in some (a class
-   * static block). A `let` or `const` not yet reached has no value, so it is left out, as Python
-   * leaves out an unassigned local. */
+   * objects, with `this` spread into one `this.<field>` entry each (private `#fields` too).
+   * Nothing is evaluated inside the frame: V8 can crash evaluating in some (a class static
+   * block). A `let` or `const` not yet reached has no value, so it is left out, as Python
+   * leaves out an unassigned local; so is a getter, which only a call could read. */
   async #variables(callFrame) {
     const printed = {};
     if (callFrame.this?.type === "object" && callFrame.this.subtype !== "null" && !["global", "Window"].includes(callFrame.this.className)) {
-      printed.this = await this.#print(callFrame.this);
+      const { result = [], privateProperties = [] } = await this.#send("Runtime.getProperties", { objectId: callFrame.this.objectId, ownProperties: true });
+      for (const { name, value } of [...result, ...privateProperties]) {
+        if (value !== undefined) printed[`this.${name}`] = await this.#print(value);
+      }
     }
     for (const scope of callFrame.scopeChain) {
       if (!["block", "catch", "local"].includes(scope.type)) break;
@@ -377,10 +380,10 @@ class Session {
         returnByValue: true,
         silent: true,
       });
-      return cut(result?.value ?? remote.description ?? String(remote.type));
+      return result?.value ?? remote.description ?? String(remote.type);
     }
     if (remote.unserializableValue !== undefined) return remote.unserializableValue;
-    return cut(inspect(remote.value, INSPECT));
+    return inspect(remote.value, INSPECT);
   }
 }
 
@@ -654,10 +657,6 @@ function listFiles(dir) {
 
 function firstLine(text) {
   return text.split("\n")[0];
-}
-
-function cut(text) {
-  return text.length > VALUE_LIMIT ? `${text.slice(0, VALUE_LIMIT)}\n… (${text.length - VALUE_LIMIT} more characters)` : text;
 }
 
 process.exitCode = await main();

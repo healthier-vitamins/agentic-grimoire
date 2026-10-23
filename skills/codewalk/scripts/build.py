@@ -36,10 +36,20 @@ STEP_KINDS = ["call", "line", "await", "yield", "resume", "return", "raise", "un
 GONE = -1
 HIDDEN = "<hidden>"
 _SIZE_LIMIT = 14 * 1024 * 1024  # bytes; an artifact holds 16 MB
+# Characters of one value the page shows; the rest stays in .codewalk/texts.json, which the
+# page's "ask" link names, so a Claude Code session in the project can read the exact value.
+_PAGE_TEXT_LIMIT = 20_000
 # Name parts that mark a secret. `key` alone is a loop variable far more often than a secret,
 # so it counts only as a suffix: `api_key`, `privateKey`.
 _SECRET_PARTS = {"token", "secret", "password", "passwd", "pwd", "auth", "authorization",
                  "credential", "credentials", "cookie", "apikey", "jwt", "bearer"}  # fmt: skip
+# A quoted value printed after a name, inside a bigger value: `api_key='…'`, `"token": "…"`.
+_QUOTED_FIELD = re.compile(r"""(\w+)(['"]?\s*[=:]\s*)('[^'\n]+'|"[^"\n]+")""")
+# Credentials recognisable by shape alone, whatever holds them.
+_SECRET_SHAPES = re.compile(
+    r"(?<![\w-])(?:sk-[A-Za-z0-9_-]{16,}|AKIA[0-9A-Z]{16}|gh[pousr]_[A-Za-z0-9]{30,}"
+    r"|xox[abprs]-[A-Za-z0-9-]{10,}|Bearer [A-Za-z0-9._~+/=-]{16,})"
+)
 
 
 class BuildError(Exception):
@@ -63,7 +73,10 @@ def main(argv: list[str] | None = None) -> int:
         print(f"build failed:\n{error}", file=sys.stderr)
         return 1
     hidden = _hide_secrets(workflows)
-    page = _render(args.title, _page_data(files, workflows))
+    data = _page_data(files, workflows)
+    texts = data["texts"]
+    data["texts"] = [_page_text(text) for text in texts]
+    page = _render(args.title, data)
     size = len(page.encode())
     if size > _SIZE_LIMIT:
         print(f"build failed: page is {size / 1e6:.1f} MB, over 14 MB. Narrow --watch and re-record.",
@@ -71,6 +84,7 @@ def main(argv: list[str] | None = None) -> int:
         return 1
     out = root / ".codewalk" / "page.html"
     out.write_text(page)
+    (root / ".codewalk" / "texts.json").write_text(json.dumps(texts))
     print(f"{out}: {len(workflows)} workflow(s), {size / 1e6:.1f} MB")
     print("hidden: " + (", ".join(sorted(hidden)) if hidden else "nothing"))
     return 0
@@ -178,8 +192,10 @@ def _line_count(path: Path) -> int:
 
 
 def _hide_secrets(workflows: list[dict[str, Any]]) -> set[str]:
-    """Hide every value whose variable name marks a secret, and every appearance of a secret
-    environment variable's value. Returns what was hidden, for the user to check."""
+    """Hide every value whose variable name marks a secret, every field inside a value whose
+    name does (a settings object's `api_key`), every credential recognisable by its shape, and
+    every appearance of a secret environment variable's value. Returns what was hidden, for
+    the user to check."""
     secret_env = {
         name: value
         for name, value in os.environ.items()
@@ -194,7 +210,7 @@ def _hide_secrets(workflows: list[dict[str, Any]]) -> set[str]:
                 if secret in text:
                     text = text.replace(secret, HIDDEN)
                     hidden.add(f"${name} (its value, wherever printed)")
-            values[index] = text
+            values[index] = _hide_secrets_inside(text, hidden)
         values.append(HIDDEN)
         for step in recording["steps"]:
             changed = step[3]
@@ -203,6 +219,23 @@ def _hide_secrets(workflows: list[dict[str, Any]]) -> set[str]:
                     changed[name] = len(values) - 1
                     hidden.add(name)
     return hidden
+
+
+def _hide_secrets_inside(text: str, hidden: set[str]) -> str:
+    def field(match: re.Match[str]) -> str:
+        name, separator, _value = match.groups()
+        if not _is_secret_name(name):
+            return match.group(0)
+        hidden.add(f"field {name} (inside printed values)")
+        return f"{name}{separator}{HIDDEN}"
+
+    def shape(match: re.Match[str]) -> str:
+        hidden.add(
+            f"a credential shaped like {match.group(0)[:4]}… (inside printed values)"
+        )
+        return HIDDEN
+
+    return _SECRET_SHAPES.sub(shape, _QUOTED_FIELD.sub(field, text))
 
 
 def _is_secret_name(name: str) -> bool:
@@ -215,6 +248,15 @@ def _is_secret_name(name: str) -> bool:
 
 
 # ---- page data ----------------------------------------------------------------------------------
+
+
+def _page_text(text: str) -> str:
+    if len(text) <= _PAGE_TEXT_LIMIT:
+        return text
+    rest = len(text) - _PAGE_TEXT_LIMIT
+    return (
+        f"{text[:_PAGE_TEXT_LIMIT]}\n… ({rest} more characters in .codewalk/texts.json)"
+    )
 
 
 def _page_data(

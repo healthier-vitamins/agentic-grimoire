@@ -40,8 +40,6 @@ __all__ = ["main", "record"]
 
 GONE = -1  # a variable that left the frame since its previous step
 _LINE_WIDTH = 72
-# Characters; a longer value is cut, as a debugger's variables panel cuts it.
-_VALUE_LIMIT = 4000
 _ITEM_LIMIT = 50  # items of one collection printed before "…"
 _DEPTH_LIMIT = 4  # nesting printed before an object collapses to its type name
 
@@ -419,11 +417,28 @@ def _task_name() -> str:
 
 
 def _variables(frame: FrameType) -> dict[str, str]:
-    return {
-        name: _pretty(value)
-        for name, value in frame.f_locals.items()
-        if not name.startswith("__")
-    }
+    """The frame's locals, with `self` spread into one `self.<attribute>` entry each, so an
+    attribute reads like any other variable and prints in full rather than at depth one."""
+    printed: dict[str, str] = {}
+    for name, value in frame.f_locals.items():
+        if name.startswith("__"):
+            continue
+        attributes = _attributes_of(value) if name == "self" else None
+        if attributes is None:
+            printed[name] = _pretty(value)
+        else:
+            printed.update(
+                (f"self.{key}", _pretty(item)) for key, item in attributes.items()
+            )
+    return printed
+
+
+def _attributes_of(value: Any) -> dict[str, Any] | None:
+    fields = _fields_of(value)
+    if fields is not None:
+        return fields
+    attributes = getattr(value, "__dict__", None)
+    return dict(attributes) if isinstance(attributes, dict) else None
 
 
 # ---- printing, the way `print` would show it, wrapped to fit a panel ----------------------------
@@ -431,12 +446,9 @@ def _variables(frame: FrameType) -> dict[str, str]:
 
 def _pretty(value: Any) -> str:
     try:
-        text = _pretty_at(value, 0)
+        return _pretty_at(value, 0)
     except Exception as error:  # noqa: BLE001 -- a broken __repr__ must not stop the recording
-        text = f"<{type(value).__name__} (printing failed: {error!r})>"
-    if len(text) > _VALUE_LIMIT:
-        return f"{text[:_VALUE_LIMIT]}\n… ({len(text) - _VALUE_LIMIT} more characters)"
-    return text
+        return f"<{type(value).__name__} (printing failed: {error!r})>"
 
 
 def _pretty_at(value: Any, depth: int) -> str:

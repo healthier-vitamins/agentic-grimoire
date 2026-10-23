@@ -113,8 +113,11 @@ recording ran.
 uv run <skill>/scripts/build.py --root <project> --title "<title>"
 ```
 
-The build checks Step 7's ranges, hides secrets, and writes `.codewalk/page.html`. It fails
-over 14 MB; then narrow `--watch` and re-record.
+The build checks Step 7's ranges, hides secrets (secret-named variables and fields, key-shaped
+strings, secret environment values), and writes `.codewalk/page.html`. The page shows the
+first 20,000 characters of each value; every value in full goes to `.codewalk/texts.json`,
+and each variable's "ask" link copies a question naming its place there. It fails over
+14 MB; then narrow `--watch` and re-record.
 
 **Done when:** the build exits 0.
 
