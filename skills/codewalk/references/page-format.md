@@ -64,6 +64,13 @@ Lines are 1-based.
 - `values` — every printed value once, in full, as `print` would show it. Collections still
   stop after 50 items and nesting after 4 levels.
 - `truncated` — the run passed `--max-steps`; the steps stop there.
+- `recorder_ms` — time the run waited for the recorder (Python only). Each frame's
+  `recorder_ms` is the recorder time that passed while that call ran: any timing the code
+  measured inside it is inflated by that much.
+- `exact_values` — `true` with `--exact-values`: every value printed at every step. Otherwise a
+  value that is still the same object with the same length is not printed again, so an
+  in-place change that keeps the length shows only at the next fresh print: the return of
+  the function that holds it as its own variable, or of the outermost watched call.
 - `staging` — the staging folder the run imported first, relative to the root, or `null`.
   `staged` — the project paths that ran from it ([staging.md](staging.md)). Every other path
   in the recording ran from the project.

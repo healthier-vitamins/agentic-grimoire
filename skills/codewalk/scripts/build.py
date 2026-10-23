@@ -291,6 +291,8 @@ def _workflow_json(workflow: dict[str, Any], texts: _TextTable) -> dict[str, Any
         "entry": recording["entry"],
         "exit": recording["exit"],
         "truncated": recording["truncated"],
+        "recorder_ms": recording.get("recorder_ms"),
+        "exact_values": recording.get("exact_values", True),
         "staged": recording.get("staged", []),
         "frames": recording["frames"],
         "steps": _packed_steps(steps, recording["values"], texts),

@@ -91,7 +91,10 @@ node <skill>/scripts/record_js.mjs <flags>              # JS/TS, Node 22+
 ```
 
 `--watch` is the target's files and folders: code outside them runs without being stepped
-into, the way a debugger's "just my code" steps over libraries. A `.ts` driver runs through
+into, the way a debugger's "just my code" steps over libraries. The run waits while the
+recorder prints, so timeouts and budgets can fire that would not unrecorded; the page shows
+how much time the recorder added to each call. Add `--exact-values` (Python) to print every
+value at every step instead of reusing unchanged ones: exact, but slower. A `.ts` driver runs through
 the project's `tsx` when installed. A run that fails still records — the page shows where it
 raised.
 

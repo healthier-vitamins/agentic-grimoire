@@ -296,6 +296,7 @@ main { padding-block: 20px 60px; }
         el("div", { class: "chips" }, exitChip(w),
           el("span", { class: "chip" }, `${run.steps.length} steps`),
           el("span", { class: "chip" }, `${run.frames.length} calls`),
+          recorderChip(w),
           stagedChip(w),
           w.truncated ? el("span", { class: "chip err" }, "truncated at --max-steps") : null),
         el("h4", {}, "Functions, in call order"),
@@ -458,6 +459,7 @@ main { padding-block: 20px 60px; }
       el("div", { class: "chips" }, exitChip(w),
         el("span", { class: "chip" }, `${run.steps.length} steps`),
         el("span", { class: "chip" }, `${run.frames.length} calls`),
+        recorderChip(w),
         el("span", { class: "chip" }, w.fakes.length ? `${w.fakes.length} faked call(s)` : "no fakes"),
         stagedChip(w),
         w.truncated ? el("span", { class: "chip err" }, "truncated at --max-steps") : null));
@@ -527,13 +529,23 @@ main { padding-block: 20px 60px; }
       code);
   }
 
+  // The run waits while the recorder prints, so its timings include the recorder's own time.
+  function recorderChip(w) {
+    if (w.recorder_ms === undefined || w.recorder_ms === null) return null;
+    const how = w.exact_values ? "every value printed at every step" : "unchanged values not re-printed";
+    return el("span", { class: "chip", title: `Time the run waited for the recorder (${how}). Timings measured inside the run include it.` }, `recorder added ${seconds(w.recorder_ms)}`);
+  }
+
+  const seconds = (ms) => `${(ms / 1000).toFixed(1)} s`;
+
   function stackPane(run, selected, step, pickFrame) {
     const stack = callStack(run, run.steps[step].frame);
     const root = run.frames[stack[stack.length - 1]];
     const list = el("ol", { class: "stack" }, stack.map(f => {
       const frame = run.frames[f];
       return el("li", {}, el("button", { "aria-current": String(f === selected), onclick: () => pickFrame(f) },
-        el("span", { class: "fn" }, shortName(frame.function) + "()"), el("span", { class: "where" }, `${frame.path}:${frameAt(run, f, step).line}`)));
+        el("span", { class: "fn" }, shortName(frame.function) + "()"), el("span", { class: "where" }, `${frame.path}:${frameAt(run, f, step).line}`),
+        frame.recorder_ms >= 100 ? el("span", { class: "where", title: "Recorder time that passed while this call ran: the run waits for the recorder, so any timing inside it is inflated by this much." }, `+${seconds(frame.recorder_ms)} recorder`) : null));
     }));
     const origin = root.task !== "main"
       ? `${root.task}: an async task, so nothing watched is above it; the event loop started it.`

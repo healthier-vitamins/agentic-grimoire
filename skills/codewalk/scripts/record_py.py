@@ -11,6 +11,11 @@ place of the project's file at the same path (`references/staging.md`). It runs 
 `sys.monitoring` (PEP 669, Python 3.12+), so the project carries no tracing code. Code outside
 `--watch` runs unrecorded, like a debugger's "just my code". The output's shape is in
 `references/page-format.md`.
+
+Recording costs time, and the run waits for it: every call notes how much recorder time passed
+while it ran (`recorder_ms`), so a page never passes that delay off as the code's own. To keep it
+small, a value that is still the same object with the same length is not printed again until its
+function returns; `--exact-values` prints every value at every step instead.
 """
 
 from __future__ import annotations
@@ -26,6 +31,7 @@ import json
 import os
 import platform
 import runpy
+import time
 import sys
 from collections.abc import Iterator, Mapping
 from contextlib import contextmanager
@@ -42,6 +48,9 @@ GONE = -1  # a variable that left the frame since its previous step
 _LINE_WIDTH = 72
 _ITEM_LIMIT = 50  # items of one collection printed before "…"
 _DEPTH_LIMIT = 4  # nesting printed before an object collapses to its type name
+_REUSE_LIMIT = (
+    10_000  # printed objects remembered for reuse; the oldest is forgotten first
+)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -55,7 +64,7 @@ def main(argv: list[str] | None = None) -> int:
     out = Path(args.out).resolve()  # before `record` moves into the project root
     root = Path(args.root).resolve()
     tree = _Tree(root, (root / args.staging).resolve() if args.staging else None)
-    recording = record(tree, args.watch, args.entry, args.max_steps)
+    recording = record(tree, args.watch, args.entry, args.max_steps, args.exact_values)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(recording))
     print(
@@ -66,14 +75,22 @@ def main(argv: list[str] | None = None) -> int:
     return 0
 
 
-def record(tree: _Tree, watch: list[str], entry: str, max_steps: int) -> dict[str, Any]:
+def record(
+    tree: _Tree,
+    watch: list[str],
+    entry: str,
+    max_steps: int,
+    exact_values: bool = False,
+) -> dict[str, Any]:
     """Run `entry` inside the project root, staged files first, and return its recording."""
     os.chdir(tree.root)
     sys.path.insert(0, str(tree.root))
     if tree.staging:
         sys.path.append(str(tree.staging))  # staged-only top-level modules
         sys.meta_path.insert(0, _StagingFinder(tree))
-    recorder = _Recorder(tree, tree.watched_prefixes(watch), max_steps)
+    recorder = _Recorder(
+        tree, tree.watched_prefixes(watch), max_steps, _Printer(exact_values)
+    )
     with recorder.listening():
         exit_status = _run_entry(entry)
     return {
@@ -86,6 +103,8 @@ def record(tree: _Tree, watch: list[str], entry: str, max_steps: int) -> dict[st
         "staged": tree.staged(),
         "exit": exit_status,
         "truncated": recorder.truncated,
+        "exact_values": exact_values,
+        "recorder_ms": round(recorder.overhead * 1000),
         "frames": recorder.frames,
         "steps": recorder.steps,
         "values": recorder.values,
@@ -104,6 +123,11 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
     parser.add_argument("--out", required=True, help="where to write the recording")
     parser.add_argument(
         "--max-steps", type=int, default=50_000, help="stop recording after this many"
+    )
+    parser.add_argument(
+        "--exact-values",
+        action="store_true",
+        help="print every value at every step: exact, but the run waits longer",
     )
     parser.add_argument(
         "--staging",
@@ -230,11 +254,15 @@ class _Recorder:
     """Each callback is called from the frame it reports on, so `sys._getframe(1)` is that frame.
     Code a callback runs (a `__repr__` while printing) raises no events of its own."""
 
-    def __init__(self, tree: _Tree, watched: tuple[str, ...], max_steps: int) -> None:
+    def __init__(
+        self, tree: _Tree, watched: tuple[str, ...], max_steps: int, printer: _Printer
+    ) -> None:
         self.frames: list[dict[str, Any]] = []
         self.steps: list[list[Any]] = []
         self.values: list[str] = []
         self.truncated = False
+        self.overhead = 0.0  # seconds spent inside the callbacks, all frames together
+        self._printer = printer
         self._tree = tree
         self._watched = watched
         self._max_steps = max_steps
@@ -244,6 +272,9 @@ class _Recorder:
         self._live: dict[FrameType, int] = {}
         # Frame -> its variables at its last step.
         self._printed: dict[int, dict[str, str]] = {}
+        self._overhead_at_start: dict[
+            int, float
+        ] = {}  # frame -> `overhead` when it was called
 
     @contextmanager
     def listening(self) -> Iterator[None]:
@@ -276,6 +307,7 @@ class _Recorder:
     def _on_start(self, code: CodeType, _offset: int) -> Any:
         if not self._is_watched(code):
             return _MONITOR.DISABLE
+        started = time.perf_counter()
         frame = sys._getframe(1)
         index = len(self.frames)
         path = self._tree.project_path(code.co_filename)
@@ -292,6 +324,8 @@ class _Recorder:
         )
         self._live[frame] = index
         self._printed[index] = {}
+        self._overhead_at_start[index] = self.overhead
+        self.overhead += time.perf_counter() - started  # `_add_step` counts its own
         self._add_step(frame, "call")
         return None
 
@@ -316,7 +350,10 @@ class _Recorder:
     def _on_return(self, code: CodeType, _offset: int, value: Any) -> Any:
         if not self._is_watched(code):
             return _MONITOR.DISABLE
-        self._step_here("return", {"(return value)": _pretty(value)})
+        started = time.perf_counter()
+        returned = self._printer.print(value, fresh=True)
+        self.overhead += time.perf_counter() - started  # `_add_step` counts its own
+        self._step_here("return", {"(return value)": returned})
         self._leave(sys._getframe(1))
         return None
 
@@ -354,8 +391,15 @@ class _Recorder:
             self.truncated = True
             _MONITOR.set_events(_MONITOR.DEBUGGER_ID, 0)
             return
+        started = time.perf_counter()
         index = self._live[frame]
-        printed = {**_variables(frame), **(extra or {})}
+        ending = kind in ("return", "unwind")
+        # The outermost watched call has no watched caller to print its arguments afresh.
+        outermost = self.frames[index]["parent"] == -1
+        printed = {
+            **self._printer.variables(frame, ending=ending, outermost=outermost),
+            **(extra or {}),
+        }
         before = self._printed[index]
         changed = {
             name: self._value(text)
@@ -365,6 +409,7 @@ class _Recorder:
         changed.update((name, GONE) for name in before.keys() - printed.keys())
         self._printed[index] = printed
         self.steps.append([index, frame.f_lineno, kind, changed])
+        self.overhead += time.perf_counter() - started
 
     def _value(self, text: str) -> int:
         index = self._value_index.get(text)
@@ -384,9 +429,12 @@ class _Recorder:
         return -1
 
     def _leave(self, frame: FrameType) -> None:
+        """The frame's return or unwind step is already counted in `overhead`."""
         index = self._live.pop(frame, None)
         if index is not None:
             self._printed.pop(index, None)
+            since_call = self.overhead - self._overhead_at_start.pop(index)
+            self.frames[index]["recorder_ms"] = round(since_call * 1000)
 
 
 def _enclosing_definition(filename: str, line: int) -> tuple[int, int]:
@@ -416,21 +464,64 @@ def _task_name() -> str:
     return task.get_name() if task else "main"
 
 
-def _variables(frame: FrameType) -> dict[str, str]:
-    """The frame's locals, with `self` spread into one `self.<attribute>` entry each, so an
-    attribute reads like any other variable and prints in full rather than at depth one."""
-    printed: dict[str, str] = {}
-    for name, value in frame.f_locals.items():
-        if name.startswith("__"):
-            continue
-        attributes = _attributes_of(value) if name == "self" else None
-        if attributes is None:
-            printed[name] = _pretty(value)
-        else:
-            printed.update(
-                (f"self.{key}", _pretty(item)) for key, item in attributes.items()
-            )
-    return printed
+# ---- printing, the way `print` would show it, wrapped to fit a panel ----------------------------
+
+
+class _Printer:
+    """Prints a frame's variables, reusing the text of a value printed before while it is the
+    same object with the same length. An in-place change that keeps the length (an item
+    replaced, an attribute set) shows at the next fresh print: the return of the function that
+    holds it as its own variable rather than as an argument, or of the outermost watched call.
+    Holding each object keeps its id from being reused by another while it is remembered."""
+
+    def __init__(self, exact: bool) -> None:
+        self._exact = exact
+        self._printed: dict[int, tuple[Any, int | None, str]] = {}
+
+    def variables(
+        self, frame: FrameType, *, ending: bool, outermost: bool
+    ) -> dict[str, str]:
+        """The frame's locals, with `self` spread into one `self.<attribute>` entry each, so an
+        attribute reads like any other variable and prints in full rather than at depth one.
+        At the frame's last step its own variables print afresh; its arguments belong to a
+        caller, which prints them afresh at its own end."""
+        arguments = set() if outermost else _argument_names(frame.f_code)
+        printed: dict[str, str] = {}
+        for name, value in frame.f_locals.items():
+            if name.startswith("__"):
+                continue
+            fresh = ending and name not in arguments
+            attributes = _attributes_of(value) if name == "self" else None
+            if attributes is None:
+                printed[name] = self.print(value, fresh=fresh)
+            else:
+                printed.update(
+                    (f"self.{key}", self.print(item, fresh=fresh))
+                    for key, item in attributes.items()
+                )
+        return printed
+
+    def print(self, value: Any, *, fresh: bool = False) -> str:
+        if self._exact or _short_form(value) is not None:
+            return _pretty(value)  # one token: as cheap to print as to look up
+        size = _length(value)
+        seen = self._printed.get(id(value))
+        if not fresh and seen is not None and seen[0] is value and seen[1] == size:
+            return seen[2]
+        text = _pretty(value)
+        self._printed.pop(id(value), None)  # re-inserted below, as the newest
+        if len(self._printed) >= _REUSE_LIMIT:
+            del self._printed[next(iter(self._printed))]
+        self._printed[id(value)] = (value, size, text)
+        return text
+
+
+def _argument_names(code: CodeType) -> set[str]:
+    count = code.co_argcount + code.co_kwonlyargcount
+    count += bool(code.co_flags & inspect.CO_VARARGS) + bool(
+        code.co_flags & inspect.CO_VARKEYWORDS
+    )
+    return set(code.co_varnames[:count])
 
 
 def _attributes_of(value: Any) -> dict[str, Any] | None:
@@ -441,7 +532,11 @@ def _attributes_of(value: Any) -> dict[str, Any] | None:
     return dict(attributes) if isinstance(attributes, dict) else None
 
 
-# ---- printing, the way `print` would show it, wrapped to fit a panel ----------------------------
+def _length(value: Any) -> int | None:
+    try:
+        return len(value)
+    except Exception:  # noqa: BLE001 -- no length, or a broken __len__: identity alone decides
+        return None
 
 
 def _pretty(value: Any) -> str:
