@@ -113,7 +113,7 @@ STORM is extremely heavy, but it provides the most detailed output compared to `
 
 | Skill | What it does |
 |---|---|
-| orrery | Turns one formula into an interactive page: drag the inputs, watch every part move. Graphs are drawn by code, so they are exact. **Use when a formula makes no sense on paper.** Edits its notes with `scribe` and Matt Pocock's `wait-what` (prompts to install either if missing). |
+| workbook | Turns maths questions into one printable revision sheet: the questions first, then worked solutions with every step written out and a graph under each. Answers are checked and graphs drawn by code, so they are exact. **Use when revising for a test.** Can also choose the questions from the course materials, and add an explanation to a step you ask about. |
 
 ## When to reach for what
 
@@ -127,7 +127,7 @@ STORM is extremely heavy, but it provides the most detailed output compared to `
 - See a prototype run before it touches the project: `codewalk <idea>`
 
 **Academic**
-- See what a formula does, as an interactive page: `orrery`
+- Revision sheet with worked solutions and graphs: `workbook`
 
 **Writing code**
 - General: `keystone`

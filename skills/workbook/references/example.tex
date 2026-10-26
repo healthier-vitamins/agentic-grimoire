@@ -1,0 +1,115 @@
+% One complete question, as it appears in body.tex. Copy the pattern, not the maths.
+\begin{enumerate}
+% ================================================================ Week 9 Q1
+\item The curve $C$ has equation \src{Week 9 Problem Solving Q1}
+\[ x^2 + xy + y^2 = 12. \]
+\begin{enumerate}
+\item Find $\dfrac{dy}{dx}$ in terms of $x$ and $y$.
+\sol{\idea{$y$ is not written as $y = \cdots$, so we cannot differentiate it directly. Instead differentiate \emph{every term} on both sides with respect to $x$ (implicit differentiation).}
+
+\step{Differentiate both sides with respect to $x$.}
+\[ \frac{d}{dx}\left(x^2 + xy + y^2\right) = \frac{d}{dx}(12) \]
+
+\step{Split the left side into one derivative per term. The right side is a constant, so its derivative is $0$.}
+\[ \frac{d}{dx}(x^2) + \frac{d}{dx}(xy) + \frac{d}{dx}(y^2) = 0 \]
+
+\step{Differentiate each term separately.}
+\begin{itemize}
+\item $\dfrac{d}{dx}(x^2) = 2x$ \hfill (power rule)
+\item $\dfrac{d}{dx}(xy)$: this is $x$ \emph{times} $y$, so use the product rule with $u = x$, $v = y$:
+\[ u' = 1, \qquad v' = \frac{dy}{dx}, \qquad \frac{d}{dx}(xy) = u'v + uv' = (1)(y) + x\frac{dy}{dx} = y + x\frac{dy}{dx}. \]
+\item $\dfrac{d}{dx}(y^2)$: differentiate as if $y$ were $x$ to get $2y$, then multiply by $\dfrac{dy}{dx}$ (chain rule):
+\[ \frac{d}{dx}(y^2) = 2y\frac{dy}{dx}. \]
+\end{itemize}
+
+\step{Put the three pieces back together.}
+\[ 2x + y + x\frac{dy}{dx} + 2y\frac{dy}{dx} = 0 \]
+
+\step{Collect the two terms that contain $\dfrac{dy}{dx}$ and factor it out.}
+\[ x\frac{dy}{dx} + 2y\frac{dy}{dx} = (x + 2y)\frac{dy}{dx}, \qquad\text{so}\qquad (2x + y) + (x + 2y)\frac{dy}{dx} = 0. \]
+
+\step{Move $(2x+y)$ to the right side (subtract it from both sides).}
+\[ (x + 2y)\frac{dy}{dx} = -(2x + y) \]
+
+\step{Divide both sides by $(x+2y)$. We can only divide if it is not zero, so we need $x + 2y \neq 0$, i.e.\ $x \neq -2y$.}
+\[ \frac{dy}{dx} = -\frac{2x + y}{x + 2y}, \qquad x \neq -2y. \]
+
+\ans{$\dfrac{dy}{dx} = -\dfrac{2x+y}{x+2y}$, \ for $x \neq -2y$.}}
+
+\item Find the coordinates of the points on $C$ at which the tangent is horizontal.
+\sol{\idea{a horizontal line has gradient $0$, so set $\dfrac{dy}{dx} = 0$. That gives an equation linking $x$ and $y$; combine it with the curve's equation to get actual points.}
+
+\step{Set the gradient from (a) equal to $0$.}
+\[ -\frac{2x + y}{x + 2y} = 0 \]
+
+\step{A fraction is $0$ exactly when its \emph{top} is $0$ (and the bottom is not $0$). So}
+\[ 2x + y = 0 \quad\Longrightarrow\quad y = -2x. \]
+
+\step{$y = -2x$ is a whole line, not points yet. The points must also be on $C$, so substitute $y = -2x$ into $x^2 + xy + y^2 = 12$.}
+\begin{align*}
+x^2 + x(-2x) + (-2x)^2 &= 12 \\
+x^2 - 2x^2 + 4x^2 &= 12 \why{$(-2x)^2 = (-2)^2x^2 = 4x^2$} \\
+3x^2 &= 12 \why{$1 - 2 + 4 = 3$} \\
+x^2 &= 4 \why{divide by 3} \\
+x &= 2 \ \text{ or } \ x = -2 \why{square root, both signs}
+\end{align*}
+
+\step{Find each $y$ using $y = -2x$.}
+\[ x = 2: \ y = -2(2) = -4, \qquad\qquad x = -2: \ y = -2(-2) = 4. \]
+
+\step{Check the bottom of $\dfrac{dy}{dx}$ is not zero at these points.}
+\[ (2,-4): \ x + 2y = 2 - 8 = -6 \neq 0 \ \checkmark \qquad (-2,4): \ x + 2y = -2 + 8 = 6 \neq 0 \ \checkmark \]
+
+\ans{$(2,-4)$ and $(-2,4)$.}}
+
+\item At which points on $C$ is $\dfrac{dy}{dx}$ undefined? At these points, does the curve have a tangent line? If so, find its equation.
+\sol{\idea{a fraction is undefined when its \emph{bottom} is $0$. Find those points, then think about what an ``infinite'' gradient means.}
+
+\step{Set the bottom of $\dfrac{dy}{dx} = -\dfrac{2x+y}{x+2y}$ equal to $0$.}
+\[ x + 2y = 0 \quad\Longrightarrow\quad x = -2y. \]
+
+\step{Substitute $x = -2y$ into $x^2 + xy + y^2 = 12$.}
+\begin{align*}
+(-2y)^2 + (-2y)y + y^2 &= 12 \\
+4y^2 - 2y^2 + y^2 &= 12 \\
+3y^2 &= 12 \\
+y^2 &= 4 \\
+y &= 2 \ \text{ or } \ y = -2
+\end{align*}
+
+\step{Find each $x$ using $x = -2y$.}
+\[ y = 2: \ x = -2(2) = -4, \qquad\qquad y = -2: \ x = -2(-2) = 4. \]
+So $\dfrac{dy}{dx}$ is undefined at $(-4,2)$ and $(4,-2)$.
+
+\step{Is there still a tangent? Flip the fraction to get $\dfrac{dx}{dy}$ (how fast $x$ changes as $y$ changes):}
+\[ \frac{dx}{dy} = \frac{1}{dy/dx} = -\frac{x + 2y}{2x + y}. \]
+At $(-4,2)$: top $= -4 + 4 = 0$, bottom $= -8 + 2 = -6 \neq 0$, so $\dfrac{dx}{dy} = 0$. \\
+At $(4,-2)$: top $= 4 - 4 = 0$, bottom $= 8 - 2 = 6 \neq 0$, so $\dfrac{dx}{dy} = 0$. \\
+$\dfrac{dx}{dy} = 0$ means $x$ is not changing while $y$ changes: the curve is going straight up and down. So the tangent exists and is \emph{vertical}.
+
+\step{A vertical line through a point has equation $x = $ (that point's $x$-coordinate).}
+
+\ans{$\dfrac{dy}{dx}$ is undefined at $(-4,2)$ and $(4,-2)$. Yes, the curve has tangents there; they are vertical: $x = -4$ and $x = 4$.}
+
+\seeit{$C$ is a tilted oval (an ellipse). The grey line $y = -2x$ (top of $\frac{dy}{dx}$ is $0$) crosses it exactly at the two horizontal-tangent points from (b). The grey line $x = -2y$ (bottom of $\frac{dy}{dx}$ is $0$) crosses it at the two vertical-tangent points from (c): the oval's far left and far right.}{%
+\begin{tikzpicture}
+\begin{axis}[rev, axis equal image, width=9cm, height=11cm, xmin=-6, xmax=6, ymin=-5.5, ymax=5.5,
+  xtick={-4,-2,...,4}, ytick={-4,-2,...,4}, xlabel=$x$, ylabel=$y$]
+  \addplot[gray, dashed, thin, domain=-2.6:2.6] {-2*x};
+  \addplot[gray, dashed, thin, domain=-5.6:5.6] {-x/2};
+  \node[lbl, text=gray] at (2.2,-2.0) {$y=-2x$};
+  \node[lbl, text=gray] at (-2.5,0.65) {$x=-2y$};
+  \addplot[curve, domain=0:360, variable=\t]
+    ({2*cos(t) + 2*sqrt(3)*sin(t)}, {2*cos(t) - 2*sqrt(3)*sin(t)});
+  \addplot[tang, domain=0.4:3.6] {-4};
+  \addplot[tang, domain=-3.6:-0.4] {4};
+  \draw[tang, line width=1.1pt] (4,-3.6) -- (4,-0.4);
+  \draw[tang, line width=1.1pt] (-4,0.4) -- (-4,3.6);
+  \node[dot, label={[lbl]below:$(2,-4)$}] at (2,-4) {};
+  \node[dot, label={[lbl]above:$(-2,4)$}] at (-2,4) {};
+  \node[dot, label={[lbl]right:$(4,-2)$}] at (4,-2) {};
+  \node[dot, label={[lbl]left:$(-4,2)$}] at (-4,2) {};
+\end{axis}
+\end{tikzpicture}}}
+\end{enumerate}
+\end{enumerate}
