@@ -29,13 +29,13 @@ Every final answer is checked by a SymPy script before it reaches the sheet. Eve
 
 3. **Write the worked solutions.** In `<sheet-slug>/` under the current working directory, copy [`references/template.tex`](references/template.tex) to `revision.tex`, and write the questions into `body.tex` with each solution inside `\sol{}`. [`references/example.tex`](references/example.tex) is one complete question; match its granularity.
    - `\idea{}` — one line: the method, and why this question calls for it.
-   - `\step{}` — one move per step ("differentiate both sides", then "split into one derivative per term"). Each step names its rule or gives its reason. A choice that looks arbitrary — a test value, a substitution, which side to divide — says why it works.
+   - `\step{}` — one move per step ("differentiate both sides", then "split into one derivative per term"). Each step names its rule or gives its reason. A choice that looks arbitrary — a test value, a substitution, which side to divide — says why it works. A reason that fits in one clause stays in the step ("we can only divide if it is not zero"); a longer one — why a rule has an exception, what happens at an edge case — lives in that rule's `rules.tex` entry, and the step checks the condition in one clause and points there: "n = −2, so the power rule applies (its one exception is on the rules page)".
    - `\why{}` — a side note on every line of arithmetic: `(−2x)² = 4x²`, "divide by 3".
    - Checks as steps — dividing by an expression states it is non-zero at the answer; a point found is confirmed on the curve and in the domain.
    - `\ans{}` — the final result.
-   - `rules.tex` — every rule a step uses, each with a one-line example.
+   - `rules.tex` — every rule a step uses, each with a one-line example. A rule with a condition (`n ≠ −1`, `x > 0`, a non-zero bottom) says in the same entry what breaks where the condition fails and what to use there instead: "at n = −1 the new power is 0, and you cannot divide by 0; ∫ 1/x dx = ln|x| + C instead".
 
-   **Done when:** every step names a rule or a reason, every rule named appears in `rules.tex`, and every part of every question ends in `\ans{}`.
+   **Done when:** every step names a rule or a reason, every rule named appears in `rules.tex`, every condition a rule carries comes with what breaks and what replaces it, and every part of every question ends in `\ans{}`.
 
 4. **See it.** End each question's solution with `\seeit{what to look at}{picture}`:
    - Curves from their equations — implicit curves (ellipses, circles) as parametric plots.
@@ -58,8 +58,8 @@ Every final answer is checked by a SymPy script before it reaches the sheet. Eve
 ## Patch
 
 1. Answer in chat, in the sheet's notation, with a small table or ASCII sketch where the idea has a shape.
-2. Write the answer into `body.tex` at the step that raised it, as new or expanded `\step{}`s.
-3. Search the whole sheet for steps with the same gap — the same unexplained choice in another part — and fill them too.
+2. Write the answer where step 3's split puts it: a missing move as new or expanded `\step{}`s at the step that raised it; the reason behind a rule's condition or edge case into that rule's `rules.tex` entry, with the step pointing there in one clause.
+3. Search the whole sheet for the same gap — the same unexplained choice in another part, another rule's condition stated without its reason — and fill them too.
 4. Rebuild, and view every changed page.
 
 **Done when:** the explanation sits at every step with the same gap, and every changed page has been viewed.
