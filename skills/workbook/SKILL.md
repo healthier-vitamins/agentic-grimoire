@@ -67,5 +67,5 @@ Every final answer is checked by a SymPy script before it reaches the sheet. Eve
 ## Style
 
 - **Match the course.** Where a tutorial or sheet PDF from the same course is nearby, render its first page and copy its header lines, paper size and solution colour into the template. Otherwise keep the template as it is.
-- **Questions first.** The template prints the questions with no answers, then the rules page, then the questions again with solutions, so the reader tries each one blind. Keep that order.
+- **Questions first.** The template prints the questions with no answers, each part followed by blank working space (`\workspace`, 6 cm), then the rules page, then the questions again with solutions, so the reader tries each one blind. Keep that order.
 - **Plain words.** Short sentences. Define each term the first time it appears. Keep the source's own notation (`f′(x)`, `dy/dx`) and spell out every abbreviation.
