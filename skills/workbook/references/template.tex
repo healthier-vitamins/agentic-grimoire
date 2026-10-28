@@ -33,9 +33,15 @@
 % Copied from the course's own tutorial style; replace INSTITUTION, Department, COURSE CODE and SHEET TITLE.
 % Each question in body.tex wraps its working in \sol{...}.
 % The body is typeset twice: questions only, then with solutions.
+% In the questions-only pass, each \sol{} leaves blank working space instead.
 \newif\ifsol
 \newcounter{stepno}
-\newcommand{\sol}[1]{\ifsol\par\smallskip{\color{blue}\setcounter{stepno}{0}\textbf{Solution:} #1}\par\fi}
+\newlength{\workspace}\setlength{\workspace}{6cm}
+% Questions pass: no page break inside a question, so each one keeps its working space.
+\makeatletter
+\newcommand{\keepquestionswhole}{\interlinepenalty=10000 \postdisplaypenalty=10000 \@beginparpenalty=10000 }
+\makeatother
+\newcommand{\sol}[1]{\ifsol\par\smallskip{\color{blue}\setcounter{stepno}{0}\textbf{Solution:} #1}\par\else\par\nopagebreak\vbox to\workspace{}\fi}
 \newcommand{\src}[1]{\hfill{\small[#1]}}
 % Worked-solution helpers: numbered steps, side notes, the idea, the final answer.
 \newcommand{\idea}[1]{\textit{Idea:} #1}
@@ -58,8 +64,10 @@
 
 \heading{SHEET TITLE}
 
-\solfalse
+\begingroup
+\solfalse\keepquestionswhole
 \input{body}
+\endgroup
 
 \newpage
 \heading{SHEET TITLE: Solutions}
