@@ -103,6 +103,8 @@ main { padding-block: 20px 60px; }
 .caption { background: var(--surface); border-left: 4px solid var(--accent); padding: 10px 14px; border-radius: 0 8px 8px 0; display: grid; gap: 4px; }
 .caption .t { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .caption .exit { color: var(--err); font-weight: 600; }
+.caption p { margin: 0; max-width: 85ch; }
+.caption .step-title { font-size: 18px; margin-top: 2px; }
 .debug { display: grid; gap: 4px; }
 .track { position: relative; padding-bottom: 12px; }
 .track input[type=range] { width: 100%; accent-color: var(--accent); margin: 0; }
@@ -236,6 +238,11 @@ main { padding-block: 20px 60px; }
   const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
   // `text` in a caption is a name from the code.
   const prose = (text) => text.split("`").map((part, i) => i % 2 ? el("code", {}, part) : part);
+  // A walkthrough step's name in the rail and over its caption; a caption is paragraphs split by a blank line.
+  const stepTitle = (s) => s.title || s.caption.split(/(?<=\.)\s/)[0];
+  const paragraphs = (text) => text.split(/\n\s*\n/).map(part => el("p", {}, prose(part.trim())));
+  // `module.outer.<locals>.inner` reads as "inner() in outer()".
+  const callName = (fn) => shortName(fn).split(".<locals>.").reverse().map(part => part + "()").join(" in ");
   const shortName = (fn) => fn.split(".").slice(1).join(".") || fn;
 
   // The workflow every tab shows; picking one in any tab picks it in all.
@@ -367,7 +374,8 @@ main { padding-block: 20px 60px; }
       el("span", { class: "stepcount" }, `Step ${step + 1} / ${steps.length}`), range);
     const lines = new Set(); for (let n = s.from; n <= s.to; n++) lines.add(n);
     box.append(head,
-      el("div", { class: "stepper" }, bar, el("div", { class: "caption" }, el("div", { class: "t" }, `${s.path}:${s.from}-${s.to}`), el("div", {}, prose(s.caption)))),
+      el("div", { class: "stepper" }, bar),
+      el("div", { class: "caption" }, el("div", { class: "t" }, `${s.path}:${s.from}-${s.to}`), el("h3", { class: "step-title" }, `${step + 1}. ${stepTitle(s)}`), paragraphs(s.caption)),
       el("section", { class: "pane" },
         el("header", {}, el("h3", { class: "mono", style: "font-family:var(--f-mono);font-size:15px" }, s.path), el("span", { class: "sub" }, `lines ${s.from}-${s.to}`), stagedMark(w, s.path)),
         el("div", { class: "body", style: "padding-block:8px" }, at === null
@@ -549,8 +557,8 @@ main { padding-block: 20px 60px; }
         el("span", { class: "chip" }, w.fakes.length ? `${w.fakes.length} faked call(s)` : "no fakes"),
         stagedChip(w),
         w.truncated ? el("span", { class: "chip err" }, "truncated at --max-steps") : null));
-    const bar = el("div", { class: "stepper" }, debugBar(run, w, step, commands, go), change ? moveNote(run, change, step) : null, stepCaption(run, w, step, go));
-    box.append(head, bar, el("div", { class: "panes" },
+    const bar = el("div", { class: "stepper" }, debugBar(run, w, step, commands, go), change ? moveNote(run, change, step) : null);
+    box.append(head, bar, stepCaption(run, w, step, go), el("div", { class: "panes" },
       codePane(w, run, selected, step),
       el("div", { class: "side" }, stackPane(run, selected, step, change, (frame) => show(step, { frame })), varsPane(w, run, selected, step))));
     box.addEventListener("keydown", (e) => {
@@ -572,11 +580,10 @@ main { padding-block: 20px 60px; }
   // Every walkthrough step in reading order; clicking one jumps to its first run.
   function chapterList(w, run, step, go) {
     const now = chapterAt(run, w, step);
-    const firstSentence = (caption) => caption.split(/(?<=\.)\s/)[0];
     const list = el("ol", { class: "chapters" }, w.walkthrough.map((s, index) => {
       const at = run.anchors[index];
-      return el("li", {}, el("button", { "aria-current": String(index === now), disabled: at === null ? "" : null, title: at === null ? "These lines did not run in this recording" : s.caption, onclick: () => go(at) },
-        el("span", { class: "num" }, index + 1), el("span", { class: "text" }, prose(firstSentence(s.caption)))));
+      return el("li", {}, el("button", { "aria-current": String(index === now), disabled: at === null ? "" : null, title: at === null ? "These lines did not run in this recording" : null, onclick: () => go(at) },
+        el("span", { class: "num" }, index + 1), el("span", { class: "text" }, prose(stepTitle(s)))));
     }));
     // The list scrolls on its own so the call tree below stays in view; keep the current step centred.
     requestAnimationFrame(() => { if (now >= 0) list.scrollTop = list.children[now].offsetTop - list.clientHeight / 2; });
@@ -642,30 +649,44 @@ main { padding-block: 20px 60px; }
       el("p", { class: "note", style: "font-size:12.5px" }, `▶ on the stack · ✓ returned · ◌ suspended · ○ not called yet. ${task === "main" ? "" : task + " is an async task; other tasks have their own trees."}`));
   }
 
-  // The frames a move left and entered: compared stack to stack, innermost first. Null when the
-  // move stayed in the same frame.
+  // The frames a move left and entered, innermost first, and the innermost frame both stacks
+  // share (null when they share none: the move went to another async task). Null when the move
+  // stayed in the same frame.
   function stackChange(run, from, step) {
     const before = callStack(run, run.steps[from].frame), after = callStack(run, run.steps[step].frame);
     const left = before.filter(f => !after.includes(f)), entered = after.filter(f => !before.includes(f));
-    return left.length || entered.length ? { left, entered, from } : null;
+    const shared = after.find(f => before.includes(f)) ?? null;
+    return left.length || entered.length ? { left, entered, shared, from } : null;
   }
 
-  // What happened to a frame the move left, as of this step.
+  // What a frame the move left is doing at this step, as words that finish "<name> …".
   function leftReason(run, frame, step) {
     const state = frameState(run, frame, step, new Set());
-    if (state === "pending") return "not called yet at this step";
-    if (state === "waiting") return "suspended";
-    return run.steps[run.last[frame]].kind === "unwind" ? "raised" : "returned";
+    if (state === "pending") return "has not started yet";
+    if (state === "waiting") return "is paused at an await";
+    return run.steps[run.last[frame]].kind === "unwind" ? "stopped with an error" : "returned";
   }
 
-  // One line saying how the stack changed, so a jump to other code reads as a return or a call.
+  // One plain sentence for how the stack changed, so a jump to other code reads as a return, a
+  // call, a step back, or a switch to another async task. Only the outermost frame that changed
+  // is named; the call stack pane lists the rest.
   function moveNote(run, change, step) {
-    const here = run.steps[step];
-    const names = (frames, word) => frames.slice(0, 4).flatMap(f => [el("b", {}, shortName(run.frames[f].function) + "()"), ` ${word(f)} · `]).concat(frames.length > 4 ? [`${frames.length - 4} more · `] : []);
-    return el("div", { class: "moved", role: "status" },
-      change.left.length ? ["↩ ", ...names(change.left, f => leftReason(run, f, step))] : null,
-      change.entered.length ? ["↓ ", ...names(change.entered.slice().reverse(), f => run.first[f] > change.from ? "called" : "back in")] : null,
-      "now in ", el("b", {}, shortName(run.frames[here.frame].function) + "()"), ` ${run.frames[here.frame].path}:${here.line}`);
+    const name = (f) => el("b", {}, callName(run.frames[f].function));
+    const outermost = (frames) => frames[frames.length - 1];
+    const here = run.steps[step].frame;
+    const deeper = (frames) => frames.length > 1 ? [` That call went ${frames.length - 1} more call(s) deep, to `, name(here), "."] : [];
+    let sentence;
+    if (change.shared === null) {
+      sentence = ["The run moved to another async task. Several calls run at the same time, and the run takes turns between them. You are now in ", name(here), "."];
+    } else if (step < change.from) {
+      sentence = ["You stepped back to ", name(here), ".", ...(change.left.length ? [" At this step, ", name(outermost(change.left)), ` ${leftReason(run, outermost(change.left), step)}.`] : [])];
+    } else if (!change.entered.length) {
+      sentence = [name(outermost(change.left)), ` ${leftReason(run, outermost(change.left), step)}. You are back in `, name(here), "."];
+    } else {
+      const returned = change.left.length ? [name(outermost(change.left)), ` ${leftReason(run, outermost(change.left), step)}. Then `] : [];
+      sentence = [...returned, name(change.shared), " called ", name(outermost(change.entered)), ".", ...deeper(change.entered)];
+    }
+    return el("div", { class: "moved", role: "status" }, sentence);
   }
 
   // The run's parts along the step bar: the calls of the first frame that makes three or more
@@ -728,7 +749,7 @@ main { padding-block: 20px 60px; }
     const box = el("div", { class: "caption" },
       el("div", { class: "t" }, `${shortName(frame.function)}() ${STEP_WORDS[here.kind]} · ${frame.path}:${here.line} · ${frame.task}`));
     const index = w.walkthrough.findIndex(s => runsLines(run, s, here));
-    if (index >= 0) box.append(el("div", {}, el("b", {}, `Walkthrough ${index + 1}/${w.walkthrough.length}: `), prose(w.walkthrough[index].caption)));
+    if (index >= 0) box.append(el("h3", { class: "step-title" }, `Walkthrough ${index + 1}/${w.walkthrough.length}: `, prose(stepTitle(w.walkthrough[index]))), ...paragraphs(w.walkthrough[index].caption));
     const chapter = chapterAt(run, w, step);
     const nearest = (by) => { for (let k = chapter + by; k >= 0 && k < w.walkthrough.length; k += by) if (run.anchors[k] !== null) return k; return null; };
     const before = chapter < 0 ? null : nearest(-1), after = nearest(1);
@@ -777,7 +798,7 @@ main { padding-block: 20px 60px; }
         frame.recorder_ms >= 100 ? el("span", { class: "where", title: "Recorder time that passed while this call ran: the run waits for the recorder, so any timing inside it is inflated by this much." }, `+${seconds(frame.recorder_ms)} recorder`) : null));
     }));
     if (change && change.left.length) list.append(el("li", { class: "left-head" }, "Just left the stack"),
-      ...change.left.map(f => el("li", { class: "left" }, el("span", { class: "fn" }, shortName(run.frames[f].function) + "()"),
+      ...change.left.map(f => el("li", { class: "left" }, el("span", { class: "fn" }, callName(run.frames[f].function)),
         el("span", { class: "where" }, `${run.frames[f].path}:${run.frames[f].start} · ${leftReason(run, f, step)}`))));
     const origin = root.task !== "main"
       ? `${root.task}: an async task, so nothing watched is above it; the event loop started it.`

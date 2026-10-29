@@ -106,10 +106,12 @@ noted.
 
 Per workflow, write `.codewalk/walkthrough/<workflow>.json` in the shape of
 [page-format.md](references/page-format.md): the confirmed map from Step 3, the fakes from
-Step 5, then one walkthrough step per idea — a line range and a caption saying *why*.
+Step 5, then one walkthrough step per idea — a line range, a title, and a caption written
+as [captions.md](references/captions.md) says: for a reader new to the code, in Simplified
+Technical English, with every term defined where it first appears.
 
-**Done when:** every workflow has a walkthrough, and every range in it lies inside a file its
-recording ran.
+**Done when:** every workflow has a walkthrough, every range in it lies inside a file its
+recording ran, and every step has a title and a caption in the shape captions.md gives.
 
 ## Step 8 — Build
 

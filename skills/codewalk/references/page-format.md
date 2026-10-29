@@ -18,7 +18,8 @@ Lines are 1-based.
   ],
   "fakes": ["s3.put_object: fake, the user's pick (writes to the shared bucket)"],
   "steps": [
-    { "path": "src/upload.py", "from": 12, "to": 18, "caption": "Why these lines exist." }
+    { "path": "src/upload.py", "from": 12, "to": 18, "title": "The upload starts",
+      "caption": "Where you are.\n\nWhat the code does.\n\nIn this run." }
   ],
   "breakpoints": ["upload._send_chunk"]
 }
@@ -27,7 +28,9 @@ Lines are 1-based.
 - `functions` — the map the user confirmed, in call order. `name` is `module.qualname`, the
   same form a recording's frames use.
 - `fakes` — one line per faked call: what, and why. Empty when every call ran for real.
-- `steps` — the walkthrough, in reading order. Each `path` must be a file the recording ran;
+- `steps` — the walkthrough, in reading order, written as [captions.md](captions.md) says:
+  `title` names the step in the rail, and `caption` holds paragraphs split by a blank line.
+  A step with no `title` shows its caption's first sentence. Each `path` must be a file the recording ran;
   the build fails otherwise. The debugger's "next stop" lands on the first step that runs a
   walkthrough step's lines inside the function they belong to — the innermost recorded
   function around `from`. Start a range on a nested function's `def` to make it about that
