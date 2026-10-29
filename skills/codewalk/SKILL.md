@@ -21,7 +21,8 @@ Scripts live in this skill's `scripts/` folder; `<skill>` below is this skill's 
   *workflow*, not chain or flow.
 - **Recording** — the JSON one run produces: frames, steps, changed variables.
 - **Stop** — a step the debugger's "next stop" lands on: the first run of a walkthrough
-  step's lines, or a breakpoint function's call.
+  step's lines by the function around its first line (making a closure is not running
+  it), or a breakpoint function's call.
 - **Staging** — `.codewalk/staging/<slug>/`, where prototype code lives before it is applied.
 
 Rejected framings: the old *walk* (quiz-first) and *sweep* (chat trace) gears — a recording

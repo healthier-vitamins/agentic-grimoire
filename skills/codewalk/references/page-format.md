@@ -29,7 +29,10 @@ Lines are 1-based.
 - `fakes` — one line per faked call: what, and why. Empty when every call ran for real.
 - `steps` — the walkthrough, in reading order. Each `path` must be a file the recording ran;
   the build fails otherwise. The debugger's "next stop" lands on the first step that runs a
-  walkthrough step's lines.
+  walkthrough step's lines inside the function they belong to — the innermost recorded
+  function around `from`. Start a range on a nested function's `def` to make it about that
+  function: the enclosing function runs that line when it makes the closure, and that step
+  is not a stop.
 - `breakpoints` — optional; functions whose every call is a stop.
 
 ## Recording — a recorder writes it

@@ -283,10 +283,7 @@ def _workflow_json(workflow: dict[str, Any], texts: _TextTable) -> dict[str, Any
         "functions": walkthrough.get("functions", []),
         "fakes": walkthrough.get("fakes", []),
         "breakpoints": walkthrough.get("breakpoints", []),
-        "walkthrough": [
-            {**step, "at": _first_run(recording, step)}
-            for step in walkthrough.get("steps", [])
-        ],
+        "walkthrough": walkthrough.get("steps", []),
         "language": recording["language"],
         "entry": recording["entry"],
         "exit": recording["exit"],
@@ -297,15 +294,6 @@ def _workflow_json(workflow: dict[str, Any], texts: _TextTable) -> dict[str, Any
         "frames": recording["frames"],
         "steps": _packed_steps(steps, recording["values"], texts),
     }
-
-
-def _first_run(recording: dict[str, Any], step: dict[str, Any]) -> int | None:
-    """The first recorded step on the walkthrough step's lines: where "next stop" lands."""
-    frames = recording["frames"]
-    for index, (frame, line, _kind, _changed) in enumerate(recording["steps"]):
-        if frames[frame]["path"] == step["path"] and step["from"] <= line <= step["to"]:
-            return index
-    return None
 
 
 class _TextTable:

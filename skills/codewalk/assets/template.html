@@ -110,6 +110,14 @@ main { padding-block: 20px 60px; }
 .ticks i { position: absolute; top: 0; width: 3px; height: 10px; margin-left: -1px; background: var(--muted); border-radius: 1px; cursor: pointer; opacity: .55; }
 .ticks i:hover, .ticks i.on { background: var(--accent); opacity: 1; }
 .stops { font-size: 13px; color: var(--muted); }
+.phases { position: relative; margin-inline: 8px; display: grid; gap: 2px; }
+.phase-row { position: relative; height: 20px; }
+.phase { position: absolute; top: 0; height: 20px; min-width: 3px; border: 0; border-left: 1px solid var(--surface); background: var(--sunk); color: var(--muted); font: 11.5px var(--f-mono); padding: 0 4px; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+.phase:hover { color: var(--ink); }
+.phase.on { background: var(--mark); color: var(--ink); font-weight: 600; }
+.moved { font-size: 13px; color: var(--muted); background: var(--sunk); border-radius: 6px; padding: 6px 10px; overflow-wrap: anywhere; }
+.moved b { color: var(--ink); font-family: var(--f-mono); font-weight: 600; }
+.caption .chapters-nav { display: flex; flex-wrap: wrap; gap: 8px; }
 
 /* panes */
 .panes { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 16px; align-items: start; }
@@ -148,6 +156,26 @@ main { padding-block: 20px 60px; }
 .stack button:hover { background: var(--sunk); }
 .stack button[aria-current="true"] { background: var(--mark); }
 .stack .fn { font-family: var(--f-mono); font-size: 13.5px; font-weight: 600; }
+.stack .left { opacity: .5; padding: 2px 8px; display: flex; flex-wrap: wrap; gap: 2px 10px; align-items: baseline; }
+.stack .left-head { font-size: 12px; color: var(--muted); border-top: 1px dashed var(--line); padding: 6px 8px 0; margin-top: 4px; }
+
+/* debugger rail: walkthrough chapters and the call tree */
+.walk.debugging { grid-template-columns: 290px minmax(0, 1fr); }
+.rail section { margin-top: 14px; display: grid; gap: 2px; }
+.rail ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; }
+.chapters { position: relative; max-height: 36vh; overflow-y: auto; border-bottom: 1px solid var(--line); }
+.chapters button { font-size: 14px; padding: 4px 8px; display: flex; gap: 6px; }
+.chapters button:disabled { opacity: .45; cursor: default; }
+.chapters .num { font-variant-numeric: tabular-nums; color: var(--muted); min-width: 2ch; text-align: right; flex: none; }
+.chapters button[aria-current="true"] .num { color: inherit; }
+.chapters .text { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.tree ol { padding-left: 12px; border-left: 1px solid var(--line); margin-left: 7px; }
+.tree button { font: 12.5px var(--f-mono); padding: 2px 6px; display: flex; gap: 6px; align-items: baseline; overflow-wrap: anywhere; }
+.tree button[aria-current="true"] { background: var(--mark); color: var(--ink); font-weight: 600; }
+.tree .state { flex: none; width: 1.2ch; color: var(--muted); }
+.tree .done { color: var(--muted); }
+.tree .pending { color: var(--muted); opacity: .6; }
+.tree .more { font-size: 12px; color: var(--muted); padding: 2px 6px; }
 .vars { display: grid; gap: 6px; font-family: var(--f-mono); font-size: 13px; }
 .vars details, .vars .one { background: var(--sunk); border-radius: 6px; padding: 6px 10px; }
 .vars .one { white-space: pre-wrap; overflow-wrap: anywhere; }
@@ -166,7 +194,8 @@ main { padding-block: 20px 60px; }
 
 @media (max-width: 1100px) { .panes { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 820px) {
-  .walk { grid-template-columns: minmax(0, 1fr); }
+  .walk, .walk.debugging { grid-template-columns: minmax(0, 1fr); }
+  .walk.debugging .rail { order: 2; } /* the stepper first; chapters and call tree below it */
   .rail { position: static; max-height: none; }
 }
 </style>
@@ -330,6 +359,7 @@ main { padding-block: 20px 60px; }
     if (!steps.length) { box.append(head, el("p", { class: "note" }, "This workflow has no walkthrough steps.")); return box; }
     const go = (n) => { if (n >= 0 && n < steps.length) { box.replaceWith(guideView(w, n)); keepFocus(); } };
     const s = steps[step];
+    const at = debugRun(w).anchors[step];
     const range = el("input", { type: "range", min: 0, max: steps.length - 1, value: step, "aria-label": "Step", id: "step-range", oninput: (e) => go(Number(e.target.value)) });
     const bar = el("div", { class: "stepbar" },
       el("button", { onclick: () => go(step - 1), disabled: step <= 0 ? "" : null }, "← Back"),
@@ -340,9 +370,9 @@ main { padding-block: 20px 60px; }
       el("div", { class: "stepper" }, bar, el("div", { class: "caption" }, el("div", { class: "t" }, `${s.path}:${s.from}-${s.to}`), el("div", {}, prose(s.caption)))),
       el("section", { class: "pane" },
         el("header", {}, el("h3", { class: "mono", style: "font-family:var(--f-mono);font-size:15px" }, s.path), el("span", { class: "sub" }, `lines ${s.from}-${s.to}`), stagedMark(w, s.path)),
-        el("div", { class: "body", style: "padding-block:8px" }, s.at === null
+        el("div", { class: "body", style: "padding-block:8px" }, at === null
           ? el("p", { class: "note" }, "These lines did not run in this recording.")
-          : el("button", { class: "linkish", onclick: () => openDebugger(w.key, s.at) }, `See them run: debugger step ${s.at + 1}`)),
+          : el("button", { class: "linkish", onclick: () => openDebugger(w.key, at) }, `See them run: debugger step ${at + 1}`)),
         codeTable(s.path, s.from - 3, s.to + 3, { hit: lines })));
     box.addEventListener("keydown", (e) => { if (e.key === "ArrowRight" && e.target.id !== "step-range") go(step + 1); if (e.key === "ArrowLeft" && e.target.id !== "step-range") go(step - 1); });
     return box;
@@ -366,11 +396,58 @@ main { padding-block: 20px 60px; }
       for (let k = 0; k < count; k++, i += 2) step.changed[DATA.texts[packed[i]]] = packed[i + 1] === -1 ? null : DATA.texts[packed[i + 1]];
       steps.push(step);
     }
-    const anchorOfStep = new Map(); // a walkthrough step's first run -> its index
-    w.walkthrough.forEach((s, index) => { if (s.at !== null && !anchorOfStep.has(s.at)) anchorOfStep.set(s.at, index); });
-    const run = { steps, frames: w.frames, anchorOfStep, breakpoints: new Set(w.breakpoints), ancestors: new Map() };
+    const run = { steps, frames: w.frames, breakpoints: new Set(w.breakpoints), ancestors: new Map(), ...callTimes(steps, w.frames) };
+    run.definitions = definitionsByPath(w.frames);
+    run.owners = new Map(w.walkthrough.map(s => [s, ownerOf(run, s)]));
+    run.anchors = w.walkthrough.map(s => firstRun(run, s)); // each walkthrough step's first run, or null
+    run.anchorOfStep = new Map(); // a walkthrough step's first run -> its index
+    run.anchors.forEach((at, index) => { if (at !== null && !run.anchorOfStep.has(at)) run.anchorOfStep.set(at, index); });
+    run.phases = phaseRows(run);
     runs.set(w.key, run);
     return run;
+  }
+
+  // Each frame's first and last step, what it called in call order, and the frames nothing
+  // watched called (each async task, and calls from the entry).
+  function callTimes(steps, frames) {
+    const first = [], last = [];
+    steps.forEach((s, j) => { if (first[s.frame] === undefined) first[s.frame] = j; last[s.frame] = j; });
+    const children = frames.map(() => []), roots = [];
+    frames.forEach((f, index) => (f.parent === -1 ? roots : children[f.parent]).push(index));
+    return { first, last, children, roots };
+  }
+
+  // Every recorded function's lines, once per file.
+  function definitionsByPath(frames) {
+    const byPath = new Map();
+    for (const f of frames) {
+      const list = byPath.get(f.path) || [];
+      if (!list.some(d => d.start === f.start && d.end === f.end)) list.push({ start: f.start, end: f.end });
+      byPath.set(f.path, list);
+    }
+    return byPath;
+  }
+
+  // The recorded function a walkthrough step's lines belong to: the innermost one around its
+  // first line, so a range that opens on a nested `def` is about that function even when it
+  // runs on into the one around it. Null when no recorded function holds that line.
+  function ownerOf(run, s) {
+    const around = (run.definitions.get(s.path) || []).filter(d => d.start <= s.from && s.from <= d.end);
+    return around.reduce((a, b) => (b.end - b.start < a.end - a.start ? b : a), around[0]) ?? null;
+  }
+
+  // Whether a step runs one of a walkthrough step's lines, in the function they belong to:
+  // making a closure runs its `def` line in the enclosing function, long before it is called.
+  function runsLines(run, s, step) {
+    const frame = run.frames[step.frame];
+    if (frame.path !== s.path || step.line < s.from || s.to < step.line) return false;
+    const owner = run.owners.get(s);
+    return !owner || (frame.start === owner.start && frame.end === owner.end);
+  }
+
+  function firstRun(run, s) {
+    const index = run.steps.findIndex(step => runsLines(run, s, step));
+    return index < 0 ? null : index;
   }
 
   function ancestorsOf(run, frame) {
@@ -437,21 +514,30 @@ main { padding-block: 20px 60px; }
   }
 
   function renderDebugger(opts) {
-    const stage = el("div", { class: "stage" });
     const w = workflow();
     const run = debugRun(w);
-    if (run.steps.length) stage.append(debugView(w, Math.min(opts.step || 0, run.steps.length - 1)));
-    else stage.append(el("p", { class: "note" }, "This recording has no steps: the entry never reached the watched code."));
-    return el("div", { class: "walk" }, rail(() => showTab("debugger", { step: 0 })), stage);
+    if (run.steps.length) return debugView(w, Math.min(opts.step || 0, run.steps.length - 1));
+    const empty = el("p", { class: "note" }, "This recording has no steps: the entry never reached the watched code.");
+    return el("div", { class: "walk" }, rail(() => showTab("debugger", { step: 0 })), el("div", { class: "stage" }, empty));
   }
 
+  // `view.frame` is a frame picked in the call stack; `view.from` the step the user moved from.
   function debugView(w, step, view) {
     const run = debugRun(w);
+    const layout = el("div", { class: "walk debugging" });
     const box = el("div", { class: "stage" });
     const here = run.steps[step];
     const selected = view && view.frame !== undefined ? view.frame : here.frame;
-    const go = (n) => { if (n !== null && n >= 0 && n < run.steps.length) { box.replaceWith(debugView(w, n)); keepFocus(); } };
+    const show = (n, next) => {
+      const railTop = $(".rail", layout).scrollTop;
+      const fresh = debugView(w, n, next);
+      layout.replaceWith(fresh);
+      $(".rail", fresh).scrollTop = railTop;
+      keepFocus();
+    };
+    const go = (n) => { if (n !== null && n >= 0 && n < run.steps.length) show(n, { from: step }); };
     const commands = stepCommands(run, step);
+    const change = view && view.from !== undefined ? stackChange(run, view.from, step) : null;
     const head = el("section", { class: "story-head" },
       el("div", { class: "eyebrow" }, `${w.language} · ${w.entry.kind}`),
       el("h2", {}, w.title),
@@ -463,16 +549,149 @@ main { padding-block: 20px 60px; }
         el("span", { class: "chip" }, w.fakes.length ? `${w.fakes.length} faked call(s)` : "no fakes"),
         stagedChip(w),
         w.truncated ? el("span", { class: "chip err" }, "truncated at --max-steps") : null));
-    const bar = el("div", { class: "stepper" }, debugBar(run, w, step, commands, go), stepCaption(run, w, step));
+    const bar = el("div", { class: "stepper" }, debugBar(run, w, step, commands, go), change ? moveNote(run, change, step) : null, stepCaption(run, w, step, go));
     box.append(head, bar, el("div", { class: "panes" },
       codePane(w, run, selected, step),
-      el("div", { class: "side" }, stackPane(run, selected, step, (frame) => box.replaceWith(debugView(w, step, { frame }))), varsPane(w, run, selected, step))));
+      el("div", { class: "side" }, stackPane(run, selected, step, change, (frame) => show(step, { frame })), varsPane(w, run, selected, step))));
     box.addEventListener("keydown", (e) => {
       const onRange = e.target.id === "step-range";
       const key = { F10: "over", F11: e.shiftKey ? "out" : "into", F5: e.shiftKey ? "prevStop" : "nextStop", o: "over", i: "into", u: "out", c: "nextStop", C: "prevStop", b: "back", ArrowRight: onRange ? null : "into", ArrowLeft: onRange ? null : "back" }[e.key];
       if (key) { e.preventDefault(); go(commands[key]); }
     });
-    return box;
+    layout.append(debugRail(w, run, step, go), box);
+    return layout;
+  }
+
+  // ---- debugger rail: where this step sits in the walkthrough and in the run's calls ----------
+  function debugRail(w, run, step, go) {
+    const nav = rail(() => showTab("debugger", { step: 0 }));
+    nav.append(chapterList(w, run, step, go), callTree(run, step, go));
+    return nav;
+  }
+
+  // Every walkthrough step in reading order; clicking one jumps to its first run.
+  function chapterList(w, run, step, go) {
+    const now = chapterAt(run, w, step);
+    const firstSentence = (caption) => caption.split(/(?<=\.)\s/)[0];
+    const list = el("ol", { class: "chapters" }, w.walkthrough.map((s, index) => {
+      const at = run.anchors[index];
+      return el("li", {}, el("button", { "aria-current": String(index === now), disabled: at === null ? "" : null, title: at === null ? "These lines did not run in this recording" : s.caption, onclick: () => go(at) },
+        el("span", { class: "num" }, index + 1), el("span", { class: "text" }, prose(firstSentence(s.caption)))));
+    }));
+    // The list scrolls on its own so the call tree below stays in view; keep the current step centred.
+    requestAnimationFrame(() => { if (now >= 0) list.scrollTop = list.children[now].offsetTop - list.clientHeight / 2; });
+    return el("section", { "aria-label": "Walkthrough steps" }, el("h3", {}, "Walkthrough"), list);
+  }
+
+  // The walkthrough step this step is in: the one whose lines it runs, else the last one the run
+  // has passed, else -1.
+  function chapterAt(run, w, step) {
+    const running = w.walkthrough.findIndex(s => runsLines(run, s, run.steps[step]));
+    if (running >= 0) return running;
+    let passed = -1;
+    run.anchors.forEach((at, index) => { if (at !== null && at <= step && (passed < 0 || at > run.anchors[passed])) passed = index; });
+    return passed;
+  }
+
+  // Where a frame is at a step: on the call stack, finished, suspended off the stack (an await
+  // in another task), or not called yet.
+  function frameState(run, frame, step, onStack) {
+    if (onStack.has(frame)) return "active";
+    if (run.first[frame] === undefined || run.first[frame] > step) return "pending";
+    return run.last[frame] < step ? "done" : "waiting";
+  }
+  const STATE_MARKS = { active: "▶", done: "✓", waiting: "◌", pending: "○" };
+  const TREE_ROWS = 30; // rows one open frame lists before folding the rest into a count
+
+  // Consecutive items with the same key, as one group each.
+  function foldRuns(items, keyOf) {
+    const groups = [];
+    for (const item of items) {
+      const last = groups[groups.length - 1];
+      if (last && keyOf(last[0]) === keyOf(item)) last.push(item); else groups.push([item]);
+    }
+    return groups;
+  }
+
+  // The run as a tree of calls, opened along the call stack: each open frame lists what it
+  // called, and repeated calls to one function in the same state fold into one row.
+  function callTree(run, step, go) {
+    const chain = callStack(run, run.steps[step].frame).reverse(); // outermost first
+    const onStack = new Set(chain);
+    const innermost = chain[chain.length - 1];
+    const row = (group) => {
+      const frame = run.frames[group[0]];
+      const state = frameState(run, group[0], step, onStack);
+      return el("button", { class: state, "aria-current": String(group[0] === innermost), title: `${frame.function} · ${frame.path}:${frame.start}`, onclick: () => go(run.first[group[0]] ?? null) },
+        el("span", { class: "state" }, STATE_MARKS[state]),
+        el("span", {}, shortName(frame.function) + "()", group.length > 1 ? ` ×${group.length}` : "", group[0] === innermost ? "  ◀ you" : ""));
+    };
+    const node = (frame) => {
+      const item = el("li", {}, row([frame]));
+      if (!onStack.has(frame) || !run.children[frame].length) return item;
+      const key = (f) => onStack.has(f) ? "stack:" + f : run.frames[f].function + ":" + frameState(run, f, step, onStack);
+      const groups = foldRuns(run.children[frame], key);
+      const shown = groups.slice(0, TREE_ROWS).map(g => onStack.has(g[0]) ? node(g[0]) : el("li", {}, row(g)));
+      const hidden = groups.slice(TREE_ROWS).reduce((n, g) => n + g.length, 0);
+      item.append(el("ol", {}, shown, hidden ? el("li", { class: "more" }, `… and ${hidden} more call(s)`) : null));
+      return item;
+    };
+    const task = run.frames[chain[0]].task;
+    return el("section", { class: "tree", "aria-label": "Call tree" }, el("h3", {}, "Call tree"),
+      el("ol", {}, node(chain[0])),
+      el("p", { class: "note", style: "font-size:12.5px" }, `▶ on the stack · ✓ returned · ◌ suspended · ○ not called yet. ${task === "main" ? "" : task + " is an async task; other tasks have their own trees."}`));
+  }
+
+  // The frames a move left and entered: compared stack to stack, innermost first. Null when the
+  // move stayed in the same frame.
+  function stackChange(run, from, step) {
+    const before = callStack(run, run.steps[from].frame), after = callStack(run, run.steps[step].frame);
+    const left = before.filter(f => !after.includes(f)), entered = after.filter(f => !before.includes(f));
+    return left.length || entered.length ? { left, entered, from } : null;
+  }
+
+  // What happened to a frame the move left, as of this step.
+  function leftReason(run, frame, step) {
+    const state = frameState(run, frame, step, new Set());
+    if (state === "pending") return "not called yet at this step";
+    if (state === "waiting") return "suspended";
+    return run.steps[run.last[frame]].kind === "unwind" ? "raised" : "returned";
+  }
+
+  // One line saying how the stack changed, so a jump to other code reads as a return or a call.
+  function moveNote(run, change, step) {
+    const here = run.steps[step];
+    const names = (frames, word) => frames.slice(0, 4).flatMap(f => [el("b", {}, shortName(run.frames[f].function) + "()"), ` ${word(f)} · `]).concat(frames.length > 4 ? [`${frames.length - 4} more · `] : []);
+    return el("div", { class: "moved", role: "status" },
+      change.left.length ? ["↩ ", ...names(change.left, f => leftReason(run, f, step))] : null,
+      change.entered.length ? ["↓ ", ...names(change.entered.slice().reverse(), f => run.first[f] > change.from ? "called" : "back in")] : null,
+      "now in ", el("b", {}, shortName(run.frames[here.frame].function) + "()"), ` ${run.frames[here.frame].path}:${here.line}`);
+  }
+
+  // The run's parts along the step bar: the calls of the first frame that makes three or more
+  // different ones, then the same inside its longest call. Positions are steps, like the slider.
+  function phaseRows(run) {
+    const span = (f) => (run.last[f] ?? 0) - (run.first[f] ?? 0);
+    const longest = (frames) => frames.reduce((a, b) => (span(b) > span(a) ? b : a));
+    const byFunction = (f) => run.frames[f].function;
+    const rows = [];
+    let frame = run.roots.length ? longest(run.roots) : undefined;
+    while (frame !== undefined && rows.length < 2) {
+      while (run.children[frame].length && foldRuns(run.children[frame], byFunction).length < 3) frame = longest(run.children[frame]);
+      if (!run.children[frame].length) break;
+      rows.push(foldRuns(run.children[frame], byFunction).map(group => ({ name: shortName(byFunction(group[0])), from: run.first[group[0]] ?? 0, to: run.last[group[group.length - 1]] ?? 0 })));
+      frame = longest(run.children[frame]);
+    }
+    return rows;
+  }
+
+  function phaseBars(run, step, go) {
+    const total = Math.max(1, run.steps.length - 1);
+    const percent = (n) => (n / total) * 100;
+    const LABELLED = 4; // percent of the bar a part needs before its name fits; narrower ones keep only the tooltip
+    return el("div", { class: "phases" }, run.phases.map(row => el("div", { class: "phase-row" }, row.map(part =>
+      el("button", { class: "phase" + (part.from <= step && step <= part.to ? " on" : ""), style: `left:${percent(part.from)}%;width:${percent(part.to - part.from)}%`, title: `${part.name}() · steps ${part.from + 1}–${part.to + 1}`, "aria-label": part.name + "()", onclick: () => go(part.from) },
+        percent(part.to - part.from) >= LABELLED ? part.name + "()" : "")))));
   }
 
   function debugBar(run, w, step, commands, go) {
@@ -496,17 +715,26 @@ main { padding-block: 20px 60px; }
         button("Out ↑", "out", "Step out (Shift+F11, u): to this function's return, then its caller"),
         el("span", { class: "stepcount" }, `Step ${step + 1} / ${total}`)),
       el("div", { class: "track" }, range, ticks),
-      el("div", { class: "stops" }, "Stops at: ", stops, ". Ticks mark the walkthrough steps; click one to jump."));
+      run.phases.length ? phaseBars(run, step, go) : null,
+      el("div", { class: "stops" }, "Stops at: ", stops, ". Ticks mark the walkthrough steps; click one to jump.",
+        run.phases.length ? " The bars name the calls each part of the run is in." : ""));
   }
 
-  // What this step is, and the walkthrough caption for the lines it is on.
-  function stepCaption(run, w, step) {
+  // What this step is, the walkthrough caption for the lines it is on, and buttons to the
+  // walkthrough steps before and after it in reading order.
+  function stepCaption(run, w, step, go) {
     const here = run.steps[step];
     const frame = run.frames[here.frame];
     const box = el("div", { class: "caption" },
       el("div", { class: "t" }, `${shortName(frame.function)}() ${STEP_WORDS[here.kind]} · ${frame.path}:${here.line} · ${frame.task}`));
-    const index = w.walkthrough.findIndex(s => s.path === frame.path && s.from <= here.line && here.line <= s.to);
+    const index = w.walkthrough.findIndex(s => runsLines(run, s, here));
     if (index >= 0) box.append(el("div", {}, el("b", {}, `Walkthrough ${index + 1}/${w.walkthrough.length}: `), prose(w.walkthrough[index].caption)));
+    const chapter = chapterAt(run, w, step);
+    const nearest = (by) => { for (let k = chapter + by; k >= 0 && k < w.walkthrough.length; k += by) if (run.anchors[k] !== null) return k; return null; };
+    const before = chapter < 0 ? null : nearest(-1), after = nearest(1);
+    if (before !== null || after !== null) box.append(el("div", { class: "chapters-nav" },
+      before !== null ? el("button", { class: "linkish", onclick: () => go(run.anchors[before]) }, `◀ Walkthrough ${before + 1}`) : null,
+      after !== null ? el("button", { class: "linkish", onclick: () => go(run.anchors[after]) }, `Walkthrough ${after + 1} ▶`) : null));
     if (step === run.steps.length - 1) box.append(el("div", { class: w.exit.ok ? null : "exit" }, `End of the recording. The run ${w.exit.ok ? "passed" : "failed"}: ${w.exit.detail}`));
     return box;
   }
@@ -538,7 +766,8 @@ main { padding-block: 20px 60px; }
 
   const seconds = (ms) => `${(ms / 1000).toFixed(1)} s`;
 
-  function stackPane(run, selected, step, pickFrame) {
+  // `change` is the move that led here; the frames it left stay listed, greyed, for this step.
+  function stackPane(run, selected, step, change, pickFrame) {
     const stack = callStack(run, run.steps[step].frame);
     const root = run.frames[stack[stack.length - 1]];
     const list = el("ol", { class: "stack" }, stack.map(f => {
@@ -547,6 +776,9 @@ main { padding-block: 20px 60px; }
         el("span", { class: "fn" }, shortName(frame.function) + "()"), el("span", { class: "where" }, `${frame.path}:${frameAt(run, f, step).line}`),
         frame.recorder_ms >= 100 ? el("span", { class: "where", title: "Recorder time that passed while this call ran: the run waits for the recorder, so any timing inside it is inflated by this much." }, `+${seconds(frame.recorder_ms)} recorder`) : null));
     }));
+    if (change && change.left.length) list.append(el("li", { class: "left-head" }, "Just left the stack"),
+      ...change.left.map(f => el("li", { class: "left" }, el("span", { class: "fn" }, shortName(run.frames[f].function) + "()"),
+        el("span", { class: "where" }, `${run.frames[f].path}:${run.frames[f].start} · ${leftReason(run, f, step)}`))));
     const origin = root.task !== "main"
       ? `${root.task}: an async task, so nothing watched is above it; the event loop started it.`
       : "Called from the entry (the test or driver), which is not stepped into.";
