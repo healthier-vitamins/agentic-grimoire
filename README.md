@@ -125,6 +125,7 @@ Optional; not installed by the default command.
 
 | Skill | What it does |
 |---|---|
+| corkboard | Turns a pile of planning material (a chat export, spreadsheets, notes) into interactive plan boards chosen to fit the data (overview, Gantt timeline, decision log, kanban, moodboard), with zoom from the whole plan down to a Notion-style page for each item. Every picture and chart traces to the sources: photos from the chat, screenshots of the item's own page, Commons shots of the place it names. **Use when planning a trip, a wedding, or any large project.** |
 | workbook | Turns maths questions into one printable revision sheet: the questions first, then worked solutions with every step written out and a graph under each. Answers are checked and graphs drawn by code, so they are exact. **Use when revising for a test.** Can also choose the questions from the course materials, and add an explanation to a step you ask about. |
 
 ## When to reach for what
@@ -140,6 +141,7 @@ Optional; not installed by the default command.
 
 **Personal**
 - Revision sheet with worked solutions and graphs: `workbook`
+- Plan board from a chat export or spreadsheets: `corkboard`
 
 **Writing code**
 - General: `keystone`
