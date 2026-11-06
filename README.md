@@ -20,13 +20,22 @@ Always open the cited links to confirm they are indeed relevant. If you don't un
 
 ## Install
 
-Install the skills into the central store and symlink them into Claude Code and Codex:
+Skills come in two groups. **Engineering** is the default; **Personal** is fully optional.
+
+Install the engineering skills into the central store and symlink them into Claude Code and Codex:
 
 ```sh
-npx skills add healthier-vitamins/agentic-grimoire --global -a claude-code codex
+npx skills add healthier-vitamins/agentic-grimoire --global -a claude-code codex \
+  -s chat-id codewalk compass keystone keystone-react oracle playbook scribe skillsmith storm ticketsmith watermark
 ```
 
-_This shows a picker so you choose which skills to install. In a non-TTY shell add `--yes`._
+Optional: add the personal skills too:
+
+```sh
+npx skills add healthier-vitamins/agentic-grimoire --global -a claude-code codex -s corkboard workbook
+```
+
+_To pick skills one by one, drop the `-s` list. The picker groups them under Engineering and Personal; space on a group heading toggles the whole group._
 
 ### Optional: guidelines
 
@@ -90,7 +99,7 @@ default_subagent_model from [agents] in ~/.codex/config.toml.
 
 >The CLAUDE.md and AGENTS.md guidelines delegate work to subagents. There **will** be an increased in tokens consumption rate. Worth it for cleaner context on big tasks, skip it if you want a lean setup.
 
-## All skills
+## Engineering skills
 
 | Skill | What it does |
 |---|---|
@@ -109,7 +118,9 @@ default_subagent_model from [agents] in ~/.codex/config.toml.
 ### STORM
 STORM is extremely heavy, but it provides the most detailed output compared to `oracle` and `compass`. My personal approach is first tackle unknowns with `oracle` and `compass`. Once you feel relatively comfortable in diving deeper, proceed with `storm`. Its report ends in a **Wayfinder seed**: run Matt Pocock's `/wayfinder <report path>` to chart the remaining decisions, then `/to-spec` → `/to-tickets` → `/implement`. For a call that evidence cannot settle (ship now or hold, cut scope or keep it), `storm --light` convenes four voices and skips the research.
 
-## Academic skills
+## Personal skills
+
+Optional; not installed by the default command.
 
 | Skill | What it does |
 |---|---|
@@ -126,7 +137,7 @@ STORM is extremely heavy, but it provides the most detailed output compared to `
 - Review a diff before you approve it: `codewalk HEAD`
 - See a prototype run before it touches the project: `codewalk <idea>`
 
-**Academic**
+**Personal**
 - Revision sheet with worked solutions and graphs: `workbook`
 
 **Writing code**
