@@ -1,0 +1,34 @@
+{
+  "name": "agentic-grimoire",
+  "owner": { "name": "healthier-vitamins" },
+  "description": "Skills for grounded learning and clean code, plus optional personal ones.",
+  "plugins": [
+    {
+      "name": "engineering",
+      "description": "Skills for learning, deciding, writing and shipping code.",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/chat-id",
+        "./skills/codewalk",
+        "./skills/compass",
+        "./skills/keystone",
+        "./skills/keystone-react",
+        "./skills/oracle",
+        "./skills/playbook",
+        "./skills/scribe",
+        "./skills/skillsmith",
+        "./skills/experimentation/storm",
+        "./skills/ticketsmith",
+        "./skills/watermark"
+      ]
+    },
+    {
+      "name": "personal",
+      "description": "Optional skills for life outside code: revision sheets and plan boards.",
+      "source": "./",
+      "strict": false,
+      "skills": ["./skills/corkboard", "./skills/workbook"]
+    }
+  ]
+}
