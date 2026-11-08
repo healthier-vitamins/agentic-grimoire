@@ -90,6 +90,15 @@ subtotal = add(base_price, tax)
 total    = add(subtotal, shipping_fee)
 ```
 
+A dense expression hides its steps the same way. When a comprehension nests two `for`s,
+filters with `if not`, or sits inside `any()`/`all()`, or a sort takes a non-trivial
+`lambda` key, write the loop: each condition on its own line, the decision in a named flag
+(`is_new = False`), each skip beside its reason (`continue  # board at the closer stop`).
+A comprehension with one `for` and one plain condition stays.
+
+A bare number is an unnamed step. Name it with its unit, and its reason when the value is
+not self-evident: `MAX_WALK_TO_STOP_METRES = 600`, `WALK_DETOUR = 1.25  # footpaths wind`.
+
 ## 7. Names spell out what they hold
 
 - Full words, naming the noun held or the verb performed. Name length scales with scope: a
@@ -100,7 +109,15 @@ total    = add(subtotal, shipping_fee)
   renames all its siblings. (Ousterhout ch. 14, consistent naming.)
 - **No-op word test.** Delete each word from the name; if the meaning inside the current
   scope survives, the word stays deleted. `sql_and_filter_matches` → `sql_and_matches`:
-  "filter" is a no-op because every match came from a filter.
+  "filter" is a no-op because every match came from a filter. The test removes
+  qualifiers; the domain noun always survives it.
+- **Cold-read test.** A reader holding only this file can say what the name holds.
+  Position words (`first_walk`, `second_rides`) and metaphors (`legs` for journey stages)
+  fail it; the domain noun in full passes, however long (`network` →
+  `shuttle_bus_network`).
+- **The name claims only what its function knows.** `every_ride_boarding_at` reads as if
+  it knows the destination; it lists every stop the bus goes on to, so it is
+  `rides_to_every_reachable_stop`. (Ousterhout ch. 14, precise names.)
 
 Vocabulary note: **frame** is the naming dimension (§7); **axis** is the placement
 dimension (§8). They are different ideas — keep the words apart.
@@ -153,14 +170,38 @@ Length itself is not a rule here. No line-count ceiling replaces the seam test, 
 600-line file a reader can enter and leave costs less than a 150-line file that hides its
 door.
 
+## 11. The docstring carries a worked example
+
+The code shows the steps; the reader still needs the shape of the data moving through
+them. A function whose input or output is a structure (a tuple of stages, a list of pairs,
+a nested record) shows one **worked example** of it in its docstring:
+
+```
+Walk(114 m) -> Ride(A2, board="KR-BUS-TER", alight="OPP-HSSML") -> Walk(41 m)
+```
+
+A rule is explained with toy labels the reader holds without a lookup: stops `A, B, C, D`,
+buses named by colour. Real identifiers belong only in a shape example like the one above,
+where they show the format. An ASCII drawing carries what a sentence cannot: a loop route,
+a funnel of filters.
+
+The docstring also names what the function deliberately leaves out, and why ("the
+destination is not compared, because …"). An absent check is invisible in the code, and it
+is the first thing a reviewer asks about.
+
 ## Done when
 
 Every one of these holds for the code just written:
 
 - Every file's public surface is marked, and its non-public functions are not.
 - Every file is in newspaper order — no callee defined above its caller.
-- Every name survives the no-op word test, and counterpart names share a frame.
+- Every name survives the no-op word test and the cold-read test, claims only what its
+  function knows, and shares a frame with its counterparts.
 - Every function holds one level of abstraction.
+- Every nested, negated, or `any()`-wrapped comprehension and every non-trivial sort key is
+  a loop, and every meaningful number is a named constant carrying its unit.
+- Every function over a structured value shows a worked example and names the checks it
+  leaves out.
 - Every new file's folder was stated as a claim, on the tree's existing axis.
 - Every pattern introducing runtime dispatch has ≥3 variants and a literal table.
 - Every module with a public surface has a direct test naming its behaviour.

@@ -50,6 +50,8 @@ Keep planning and review on the main thread.
 Invoke the `keystone` skill before implementing non-trivial logic, structuring a module,
 or judging whether existing code reads well — it carries the reading standard all code is
 written to. React components, pages, and features take `keystone-react` on top of it.
+Size rules decide how much code there is; Keystone decides how it reads. When they pull apart,
+cut lines and keep Keystone's plain loops, full names, and worked-example docstrings.
 
 ## 1. Think Before Coding
 
