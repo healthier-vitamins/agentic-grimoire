@@ -56,13 +56,15 @@ return (
 );
 ```
 
-One component per file, named for what it renders. Where a JSX block would earn a
+Each component is named for what it renders. Where a JSX block would earn a
 `{/* comment */}`, the name of a component says it better.
 
 A component earns its own file when its parent renders it by name and there is real markup
-behind a small props interface — a **deep module**. **Props are the interface**: few props
-with rich markup behind them is deep; many props with thin markup is shallow, and shallow
-components cost the reader a file for nothing. Shallow ones fold back into the parent.
+behind a small props interface — a **deep module** — or when it changes apart from its
+parent. **Props are the interface**: few props with rich markup behind them is deep; many
+props with thin markup is shallow, and shallow components cost the reader a file for
+nothing. Every other component lives in its parent's file, below the exported component in
+newspaper order, so the reader opens fewer files.
 
 **Compound components** (Florence) are the pattern the ladder is reaching for whenever
 children need the parent's state — `<Tabs><Tabs.List /><Tabs.Panel /></Tabs>` — because
@@ -84,6 +86,10 @@ must the reader read the other?
 
 - Lift state as far as necessary and no further (React docs). Reach for a Context Provider
   when a value crosses two or more levels or feeds siblings.
+- An app that already has a store (Redux Toolkit, Zustand) keeps that shared state in the
+  store instead: one slice per domain, read through named selectors defined once beside
+  the slice (`selectTrip`), which every component imports. Context then serves only values
+  the store does not hold.
 - Wrap the provider around the subtree that consumes it, so the data's real scope is
   visible and the rest of the app does not re-render.
 - Keep the provider and its hook in one file. Consumers import the hook, which is a Facade
@@ -153,6 +159,10 @@ UserSettings/
 
 A reader lands in this folder and the filenames alone tell the whole story.
 
+An app with one feature has one feature folder: its source folder itself (`web/`), flat.
+Subfolders arrive with the second feature, one per feature, on the axis `keystone` §8
+names.
+
 ## Done when
 
 Every one of these holds for the components just written:
@@ -161,8 +171,11 @@ Every one of these holds for the components just written:
   ladder.
 - Every file exports the component its parent renders, and nothing else.
 - Every file is in newspaper order — the exported component above its local helpers.
-- Every component either has real markup behind a small props interface, or has folded back
-  into its parent.
+- Every component in its own file has real markup behind a small props interface or changes
+  apart from its parent; every other component sits in its parent's file.
 - Every provider wraps only its consuming subtree, and its hook guarantees the value.
+- In an app with a store, shared state lives in a slice and every component reads it
+  through a selector defined once.
+- A single-feature app keeps its source in one flat folder.
 - Every handler map has four or more handlers; smaller families are inline.
 - Every style affecting one component lives beside that component.
