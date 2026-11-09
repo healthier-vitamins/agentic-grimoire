@@ -30,12 +30,19 @@ Every final answer is checked by a SymPy script before it reaches the sheet. Eve
 3. **Write the worked solutions.** In `<sheet-slug>/` under the current working directory, copy [`references/template.tex`](references/template.tex) to `revision.tex`, and write the questions into `body.tex` with each solution inside `\sol{}`. [`references/example.tex`](references/example.tex) is one complete question; match its granularity.
    - `\idea{}` — one line: the method, and why this question calls for it.
    - `\step{}` — one move per step ("differentiate both sides", then "split into one derivative per term"). Each step names its rule or gives its reason. A choice that looks arbitrary — a test value, a substitution, which side to divide — says why it works. A reason that fits in one clause stays in the step ("we can only divide if it is not zero"); a longer one — why a rule has an exception, what happens at an edge case — lives in that rule's `rules.tex` entry, and the step checks the condition in one clause and points there: "n = −2, so the power rule applies (its one exception is on the rules page)".
+   - Each `\step{}` title is a command with one action: "Flip both sides."
+   - **Rival choice.** Where a step makes a choice (a substitution, a bound, a test value), run one plausible rival through the same steps and show it fail in a small table with a ✓/✗ column. Close with the rule for choosing: "pick u so its slope is already in the integral".
+   - **Plain numbers first.** Before a rearrangement on symbols (moving a term, dividing, flipping), do the identical moves on plain numbers and name each stand-in: "12/2 = 6, where 12 plays du and 2 plays dx".
    - `\why{}` — a side note on every line of arithmetic: `(−2x)² = 4x²`, "divide by 3".
+   - **One action per line.** Each display line does one move, with at most two `=` signs, and its `\why{}` is 1–4 words.
+   - **Mark the change.** Wrap what changed from the line above in `\chg{}`, and strike cancelled factors with `\cancel{}`. Check each cancellation on one plain number: "x = 2: 4 × 1/12 = 1/3 ✓".
    - Checks as steps — dividing by an expression states it is non-zero at the answer; a point found is confirmed on the curve and in the domain.
+   - Every claim a step makes is checked on at least one real number.
+   - Tables hold results: one number per cell, the working stays in the steps.
    - `\ans{}` — the final result.
    - `rules.tex` — every rule a step uses, each with a one-line example. A rule with a condition (`n ≠ −1`, `x > 0`, a non-zero bottom) says in the same entry what breaks where the condition fails and what to use there instead: "at n = −1 the new power is 0, and you cannot divide by 0; ∫ 1/x dx = ln|x| + C instead".
 
-   **Done when:** every step names a rule or a reason, every rule named appears in `rules.tex`, every condition a rule carries comes with what breaks and what replaces it, and every part of every question ends in `\ans{}`.
+   **Done when:** every step names a rule or a reason, every rule named appears in `rules.tex`, every condition a rule carries comes with what breaks and what replaces it, and every part of every question ends in `\ans{}`. Every rearrangement has its plain-number run, every cancellation its number check, and every choice its failing rival.
 
 4. **See it.** End each question's solution with `\seeit{what to look at}{picture}`:
    - Curves from their equations — implicit curves (ellipses, circles) as parametric plots.
@@ -58,6 +65,13 @@ Every final answer is checked by a SymPy script before it reaches the sheet. Eve
 ## Patch
 
 1. Answer in chat, in the sheet's notation, with a small table or ASCII sketch where the idea has a shape.
+   - Open with a one-line goal: "The slide wants dx alone on one side."
+   - Answer the gap the reader named, then stop. Where the reader says one part landed, keep that part as the anchor and rebuild the rest from it.
+   - Where the reader brings their own move, work from it. A valid but unfinished move: say it is correct, run it to the end (plain numbers first, then symbols), and name the one missing step. An invalid move: run it on real numbers until it gives something false, say why, then give the correct route. [`references/patch-examples.md`](references/patch-examples.md) shows both kinds of answer.
+   - Where earlier material overloaded the reader, say what to set aside: "Forget the integral for now."
+   - Where the gap is unclear, ask one targeted question. A second attempt takes a new angle.
+   - End with a short recipe, one practice problem, and an offer to check their working line by line.
+   - Before sending: only what was asked? the reader's own valid method used? every choice has its reason and a failing rival? every sentence 20 words or fewer? every maths word defined with a number?
 2. Write the answer where step 3's split puts it: a missing move as new or expanded `\step{}`s at the step that raised it; the reason behind a rule's condition or edge case into that rule's `rules.tex` entry, with the step pointing there in one clause.
 3. Search the whole sheet for the same gap — the same unexplained choice in another part, another rule's condition stated without its reason — and fill them too.
 4. Rebuild, and view every changed page.
@@ -69,3 +83,4 @@ Every final answer is checked by a SymPy script before it reaches the sheet. Eve
 - **Match the course.** Where a tutorial or sheet PDF from the same course is nearby, render its first page and copy its header lines, paper size and solution colour into the template. Otherwise keep the template as it is.
 - **Questions first.** The template prints the questions with no answers, each part followed by blank working space (`\workspace`, 12 cm), then the rules page, then the questions again with solutions, so the reader tries each one blind. Keep that order.
 - **Plain words.** Short sentences. Define each term the first time it appears. Keep the source's own notation (`f′(x)`, `dy/dx`) and spell out every abbreviation.
+- **Simplified Technical English.** Sentences of 15 words or fewer, never over 20, one idea each, active voice. One word per meaning: once it is "slope", it stays "slope". Define each maths word with a number example: "the slope of x² at x = 3 is 6". State each step as plain fact; "obviously", "simply", "just" and "clearly" stay off the page.

@@ -17,7 +17,12 @@
 \begin{itemize}
 \item $\dfrac{d}{dx}(x^2) = 2x$ \hfill (power rule)
 \item $\dfrac{d}{dx}(xy)$: this is $x$ \emph{times} $y$, so use the product rule with $u = x$, $v = y$:
-\[ u' = 1, \qquad v' = \frac{dy}{dx}, \qquad \frac{d}{dx}(xy) = u'v + uv' = (1)(y) + x\frac{dy}{dx} = y + x\frac{dy}{dx}. \]
+\[ u' = 1, \qquad v' = \frac{dy}{dx} \]
+\begin{align*}
+\frac{d}{dx}(xy) &= u'v + uv' \why{product rule} \\
+&= (1)(y) + x\frac{dy}{dx} \why{substitute} \\
+&= \chg{y} + x\frac{dy}{dx} \why{$(1)(y) = y$}
+\end{align*}
 \item $\dfrac{d}{dx}(y^2)$: differentiate as if $y$ were $x$ to get $2y$, then multiply by $\dfrac{dy}{dx}$ (chain rule):
 \[ \frac{d}{dx}(y^2) = 2y\frac{dy}{dx}. \]
 \end{itemize}
@@ -32,6 +37,7 @@
 \[ (x + 2y)\frac{dy}{dx} = -(2x + y) \]
 
 \step{Divide both sides by $(x+2y)$. We can only divide if it is not zero, so we need $x + 2y \neq 0$, i.e.\ $x \neq -2y$.}
+Plain numbers first: $3 \times 5 = 15$, so $5 = 15 \div 3$. Here $(x+2y)$ plays $3$ and $\dfrac{dy}{dx}$ plays $5$.
 \[ \frac{dy}{dx} = -\frac{2x + y}{x + 2y}, \qquad x \neq -2y. \]
 
 \ans{$\dfrac{dy}{dx} = -\dfrac{2x+y}{x+2y}$, \ for $x \neq -2y$.}}
@@ -55,10 +61,16 @@ x &= 2 \ \text{ or } \ x = -2 \why{square root, both signs}
 \end{align*}
 
 \step{Find each $y$ using $y = -2x$.}
-\[ x = 2: \ y = -2(2) = -4, \qquad\qquad x = -2: \ y = -2(-2) = 4. \]
+\begin{gather*}
+x = 2: \ y = -2(2) = -4 \\
+x = -2: \ y = -2(-2) = 4
+\end{gather*}
 
 \step{Check the bottom of $\dfrac{dy}{dx}$ is not zero at these points.}
-\[ (2,-4): \ x + 2y = 2 - 8 = -6 \neq 0 \ \checkmark \qquad (-2,4): \ x + 2y = -2 + 8 = 6 \neq 0 \ \checkmark \]
+\begin{gather*}
+(2,-4): \ x + 2y = 2 - 8 = -6 \neq 0 \ \checkmark \\
+(-2,4): \ x + 2y = -2 + 8 = 6 \neq 0 \ \checkmark
+\end{gather*}
 
 \ans{$(2,-4)$ and $(-2,4)$.}}
 
@@ -78,7 +90,10 @@ y &= 2 \ \text{ or } \ y = -2
 \end{align*}
 
 \step{Find each $x$ using $x = -2y$.}
-\[ y = 2: \ x = -2(2) = -4, \qquad\qquad y = -2: \ x = -2(-2) = 4. \]
+\begin{gather*}
+y = 2: \ x = -2(2) = -4 \\
+y = -2: \ x = -2(-2) = 4
+\end{gather*}
 So $\dfrac{dy}{dx}$ is undefined at $(-4,2)$ and $(4,-2)$.
 
 \step{Is there still a tangent? Flip the fraction to get $\dfrac{dx}{dy}$ (how fast $x$ changes as $y$ changes):}

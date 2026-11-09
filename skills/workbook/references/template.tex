@@ -9,6 +9,11 @@
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18}
 \usepackage{fancyhdr}
+\usepackage{cancel}
+
+% Worked steps: \chg{} marks what changed from the line above.
+\definecolor{chg}{HTML}{D81B60}
+\newcommand{\chg}[1]{{\color{chg}#1}}
 
 % Graphs: curve blue, tangent orange, normal purple (dashed). Checked colour-blind safe.
 \definecolor{curve}{HTML}{1F5FAD}
