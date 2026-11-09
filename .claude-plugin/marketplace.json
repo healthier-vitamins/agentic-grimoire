@@ -18,7 +18,6 @@
         "./skills/playbook",
         "./skills/scribe",
         "./skills/skillsmith",
-        "./skills/experimentation/storm",
         "./skills/ticketsmith",
         "./skills/watermark"
       ]

@@ -20,13 +20,13 @@ Always open the cited links to confirm they are indeed relevant. If you don't un
 
 ## Install
 
-Skills come in two groups. **Engineering** is the default; **Personal** is fully optional.
+Skills come in two groups. **Engineering** is the default; **Personal** is fully optional. `storm` is [work in progress](#work-in-progress) and cannot be installed.
 
 Install the engineering skills into the central store and symlink them into Claude Code and Codex:
 
 ```sh
 npx skills add healthier-vitamins/agentic-grimoire --global -a claude-code codex \
-  -s chat-id codewalk compass keystone keystone-react oracle playbook scribe skillsmith storm ticketsmith watermark
+  -s chat-id codewalk compass keystone keystone-react oracle playbook scribe skillsmith ticketsmith watermark
 ```
 
 Optional: add the personal skills too:
@@ -105,7 +105,6 @@ default_subagent_model from [agents] in ~/.codex/config.toml.
 |---|---|
 | oracle | Goes one level deeper on a topic. Surfaces the unknown-unknowns beneath your prompt. **Use when you want to gain deeper knowledge.** |
 | compass | **Goes wide instead of deep.** Lays out the alternatives to a chosen solution and recommends one. Use when you want options. |
-| storm[^storm] | Decide one thing with the least bias. Interview to one decision, pre-registered pick and falsifier, five lenses (two hunting against the pick), contradictions mapped, premortem, fresh Critic, confidence-gated verdict that seeds a `wayfinder` map. `--light` skips research for judgment calls. Uses Matt Pocock's `grilling` for intake. |
 | codewalk | Records a real run of a workflow (Python, JavaScript or TypeScript) and publishes a page: the workflow map, a captioned walkthrough, and a time-travel debugger that steps into, over, out, back or to the next stop with every variable at every step. Works on existing code, a diff, or a prototype staged before it is applied. |
 | keystone | Clean code pedagogy. GoF patterns, functions over inline code, OOP. To be applied for all types of code. |
 | keystone-react | Same idea as `keystone`, but for React only. Decomposed components, context over prop-drilling, co-located CSS. |
@@ -116,9 +115,6 @@ default_subagent_model from [agents] in ~/.codex/config.toml.
 | scribe | Write for one reader, in plain linked sentences. Mechanism over concept, length borrowed from the document, and a cleanup pass against AI tells. |
 | chat-id | Print the current Claude Code chat's session ID. |
 
-### STORM
-STORM is extremely heavy, but it provides the most detailed output compared to `oracle` and `compass`. My personal approach is first tackle unknowns with `oracle` and `compass`. Once you feel relatively comfortable in diving deeper, proceed with `storm`. Its report ends in a **Wayfinder seed**: run Matt Pocock's `/wayfinder <report path>` to chart the remaining decisions, then `/to-spec` → `/to-tickets` → `/implement`. For a call that evidence cannot settle (ship now or hold, cut scope or keep it), `storm --light` convenes four voices and skips the research.
-
 ## Personal skills
 
 Optional; not installed by the default command.
@@ -128,13 +124,24 @@ Optional; not installed by the default command.
 | corkboard | Turns a pile of planning material (a chat export, spreadsheets, notes) into interactive plan boards chosen to fit the data (overview, Gantt timeline, decision log, kanban, moodboard), with zoom from the whole plan down to a Notion-style page for each item. Every picture and chart traces to the sources: photos from the chat, screenshots of the item's own page, Commons shots of the place it names. **Use when planning a trip, a wedding, or any large project.** |
 | workbook | Turns maths questions into one printable revision sheet: the questions first, then worked solutions with every step written out and a graph under each. Answers are checked and graphs drawn by code, so they are exact. **Use when revising for a test.** Can also choose the questions from the course materials, and add an explanation to a step you ask about. |
 
+## Work in progress
+
+Not installable: these skills live in `skills/work-in-progress/` with their `SKILL.md` renamed to `SKILL.md.wip`, so the installer cannot find them. Rename it back to install one locally.
+
+| Skill | What it does |
+|---|---|
+| storm[^storm] | Decide one thing with the least bias. Interview to one decision, pre-registered pick and falsifier, five lenses (two hunting against the pick), contradictions mapped, premortem, fresh Critic, confidence-gated verdict that seeds a `wayfinder` map. `--light` skips research for judgment calls. Uses Matt Pocock's `grilling` for intake. |
+
+**Known bug:** `storm` is broken right now. It stays out of the install until it is fixed.
+
+### STORM
+STORM is extremely heavy, but it provides the most detailed output compared to `oracle` and `compass`. My personal approach is first tackle unknowns with `oracle` and `compass`. Once you feel relatively comfortable in diving deeper, proceed with `storm`. Its report ends in a **Wayfinder seed**: run Matt Pocock's `/wayfinder <report path>` to chart the remaining decisions, then `/to-spec` → `/to-tickets` → `/implement`. For a call that evidence cannot settle (ship now or hold, cut scope or keep it), `storm --light` convenes four voices and skips the research.
+
 ## When to reach for what
 
 **Understanding something**
 - Deeper on one thing: `oracle`
 - Wider across options: `compass`
-- Serious research before deciding: `storm`
-- Judgment call, no research needed: `storm --light`
 - Learn any code/module by stepping through a real run: `codewalk <path>`
 - Review a diff before you approve it: `codewalk HEAD`
 - See a prototype run before it touches the project: `codewalk <idea>`
@@ -164,7 +171,6 @@ You do not need to write code to get value here. The knowledge skills work on an
 
 - `oracle` goes deep on one thing and teaches you what you didn't know to ask.
 - `compass` lays out your options and picks one, great for decisions.
-- `storm` does serious research before a big call, with a confidence-rated recommendation.
 - `ticketsmith` turns a plain description into a proper Jira ticket, no coding needed.
 - `scribe` writes or cuts any prose for one reader, no coding needed.
 
