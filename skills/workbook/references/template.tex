@@ -37,16 +37,16 @@
 
 % Copied from the course's own tutorial style; replace INSTITUTION, Department, COURSE CODE and SHEET TITLE.
 % Each question in body.tex wraps its working in \sol{...}.
-% The body is typeset twice: questions only, then with solutions.
-% In the questions-only pass, each \sol{} leaves blank working space instead.
-\newif\ifsol
+% Layout: each question (or part) is followed by blank working space (\workspace, 12 cm),
+% then its worked solution straight after. The rules page sits at the end of the sheet.
+% No page break at the start of a list, so a question's number stays with its part (a).
+\makeatletter\@beginparpenalty=10000 \makeatother
+% No page break straight after a displayed equation, so a question never splits from its last line.
+\postdisplaypenalty=10000
 \newcounter{stepno}
 \newlength{\workspace}\setlength{\workspace}{12cm}
-% Questions pass: no page break inside a question, so each one keeps its working space.
-\makeatletter
-\newcommand{\keepquestionswhole}{\interlinepenalty=10000 \postdisplaypenalty=10000 \@beginparpenalty=10000 }
-\makeatother
-\newcommand{\sol}[1]{\ifsol\par\smallskip{\color{blue}\setcounter{stepno}{0}\textbf{Solution:} #1}\par\else\par\nopagebreak\vbox to\workspace{}\fi}
+% \nopagebreak keeps the working space on the same page as the question it belongs to.
+\newcommand{\sol}[1]{\par\nopagebreak\vbox to\workspace{}\par\nopagebreak{\color{blue}\setcounter{stepno}{0}\textbf{Solution:} #1}\par\bigskip}
 \newcommand{\src}[1]{\hfill{\small[#1]}}
 % Worked-solution helpers: numbered steps, side notes, the idea, the final answer.
 \newcommand{\idea}[1]{\textit{Idea:} #1}
@@ -69,16 +69,9 @@
 
 \heading{SHEET TITLE}
 
-\begingroup
-\solfalse\keepquestionswhole
 \input{body}
-\endgroup
 
 \newpage
-\heading{SHEET TITLE: Solutions}
-
-\soltrue
 \input{rules}
-\input{body}
 
 \end{document}

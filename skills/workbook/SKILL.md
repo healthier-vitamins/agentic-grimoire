@@ -81,6 +81,6 @@ Every final answer is checked by a SymPy script before it reaches the sheet. Eve
 ## Style
 
 - **Match the course.** Where a tutorial or sheet PDF from the same course is nearby, render its first page and copy its header lines, paper size and solution colour into the template. Otherwise keep the template as it is.
-- **Questions first.** The template prints the questions with no answers, each part followed by blank working space (`\workspace`, 12 cm), then the rules page, then the questions again with solutions, so the reader tries each one blind. Keep that order.
+- **Solution after each question.** The template prints each question (or part), then its blank working space (`\workspace`, 12 cm), then its worked solution straight after, so the reader tries it and checks it at once. The rules page goes at the end of the sheet. Keep that order; never collect the solutions into a separate half.
 - **Plain words.** Short sentences. Define each term the first time it appears. Keep the source's own notation (`f′(x)`, `dy/dx`) and spell out every abbreviation.
 - **Simplified Technical English.** Sentences of 15 words or fewer, never over 20, one idea each, active voice. One word per meaning: once it is "slope", it stays "slope". Define each maths word with a number example: "the slope of x² at x = 3 is 6". State each step as plain fact; "obviously", "simply", "just" and "clearly" stay off the page.
