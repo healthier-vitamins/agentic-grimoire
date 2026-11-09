@@ -86,13 +86,13 @@ Goal: the slope per step of x.
 
 Putting u back only renames the letter. The outside slope is the change per step of u.
 
-Nudge x from ln 2 by 0.001:
+Start at x = ln 2 ≈ 0.6931. Add 0.001, so x becomes 0.6941. Work out each quantity at both x, then subtract:
 
-| What moves | By how much |
-|---|---|
-| x | 0.001 |
-| u = 4 − e^(−x) | 0.0005 |
-| answer (2/3)u^(3/2) | 0.000935 |
+| Quantity | At x = 0.6931 | At x = 0.6941 | Change |
+|---|---|---|---|
+| x | 0.6931 | 0.6941 | 0.0010 |
+| u = 4 − e^(−x) | 3.5000 | 3.5005 | 0.0005 |
+| answer (2/3)u^(3/2) | 4.36527 | 4.36620 | 0.000935 |
 
 | Route | Slope at x = ln 2 | Matches 0.935? |
 |---|---|---|
