@@ -1,6 +1,6 @@
 # Patch examples
 
-Two chat answers in the Patch shape. Copy the shape, not the maths.
+Four chat answers in the Patch shape. Copy the shape, not the maths.
 
 ## Valid but unfinished move
 
@@ -38,3 +38,42 @@ The rival u = x² gives dx = du/2x. Then x² × 1/2x = x/2, and an x is left beh
 Check the cancellation at x = 2: 4 × 1/12 = 1/3 ✓.
 
 Rule: pick u so its slope is already in the integral. A different number in front is fine.
+
+## Skipped move: where did du go?
+
+The reader asks: the line was ∫ √u du, then it is suddenly (2/3)u^(3/2). Where did du go?
+
+Goal: turn ∫ √u du into an answer with no ∫ and no du.
+
+The du does not turn into anything. ∫ … du is one instruction: find what has slope √u, with u as the letter. It works like ∫ x dx = x²/2, where no dx is left either.
+
+| Power rule move | Result | Working |
+|---|---|---|
+| start | u^(1/2) | |
+| add 1 to the power | u^(3/2) | 1/2 + 1 = 3/2 |
+| divide by the new power | u^(3/2) ÷ 3/2 | |
+| tidy the fraction | (2/3)u^(3/2) | 6 ÷ 3/2 = 4 = 6 × 2/3 ✓ |
+
+Check: the slope of (2/3)u^(3/2) is (2/3)(3/2)u^(1/2) = √u ✓.
+
+In the sheet, the integrating step gains the du sentence and the table, and every other integration in u points back to it.
+
+## Skipped moves: an answer check in one line
+
+The reader asks: "The answer's derivative is (2/3)·(3/2)u^(1/2)·du/dx = √u e^(−x) = √3 · 1." What is this?
+
+Goal: show the answer is right by matching its slope to the integrand at one number.
+
+Split the line into four steps:
+
+1. Why it works: integrating undoes differentiating, so the answer's slope must equal the integrand.
+2. The integrand at x = 0: √(4 − 1)/1 = √3.
+3. The answer's slope by the chain rule, one part per line:
+
+| Part | Slope | Why |
+|---|---|---|
+| outside (2/3)u^(3/2) | u^(1/2) | bring 3/2 down; (2/3)(3/2) = 1 |
+| inside u = 4 − e^(−x) | e^(−x) | Step 2 |
+| multiply | √u · e^(−x) | outside × inside |
+
+4. Put in x = 0: u = 3 and e^0 = 1, so √3 · 1 = √3 ✓.

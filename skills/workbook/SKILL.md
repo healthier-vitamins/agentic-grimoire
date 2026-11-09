@@ -34,15 +34,17 @@ Every final answer is checked by a SymPy script before it reaches the sheet. Eve
    - **Rival choice.** Where a step makes a choice (a substitution, a bound, a test value), run one plausible rival through the same steps and show it fail in a small table with a ✓/✗ column. Close with the rule for choosing: "pick u so its slope is already in the integral".
    - **Plain numbers first.** Before a rearrangement on symbols (moving a term, dividing, flipping), do the identical moves on plain numbers and name each stand-in: "12/2 = 6, where 12 plays du and 2 plays dx".
    - `\why{}` — a side note on every line of arithmetic: `(−2x)² = 4x²`, "divide by 3".
-   - **One action per line.** Each display line does one move, with at most two `=` signs, and its `\why{}` is 1–4 words.
+   - **Atomic steps.** Every step and every display line does one move, with at most two `=` signs and a 1–4 word `\why{}`. A line that asks the reader to do two moves in their head (differentiate, then put in a number; integrate, then tidy a fraction) becomes two lines or two steps. Write every move the reader would make on paper: a beginner reads any gap between two lines as a missing step.
    - **Mark the change.** Wrap what changed from the line above in `\chg{}`, and strike cancelled factors with `\cancel{}`. Check each cancellation on one plain number: "x = 2: 4 × 1/12 = 1/3 ✓".
    - Checks as steps — dividing by an expression states it is non-zero at the answer; a point found is confirmed on the curve and in the domain.
+   - **Integrating in a new letter.** After a substitution, the step that integrates says the `du` only names the letter: `∫ u^(1/2) du` is `∫ x^(1/2) dx` with x renamed u, and the `∫` and `du` leave together once it is done. Then it runs the rule one move per row in a table (add 1 to the power, divide by the new power, tidy the fraction), with the tidy done on plain numbers first.
+   - **Answer checks.** A check by differentiating runs as four steps: why it works (integrating undoes differentiating, so the answer's slope equals the integrand); the integrand at the test number; the answer's slope by the chain rule, with outside, inside and multiply each on its own line; then the test number put in, with the match marked ✓.
    - Every claim a step makes is checked on at least one real number.
    - Tables hold results: one number per cell, the working stays in the steps.
    - `\ans{}` — the final result.
    - `rules.tex` — every rule a step uses, each with a one-line example. A rule with a condition (`n ≠ −1`, `x > 0`, a non-zero bottom) says in the same entry what breaks where the condition fails and what to use there instead: "at n = −1 the new power is 0, and you cannot divide by 0; ∫ 1/x dx = ln|x| + C instead".
 
-   **Done when:** every step names a rule or a reason, every rule named appears in `rules.tex`, every condition a rule carries comes with what breaks and what replaces it, and every part of every question ends in `\ans{}`. Every rearrangement has its plain-number run, every cancellation its number check, and every choice its failing rival.
+   **Done when:** every step names a rule or a reason, every rule named appears in `rules.tex`, every condition a rule carries comes with what breaks and what replaces it, and every part of every question ends in `\ans{}`. Every rearrangement has its plain-number run, every cancellation its number check, and every choice its failing rival. Every step and line is atomic, every integration in a new letter says what the `du` does and shows each move, and every answer check runs as its four steps.
 
 4. **See it.** End each question's solution with `\seeit{what to look at}{picture}`:
    - Curves from their equations — implicit curves (ellipses, circles) as parametric plots.
@@ -67,7 +69,7 @@ Every final answer is checked by a SymPy script before it reaches the sheet. Eve
 1. Answer in chat, in the sheet's notation, with a small table or ASCII sketch where the idea has a shape.
    - Open with a one-line goal: "The slide wants dx alone on one side."
    - Answer the gap the reader named, then stop. Where the reader says one part landed, keep that part as the anchor and rebuild the rest from it.
-   - Where the reader brings their own move, work from it. A valid but unfinished move: say it is correct, run it to the end (plain numbers first, then symbols), and name the one missing step. An invalid move: run it on real numbers until it gives something false, say why, then give the correct route. [`references/patch-examples.md`](references/patch-examples.md) shows both kinds of answer.
+   - Where the reader brings their own move, work from it. A valid but unfinished move: say it is correct, run it to the end (plain numbers first, then symbols), and name the one missing step. An invalid move: run it on real numbers until it gives something false, say why, then give the correct route. [`references/patch-examples.md`](references/patch-examples.md) shows both kinds of answer, plus two answers to "you skipped a step".
    - Where earlier material overloaded the reader, say what to set aside: "Forget the integral for now."
    - Where the gap is unclear, ask one targeted question. A second attempt takes a new angle.
    - End with a short recipe, one practice problem, and an offer to check their working line by line.
