@@ -37,19 +37,23 @@
 
 % Copied from the course's own tutorial style; replace INSTITUTION, Department, COURSE CODE and SHEET TITLE.
 % Each question in body.tex wraps its working in \sol{...}.
-% Layout: each question (or part) is followed by blank working space (\workspace, 12 cm),
+% Layout: each question (or part) is followed by blank working space (\workspace, 14 cm),
 % then its worked solution straight after. The rules page sits at the end of the sheet.
 % No page break at the start of a list, so a question's number stays with its part (a).
 \makeatletter\@beginparpenalty=10000 \makeatother
 % No page break straight after a displayed equation, so a question never splits from its last line.
 \postdisplaypenalty=10000
 \newcounter{stepno}
-\newlength{\workspace}\setlength{\workspace}{12cm}
+\newlength{\workspace}\setlength{\workspace}{14cm}
 % \nopagebreak keeps the working space on the same page as the question it belongs to.
 \newcommand{\sol}[1]{\par\nopagebreak\vbox to\workspace{}\par\nopagebreak{\color{blue}\setcounter{stepno}{0}\textbf{Solution:} #1}\par\bigskip}
 \newcommand{\src}[1]{\hfill{\small[#1]}}
 % Worked-solution helpers: numbered steps, side notes, the idea, the final answer.
 \newcommand{\idea}[1]{\textit{Idea:} #1}
+% Each question (or section) opens with a box of the recipes it uses, before the question.
+\newcommand{\rulebox}[1]{\par\noindent\fcolorbox{curve}{curve!6}{\parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule}{#1}}\par\medskip}
+% \choice: a fine-print note at the start of a step that needs a decision.
+\newcommand{\choice}{{\footnotesize\textit{(a choice, not a fixed recipe move)}}\ }
 \newcommand{\step}[1]{\par\medskip\stepcounter{stepno}\textbf{Step \arabic{stepno}.} #1}
 \newcommand{\why}[1]{\qquad\text{\small(#1)}}
 \newcommand{\ans}[1]{\par\medskip\textbf{Answer:} #1}
