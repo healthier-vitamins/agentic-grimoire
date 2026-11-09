@@ -1,6 +1,6 @@
 # Patch examples
 
-Four chat answers in the Patch shape. Copy the shape, not the maths.
+Five chat answers in the Patch shape. Copy the shape, not the maths.
 
 ## Valid but unfinished move
 
@@ -77,3 +77,26 @@ Split the line into four steps:
 | multiply | √u · e^(−x) | outside × inside |
 
 4. Put in x = 0: u = 3 and e^0 = 1, so √3 · 1 = √3 ✓.
+
+## Invalid move: outside only, then put u back
+
+The reader asks: why must e^(−x) come back? Differentiate (2/3)u^(3/2) to get u^(1/2), then put u back.
+
+Goal: the slope per step of x.
+
+Putting u back only renames the letter. The outside slope is the change per step of u.
+
+Nudge x from ln 2 by 0.001:
+
+| What moves | By how much |
+|---|---|
+| x | 0.001 |
+| u = 4 − e^(−x) | 0.0005 |
+| answer (2/3)u^(3/2) | 0.000935 |
+
+| Route | Slope at x = ln 2 | Matches 0.935? |
+|---|---|---|
+| outside only, then put u back | 1.871 | ✗ |
+| outside × inside | 0.935 | ✓ |
+
+The old check used x = 0, where e^(−x) = 1, so the missing factor hid. Test where no factor equals 1.
