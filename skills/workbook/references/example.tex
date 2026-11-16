@@ -1,7 +1,9 @@
 % One complete question, as it appears in body.tex. Copy the pattern, not the maths.
-\rulebox{\textbf{Recipes for Question 1.}\par\smallskip
-\textbf{Implicit differentiation recipe.} 1. Differentiate every term on both sides with respect to $x$. 2. Each $y$ term gets a $\frac{dy}{dx}$ (chain rule). 3. Collect the $\frac{dy}{dx}$ terms on one side. 4. Factor out $\frac{dy}{dx}$ and divide.\par\smallskip
-\textbf{Horizontal-tangent recipe.} 1. Set the top of $\frac{dy}{dx}$ to $0$. 2. Put the result into the curve's equation. 3. Solve, then check the bottom is not $0$.}
+\rulebox{\formulas
+F1. Chain rule on a $y$ term: $\frac{d}{dx}(y^n) = ny^{n-1}\frac{dy}{dx}$.\par Example: $\frac{d}{dx}(y^2) = 2y\frac{dy}{dx}$.
+\workflows
+\textbf{A. Implicit differentiation.}\par A1. Differentiate every term on both sides with respect to $x$.\par A2. Each $y$ term gets a $\frac{dy}{dx}$ (F1).\par A3. Collect the $\frac{dy}{dx}$ terms on one side.\par A4. Factor out $\frac{dy}{dx}$ and divide.\par Example: $x^2 + y^2 = 1$ gives $2x + 2y\frac{dy}{dx} = 0$, so $\frac{dy}{dx} = -\frac{x}{y}$.\par\smallskip
+\textbf{B. Horizontal tangents.}\par B1. Set the top of $\frac{dy}{dx}$ to $0$.\par B2. Put the result into the curve's equation.\par B3. Solve, then check the bottom is not $0$.\par Example: $\frac{dy}{dx} = -\frac{x}{y}$ gives $x = 0$, so $y = \pm 1$.}
 
 \begin{enumerate}
 % ================================================================ Week 9 Q1
@@ -11,7 +13,7 @@
 \item Find $\dfrac{dy}{dx}$ in terms of $x$ and $y$.
 \sol{\idea{$y$ is not written as $y = \cdots$, so we cannot differentiate it directly. Instead differentiate \emph{every term} on both sides with respect to $x$ (implicit differentiation).}
 
-\step{Differentiate both sides with respect to $x$.}
+\step{\recipe{A1}Differentiate both sides with respect to $x$.}
 \[ \frac{d}{dx}\left(x^2 + xy + y^2\right) = \frac{d}{dx}(12) \]
 
 \step{Split the left side into one derivative per term. The right side is a constant, so its derivative is $0$.}
@@ -27,20 +29,20 @@
 &= (1)(y) + x\frac{dy}{dx} \why{substitute} \\
 &= \chg{y} + x\frac{dy}{dx} \why{$(1)(y) = y$}
 \end{align*}
-\item $\dfrac{d}{dx}(y^2)$: differentiate as if $y$ were $x$ to get $2y$, then multiply by $\dfrac{dy}{dx}$ (chain rule):
+\item $\dfrac{d}{dx}(y^2)$: \recipe{F1}differentiate as if $y$ were $x$ to get $2y$, then multiply by $\dfrac{dy}{dx}$ (chain rule):
 \[ \frac{d}{dx}(y^2) = 2y\frac{dy}{dx}. \]
 \end{itemize}
 
 \step{Put the three pieces back together.}
 \[ 2x + y + x\frac{dy}{dx} + 2y\frac{dy}{dx} = 0 \]
 
-\step{Collect the two terms that contain $\dfrac{dy}{dx}$ and factor it out.}
+\step{\recipe{A3}Collect the two terms that contain $\dfrac{dy}{dx}$ and factor it out.}
 \[ x\frac{dy}{dx} + 2y\frac{dy}{dx} = (x + 2y)\frac{dy}{dx}, \qquad\text{so}\qquad (2x + y) + (x + 2y)\frac{dy}{dx} = 0. \]
 
 \step{Move $(2x+y)$ to the right side (subtract it from both sides).}
 \[ (x + 2y)\frac{dy}{dx} = -(2x + y) \]
 
-\step{Divide both sides by $(x+2y)$. We can only divide if it is not zero, so we need $x + 2y \neq 0$, i.e.\ $x \neq -2y$.}
+\step{\recipe{A4}Divide both sides by $(x+2y)$. We can only divide if it is not zero, so we need $x + 2y \neq 0$, i.e.\ $x \neq -2y$.}
 Plain numbers first: $3 \times 5 = 15$, so $5 = 15 \div 3$. Here $(x+2y)$ plays $3$ and $\dfrac{dy}{dx}$ plays $5$.
 \[ \frac{dy}{dx} = -\frac{2x + y}{x + 2y}, \qquad x \neq -2y. \]
 
@@ -49,13 +51,13 @@ Plain numbers first: $3 \times 5 = 15$, so $5 = 15 \div 3$. Here $(x+2y)$ plays 
 \item Find the coordinates of the points on $C$ at which the tangent is horizontal.
 \sol{\idea{a horizontal line has gradient $0$, so set $\dfrac{dy}{dx} = 0$. That gives an equation linking $x$ and $y$; combine it with the curve's equation to get actual points.}
 
-\step{Set the gradient from (a) equal to $0$.}
+\step{\recipe{B1}Set the gradient from (a) equal to $0$.}
 \[ -\frac{2x + y}{x + 2y} = 0 \]
 
 \step{A fraction is $0$ exactly when its \emph{top} is $0$ (and the bottom is not $0$). So}
 \[ 2x + y = 0 \quad\Longrightarrow\quad y = -2x. \]
 
-\step{$y = -2x$ is a whole line, not points yet. The points must also be on $C$, so substitute $y = -2x$ into $x^2 + xy + y^2 = 12$.}
+\step{\recipe{B2}$y = -2x$ is a whole line, not points yet. The points must also be on $C$, so substitute $y = -2x$ into $x^2 + xy + y^2 = 12$.}
 \begin{align*}
 x^2 + x(-2x) + (-2x)^2 &= 12 \\
 x^2 - 2x^2 + 4x^2 &= 12 \why{$(-2x)^2 = (-2)^2x^2 = 4x^2$} \\
@@ -70,7 +72,7 @@ x = 2: \ y = -2(2) = -4 \\
 x = -2: \ y = -2(-2) = 4
 \end{gather*}
 
-\step{Check the bottom of $\dfrac{dy}{dx}$ is not zero at these points.}
+\step{\recipe{B3}Check the bottom of $\dfrac{dy}{dx}$ is not zero at these points.}
 \begin{gather*}
 (2,-4): \ x + 2y = 2 - 8 = -6 \neq 0 \ \checkmark \\
 (-2,4): \ x + 2y = -2 + 8 = 6 \neq 0 \ \checkmark
