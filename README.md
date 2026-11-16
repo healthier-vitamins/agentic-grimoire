@@ -26,7 +26,7 @@ Install the engineering skills into the central store and symlink them into Clau
 
 ```sh
 npx skills add healthier-vitamins/agentic-grimoire --global -a claude-code codex \
-  -s chat-id codewalk compass keystone keystone-react oracle playbook scribe skillsmith ticketsmith watermark
+  -s chat-id codewalk compass keystone keystone-react oracle playbook review-all scribe skillsmith ticketsmith watermark
 ```
 
 Optional: add the personal skills too:
@@ -109,6 +109,7 @@ default_subagent_model from [agents] in ~/.codex/config.toml.
 | keystone | Clean code pedagogy. GoF patterns, functions over inline code, OOP. To be applied for all types of code. |
 | keystone-react | Same idea as `keystone`, but for React only. Decomposed components, context over prop-drilling, co-located CSS. |
 | playbook | Audit changed code against your engineering conventions (race conditions, idempotency, etc) and flag what is missing. |
+| review-all | Runs Matt Pocock's `code-review`, `ponytail-review` and, when the diff crosses a trust boundary, `security-review` on one diff (uncommitted work included), in one command. Reports only; offers `receiving-code-review` for the fixes. |
 | skillsmith | Create a new skill or audit an existing one, attempted Matt Pocock philosophies. |
 | ticketsmith | Draft a Jira ticket template from a description or the codebase: a short explanation of the work, an item table, and one sub-task per item. Interviews you in rounds with Matt Pocock's `grilling`, writes in `scribe` style (prompts to install either if missing). |
 | watermark | Turn uncommitted work into clean atomic conventional commits for user to review code easily. Never pushes. |
@@ -154,6 +155,7 @@ STORM is extremely heavy, but it provides the most detailed output compared to `
 - General: `keystone`
 - React: `keystone-react`
 - Check it against your conventions: `playbook`
+- Run every review skill on one diff: `review-all`
 
 **Shipping**
 - Commits: `watermark`
