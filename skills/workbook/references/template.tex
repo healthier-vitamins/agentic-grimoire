@@ -44,6 +44,8 @@
 \makeatletter\@beginparpenalty=10000 \makeatother
 % No page break straight after a displayed equation, so a question never splits from its last line.
 \postdisplaypenalty=10000
+% No page break inside the first or last two lines of a paragraph, so a question stem stays whole.
+\clubpenalty=10000 \widowpenalty=10000
 \newcounter{stepno}
 \newlength{\workspace}\setlength{\workspace}{14cm}
 % \nopagebreak keeps the working space on the same page as the question it belongs to.
@@ -53,7 +55,7 @@
 \newcommand{\idea}[1]{\textit{Idea:} #1}
 % Each question (or section) opens with its recipe box: everything in it can be memorised.
 % Inside it, \formulas lists results to memorise (F1, F2, ...), and \workflows lists fixed
-% workflows (A, B, ...) whose moves are numbered A1, A2, ...
+% workflows (A, B, ..., skipping F so moves never clash with formula IDs) whose moves are A1, A2, ...
 \newcommand{\rulebox}[1]{\par\noindent\fcolorbox{curve}{curve!6}{\parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule}{\textbf{\faReceipt\ Recipe --- memorise this}\par #1}}\par\medskip}
 \newcommand{\formulas}{\par\smallskip\textbf{Formulas to memorise.}\par}
 \newcommand{\workflows}{\par\smallskip\textbf{Workflows (same steps every time).}\par}
