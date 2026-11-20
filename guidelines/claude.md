@@ -45,6 +45,48 @@ main session runs:
 
 Keep planning and review on the main thread.
 
+## Usage Budget
+
+The 5-hour usage limit is shared by the main session and every subagent. Size large work
+before it starts, so one request never spends the whole limit without warning. Normal work
+gets no extra steps: these rules apply only above the threshold.
+
+**Threshold.** Any one of these:
+
+- more than 4 subagents in total, or more than 3 running at once;
+- a Workflow run;
+- the same heavy task repeated over more than 5 items (questions, files, pages, PRs).
+
+**Above the threshold, estimate first.** Before the first agent starts, tell the user what
+runs (agent count, model, how many at once), the rough token total, and the share of the
+5-hour limit it may take. Per-agent figures, measured 2026-11-20:
+
+- search or a short read: 30k to 60k tokens;
+- read, write and verify one section: 150k to 300k tokens;
+- work that views PDF pages or screenshots as images: the top of that range or more.
+
+On 2026-11-20, 16 Opus agents used up a whole 5-hour window, an estimated 3 to 4 million
+tokens. Below about 1 million tokens, state the estimate and proceed. Above it, wait for a
+go-ahead, then build one unit first and report its measured cost (from the agent's usage
+line) before starting the rest in parallel.
+
+**Save by routing, not by cutting.** Keep quality steps. Save tokens this way instead:
+
+- Keep each agent on its route above. Override a writer to Opus only when the step needs
+  judgement, and say why.
+- Run at most 4 agents at once.
+- Subagents do not start their own subagents unless the brief allows it.
+
+**Other heavy runs.** State their cost up front too:
+
+- `/loop`, babysit or Monitor runs left unattended;
+- render-and-view loops over many pages or screenshots;
+- long web crawls;
+- repeated reads of large files into the main session.
+
+**Limit hit mid-run.** Work the agents saved stays on disk. After the reset, resume each
+stopped agent with SendMessage instead of starting fresh ones.
+
 ## Keystone
 
 Invoke the `keystone` skill before implementing non-trivial logic, structuring a module,
