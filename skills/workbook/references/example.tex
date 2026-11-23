@@ -1,116 +1,184 @@
 % One complete question, as it appears in body.tex. Copy the pattern, not the maths.
-\rulebox{\formulas
-F1. Chain rule on a $y$ term: $\frac{d}{dx}(y^n) = ny^{n-1}\frac{dy}{dx}$.\par Example: $\frac{d}{dx}(y^2) = 2y\frac{dy}{dx}$.
-\workflows
-\textbf{A. Implicit differentiation.}\par A1. Differentiate every term on both sides with respect to $x$.\par A2. Each $y$ term gets a $\frac{dy}{dx}$ (F1).\par A3. Collect the $\frac{dy}{dx}$ terms on one side.\par A4. Factor out $\frac{dy}{dx}$ and divide.\par Example: $x^2 + y^2 = 1$ gives $2x + 2y\frac{dy}{dx} = 0$, so $\frac{dy}{dx} = -\frac{x}{y}$.\par\smallskip
-\textbf{B. Horizontal tangents.}\par B1. Set the top of $\frac{dy}{dx}$ to $0$.\par B2. Put the result into the curve's equation.\par B3. Solve, then check the bottom is not $0$.\par Example: $\frac{dy}{dx} = -\frac{x}{y}$ gives $x = 0$, so $y = \pm 1$.}
-
+% Every step: a title saying what was done to the line above, the move in words (\reason),
+% a side sum if one is needed (\side), then the FULL equation with the change in \chg{}.
+% Each solution has two halves: recipes, \fast{} and \ans{} first; then \whyworks and the full steps,
+% where each recipe is written out again in the step that uses it.
 \begin{enumerate}
 % ================================================================ Week 9 Q1
 \item The curve $C$ has equation \src{Week 9 Problem Solving Q1}
 \[ x^2 + xy + y^2 = 12. \]
 \begin{enumerate}
 \item Find $\dfrac{dy}{dx}$ in terms of $x$ and $y$.
-\sol{\idea{$y$ is not written as $y = \cdots$, so we cannot differentiate it directly. Instead differentiate \emph{every term} on both sides with respect to $x$ (implicit differentiation).}
+\sol{\recipe{Implicit differentiation (same steps every time)}{1. Differentiate every term on both sides with respect to $x$.\par 2. Each $y$ term gets a $\frac{dy}{dx}$.\par 3. Collect the $\frac{dy}{dx}$ terms on one side.\par 4. Factor out $\frac{dy}{dx}$ and divide.\par Example: $x^2 + y^2 = 1$ gives $2x + 2y\frac{dy}{dx} = 0$, so $\frac{dy}{dx} = -\frac{x}{y}$.}
+\fast{\begin{gather*}
+2x + y + x\frac{dy}{dx} + 2y\frac{dy}{dx} = 0 \\
+(x + 2y)\frac{dy}{dx} = -(2x + y) \\
+\frac{dy}{dx} = -\frac{2x + y}{x + 2y}
+\end{gather*}}
+\ans{$\dfrac{dy}{dx} = -\dfrac{2x+y}{x+2y}$, \ for $x \neq -2y$.}
+\whyworks
+\idea{$y$ is not written as $y = \cdots$, so we cannot differentiate it directly. Instead differentiate \emph{every term} on both sides with respect to $x$ (implicit differentiation).}
 
-\step{\recipe{A1}Differentiate both sides with respect to $x$.}
-\[ \frac{d}{dx}\left(x^2 + xy + y^2\right) = \frac{d}{dx}(12) \]
+\step{Differentiate both sides with respect to $x$.}
+\recipe{Implicit differentiation (same steps every time)}{1. Differentiate every term on both sides with respect to $x$.\par 2. Each $y$ term gets a $\frac{dy}{dx}$.\par 3. Collect the $\frac{dy}{dx}$ terms on one side.\par 4. Factor out $\frac{dy}{dx}$ and divide.\par Example: $x^2 + y^2 = 1$ gives $2x + 2y\frac{dy}{dx} = 0$, so $\frac{dy}{dx} = -\frac{x}{y}$.}
+\reason{Whatever we do to one side, we do to the other side. So the two sides stay equal.}
+\[ \chg{\frac{d}{dx}}\left(x^2 + xy + y^2\right) = \chg{\frac{d}{dx}}(12) \]
 
-\step{Split the left side into one derivative per term. The right side is a constant, so its derivative is $0$.}
-\[ \frac{d}{dx}(x^2) + \frac{d}{dx}(xy) + \frac{d}{dx}(y^2) = 0 \]
+\step{Split the left side into one derivative per term. Replace the right side with $0$.}
+\reason{The derivative of a sum is the sum of the derivatives. The number $12$ never changes, so its derivative is $0$.}
+\[ \chg{\frac{d}{dx}(x^2) + \frac{d}{dx}(xy) + \frac{d}{dx}(y^2)} = \chg{0} \]
 
-\step{Differentiate each term separately.}
-\begin{itemize}
-\item $\dfrac{d}{dx}(x^2) = 2x$ \hfill (power rule)
-\item $\dfrac{d}{dx}(xy)$: this is $x$ \emph{times} $y$, so use the product rule with $u = x$, $v = y$:
-\[ u' = 1, \qquad v' = \frac{dy}{dx} \]
-\begin{align*}
-\frac{d}{dx}(xy) &= u'v + uv' \why{product rule} \\
-&= (1)(y) + x\frac{dy}{dx} \why{substitute} \\
-&= \chg{y} + x\frac{dy}{dx} \why{$(1)(y) = y$}
-\end{align*}
-\item $\dfrac{d}{dx}(y^2)$: \recipe{F1}differentiate as if $y$ were $x$ to get $2y$, then multiply by $\dfrac{dy}{dx}$ (chain rule):
-\[ \frac{d}{dx}(y^2) = 2y\frac{dy}{dx}. \]
-\end{itemize}
+\step{Differentiate $x^2$ with the power rule.}
+\recipe{Power rule}{$\dfrac{d}{dx}(x^n) = nx^{n-1}$.\par Example: $\dfrac{d}{dx}(x^3) = 3x^2$.}
+\reason{Here $n = 2$. Bring the $2$ to the front, and the power drops to $1$.}
+\[ \chg{2x} + \frac{d}{dx}(xy) + \frac{d}{dx}(y^2) = 0 \]
 
-\step{Put the three pieces back together.}
-\[ 2x + y + x\frac{dy}{dx} + 2y\frac{dy}{dx} = 0 \]
+\step{Differentiate $xy$ with the product rule.}
+\recipe{Product rule}{$\dfrac{d}{dx}(uv) = u'v + uv'$.\par Example: $\dfrac{d}{dx}(x \cdot x^2) = 1 \cdot x^2 + x \cdot 2x = 3x^2$.}
+\reason{$xy$ is $x$ \emph{times} $y$. Match it to the recipe: $u = x$, so $u' = 1$. $v = y$, so $v' = \dfrac{dy}{dx}$.}
+\[ 2x + \chg{(1)(y) + x\frac{dy}{dx}} + \frac{d}{dx}(y^2) = 0 \]
 
-\step{\recipe{A3}Collect the two terms that contain $\dfrac{dy}{dx}$ and factor it out.}
-\[ x\frac{dy}{dx} + 2y\frac{dy}{dx} = (x + 2y)\frac{dy}{dx}, \qquad\text{so}\qquad (2x + y) + (x + 2y)\frac{dy}{dx} = 0. \]
+\step{Tidy $(1)(y)$ to $y$.}
+\reason{Any number times $1$ stays the same: $1 \times 7 = 7$.}
+\[ 2x + \chg{y} + x\frac{dy}{dx} + \frac{d}{dx}(y^2) = 0 \]
 
-\step{Move $(2x+y)$ to the right side (subtract it from both sides).}
-\[ (x + 2y)\frac{dy}{dx} = -(2x + y) \]
+\step{Differentiate $y^2$ with the chain rule.}
+\recipe{Chain rule on a $y$ term}{$\dfrac{d}{dx}(y^n) = ny^{n-1}\dfrac{dy}{dx}$.\par Example: $\dfrac{d}{dx}(y^3) = 3y^2\dfrac{dy}{dx}$.}
+\reason{$y$ changes when $x$ changes. Differentiate as if $y$ were $x$ to get $2y$. Then multiply by $\dfrac{dy}{dx}$, the rate $y$ changes as $x$ changes.}
+\[ 2x + y + x\frac{dy}{dx} + \chg{2y\frac{dy}{dx}} = 0 \]
 
-\step{\recipe{A4}Divide both sides by $(x+2y)$. We can only divide if it is not zero, so we need $x + 2y \neq 0$, i.e.\ $x \neq -2y$.}
-Plain numbers first: $3 \times 5 = 15$, so $5 = 15 \div 3$. Here $(x+2y)$ plays $3$ and $\dfrac{dy}{dx}$ plays $5$.
-\[ \frac{dy}{dx} = -\frac{2x + y}{x + 2y}, \qquad x \neq -2y. \]
+\step{Factor $\dfrac{dy}{dx}$ out of the two terms that contain it.}
+\side{$x\frac{dy}{dx} + 2y\frac{dy}{dx} = (x + 2y)\frac{dy}{dx}$, \ like $3 \times 5 + 4 \times 5 = (3 + 4) \times 5$}
+\[ 2x + y + \chg{(x + 2y)\frac{dy}{dx}} = 0 \]
 
-\ans{$\dfrac{dy}{dx} = -\dfrac{2x+y}{x+2y}$, \ for $x \neq -2y$.}}
+\step{Subtract $(2x + y)$ from both sides.}
+\reason{On the left, $(2x + y) - (2x + y) = 0$, so it disappears. On the right, it appears with a minus sign.}
+\[ (x + 2y)\frac{dy}{dx} = \chg{-(2x + y)} \]
+
+\step{Divide both sides by $(x + 2y)$.}
+\reason{Plain numbers first: $3 \times 5 = 15$, so $5 = 15 \div 3$. Here $(x + 2y)$ plays $3$ and $\dfrac{dy}{dx}$ plays $5$. We can only divide if $x + 2y$ is not $0$, so we need $x \neq -2y$.}
+\[ \frac{dy}{dx} = \chg{-\frac{2x + y}{x + 2y}}, \qquad x \neq -2y \]
+
+\recipe{Move and divide: Steps 8 and 9 in one go}{$A\dfrac{dy}{dx} + B = 0 \quad\Longrightarrow\quad \dfrac{dy}{dx} = -\dfrac{B}{A}$.\par Here $A = x + 2y$ and $B = 2x + y$. Solutions often jump straight to the last line with this recipe.}}
 
 \item Find the coordinates of the points on $C$ at which the tangent is horizontal.
-\sol{\idea{a horizontal line has gradient $0$, so set $\dfrac{dy}{dx} = 0$. That gives an equation linking $x$ and $y$; combine it with the curve's equation to get actual points.}
+\sol{\recipe{Horizontal tangents (same steps every time)}{1. Set the top of $\frac{dy}{dx}$ to $0$.\par 2. Put the result into the curve's equation.\par 3. Solve, then check the bottom of $\frac{dy}{dx}$ is not $0$.\par Example: $\frac{dy}{dx} = -\frac{x}{y}$ on $x^2 + y^2 = 1$ gives $x = 0$, so $y = 1$ or $y = -1$.}
+\fast{\begin{gather*}
+\text{top} = 0: \quad 2x + y = 0, \ \text{so } y = -2x \\
+\text{into } C: \quad 3x^2 = 12, \ \text{so } x = 2 \text{ or } x = -2 \\
+\text{points } (2,-4), (-2,4); \ \text{bottom } x + 2y \neq 0 \ \checkmark
+\end{gather*}}
+\ans{$(2,-4)$ and $(-2,4)$.}
+\whyworks
+\idea{a horizontal line has gradient $0$: it goes up $0$ for every step right. So set $\dfrac{dy}{dx} = 0$, then combine that with the curve's equation to get actual points.}
 
-\step{\recipe{B1}Set the gradient from (a) equal to $0$.}
-\[ -\frac{2x + y}{x + 2y} = 0 \]
+\step{Set the gradient from (a) equal to $0$.}
+\recipe{Horizontal tangents (same steps every time)}{1. Set the top of $\frac{dy}{dx}$ to $0$.\par 2. Put the result into the curve's equation.\par 3. Solve, then check the bottom of $\frac{dy}{dx}$ is not $0$.\par Example: $\frac{dy}{dx} = -\frac{x}{y}$ on $x^2 + y^2 = 1$ gives $x = 0$, so $y = 1$ or $y = -1$.}
+\reason{In (a), $\dfrac{dy}{dx} = -\dfrac{2x+y}{x+2y}$. The gradient is the number $\dfrac{dy}{dx}$, so we set it to $0$.}
+\[ -\frac{2x + y}{x + 2y} = \chg{0} \]
 
-\step{A fraction is $0$ exactly when its \emph{top} is $0$ (and the bottom is not $0$). So}
-\[ 2x + y = 0 \quad\Longrightarrow\quad y = -2x. \]
+\step{Keep only the top of the fraction.}
+\reason{A fraction is $0$ exactly when its top is $0$ and its bottom is not $0$. Example: $\frac{0}{5} = 0$, but $\frac{3}{5}$ is not $0$. The minus sign in front does not change this: $-0 = 0$.}
+\[ \chg{2x + y} = 0 \]
 
-\step{\recipe{B2}$y = -2x$ is a whole line, not points yet. The points must also be on $C$, so substitute $y = -2x$ into $x^2 + xy + y^2 = 12$.}
-\begin{align*}
-x^2 + x(-2x) + (-2x)^2 &= 12 \\
-x^2 - 2x^2 + 4x^2 &= 12 \why{$(-2x)^2 = (-2)^2x^2 = 4x^2$} \\
-3x^2 &= 12 \why{$1 - 2 + 4 = 3$} \\
-x^2 &= 4 \why{divide by 3} \\
-x &= 2 \ \text{ or } \ x = -2 \why{square root, both signs}
-\end{align*}
+\step{Subtract $2x$ from both sides.}
+\reason{On the left, $2x - 2x = 0$, so it disappears. On the right, it appears with a minus sign.}
+\[ y = \chg{-2x} \]
 
-\step{Find each $y$ using $y = -2x$.}
+\step{Put $y = -2x$ into the curve's equation $x^2 + xy + y^2 = 12$.}
+\reason{$y = -2x$ is a whole line, not points yet. The points must also be on $C$. So every $y$ in the curve's equation becomes $(-2x)$.}
+\[ x^2 + x\chg{(-2x)} + \chg{(-2x)}^2 = 12 \]
+
+\step{Multiply out $x(-2x)$.}
+\side{$x \times (-2x) = -2x^2$}
+\[ x^2 \chg{- 2x^2} + (-2x)^2 = 12 \]
+
+\step{Square $(-2x)$.}
+\side{$(-2x)^2 = (-2)^2 \times x^2 = 4x^2$}
+\[ x^2 - 2x^2 + \chg{4x^2} = 12 \]
+
+\step{Add the $x^2$ terms.}
+\side{$1 - 2 + 4 = 3$}
+\[ \chg{3x^2} = 12 \]
+
+\step{Divide both sides by $3$.}
+\reason{On the left, $3x^2 \div 3 = x^2$. On the right, $12 \div 3 = 4$.}
+\[ x^2 = \chg{4} \]
+
+\step{Take the square root of both sides, keeping both signs.}
+\reason{$2^2 = 4$ and $(-2)^2 = 4$. So both $2$ and $-2$ work.}
+\[ x = \chg{2} \quad\text{or}\quad x = \chg{-2} \]
+
+\step{Find each $y$ from $y = -2x$.}
 \begin{gather*}
-x = 2: \ y = -2(2) = -4 \\
-x = -2: \ y = -2(-2) = 4
+x = 2: \quad y = -2(2) = \chg{-4} \\
+x = -2: \quad y = -2(-2) = \chg{4}
 \end{gather*}
 
-\step{\recipe{B3}Check the bottom of $\dfrac{dy}{dx}$ is not zero at these points.}
+\step{Check the bottom of $\dfrac{dy}{dx}$, which is $x + 2y$, is not $0$ at these points.}
 \begin{gather*}
-(2,-4): \ x + 2y = 2 - 8 = -6 \neq 0 \ \checkmark \\
-(-2,4): \ x + 2y = -2 + 8 = 6 \neq 0 \ \checkmark
-\end{gather*}
-
-\ans{$(2,-4)$ and $(-2,4)$.}}
+(2,-4): \quad x + 2y = 2 - 8 = -6, \ \text{not } 0 \ \checkmark \\
+(-2,4): \quad x + 2y = -2 + 8 = 6, \ \text{not } 0 \ \checkmark
+\end{gather*}}
 
 \item At which points on $C$ is $\dfrac{dy}{dx}$ undefined? At these points, does the curve have a tangent line? If so, find its equation.
-\sol{\idea{a fraction is undefined when its \emph{bottom} is $0$. Find those points, then think about what an ``infinite'' gradient means.}
-
-\step{Set the bottom of $\dfrac{dy}{dx} = -\dfrac{2x+y}{x+2y}$ equal to $0$.}
-\[ x + 2y = 0 \quad\Longrightarrow\quad x = -2y. \]
-
-\step{Substitute $x = -2y$ into $x^2 + xy + y^2 = 12$.}
-\begin{align*}
-(-2y)^2 + (-2y)y + y^2 &= 12 \\
-4y^2 - 2y^2 + y^2 &= 12 \\
-3y^2 &= 12 \\
-y^2 &= 4 \\
-y &= 2 \ \text{ or } \ y = -2
-\end{align*}
-
-\step{Find each $x$ using $x = -2y$.}
-\begin{gather*}
-y = 2: \ x = -2(2) = -4 \\
-y = -2: \ x = -2(-2) = 4
-\end{gather*}
-So $\dfrac{dy}{dx}$ is undefined at $(-4,2)$ and $(4,-2)$.
-
-\step{Is there still a tangent? Flip the fraction to get $\dfrac{dx}{dy}$ (how fast $x$ changes as $y$ changes):}
-\[ \frac{dx}{dy} = \frac{1}{dy/dx} = -\frac{x + 2y}{2x + y}. \]
-At $(-4,2)$: top $= -4 + 4 = 0$, bottom $= -8 + 2 = -6 \neq 0$, so $\dfrac{dx}{dy} = 0$. \\
-At $(4,-2)$: top $= 4 - 4 = 0$, bottom $= 8 - 2 = 6 \neq 0$, so $\dfrac{dx}{dy} = 0$. \\
-$\dfrac{dx}{dy} = 0$ means $x$ is not changing while $y$ changes: the curve is going straight up and down. So the tangent exists and is \emph{vertical}.
-
-\step{A vertical line through a point has equation $x = $ (that point's $x$-coordinate).}
-
+\sol{\recipe{Vertical tangents (same steps every time)}{1. Set the bottom of $\frac{dy}{dx}$ to $0$.\par 2. Put the result into the curve's equation.\par 3. Solve, then check the top of $\frac{dy}{dx}$ is not $0$.\par 4. The tangent there is vertical: $x = $ the point's $x$.\par Example: $\frac{dy}{dx} = -\frac{x}{y}$ on $x^2 + y^2 = 1$ gives $y = 0$, so $x = 1$ or $x = -1$, and the tangents are $x = 1$ and $x = -1$.}
+\fast{\begin{gather*}
+\text{bottom} = 0: \quad x + 2y = 0, \ \text{so } x = -2y \\
+\text{into } C: \quad 3y^2 = 12, \ \text{so } y = 2 \text{ or } y = -2 \\
+\text{points } (-4,2), (4,-2); \ \text{top } 2x + y \neq 0 \ \checkmark
+\end{gather*}}
 \ans{$\dfrac{dy}{dx}$ is undefined at $(-4,2)$ and $(4,-2)$. Yes, the curve has tangents there; they are vertical: $x = -4$ and $x = 4$.}
+\whyworks
+\idea{a fraction is undefined when its \emph{bottom} is $0$. Find those points, then see what the curve does there.}
+
+\step{Set the bottom of $\dfrac{dy}{dx}$ equal to $0$.}
+\recipe{Vertical tangents (same steps every time)}{1. Set the bottom of $\frac{dy}{dx}$ to $0$.\par 2. Put the result into the curve's equation.\par 3. Solve, then check the top of $\frac{dy}{dx}$ is not $0$.\par 4. The tangent there is vertical: $x = $ the point's $x$.\par Example: $\frac{dy}{dx} = -\frac{x}{y}$ on $x^2 + y^2 = 1$ gives $y = 0$, so $x = 1$ or $x = -1$, and the tangents are $x = 1$ and $x = -1$.}
+\reason{In (a), $\dfrac{dy}{dx} = -\dfrac{2x+y}{x+2y}$. Its bottom is $x + 2y$. We cannot divide by $0$, so the gradient has no value where the bottom is $0$.}
+\[ \chg{x + 2y = 0} \]
+
+\step{Subtract $2y$ from both sides.}
+\reason{On the left, $2y - 2y = 0$, so it disappears. On the right, it appears with a minus sign.}
+\[ x = \chg{-2y} \]
+
+\step{Put $x = -2y$ into the curve's equation $x^2 + xy + y^2 = 12$.}
+\reason{Every $x$ in the curve's equation becomes $(-2y)$.}
+\[ \chg{(-2y)}^2 + \chg{(-2y)}y + y^2 = 12 \]
+
+\step{Square $(-2y)$ and multiply out $(-2y)y$.}
+\side{$(-2y)^2 = 4y^2$, \ and \ $(-2y) \times y = -2y^2$}
+\[ \chg{4y^2} \chg{- 2y^2} + y^2 = 12 \]
+
+\step{Add the $y^2$ terms.}
+\side{$4 - 2 + 1 = 3$}
+\[ \chg{3y^2} = 12 \]
+
+\step{Divide both sides by $3$.}
+\[ y^2 = \chg{4} \]
+
+\step{Take the square root of both sides, keeping both signs.}
+\reason{$2^2 = 4$ and $(-2)^2 = 4$. So both $2$ and $-2$ work.}
+\[ y = \chg{2} \quad\text{or}\quad y = \chg{-2} \]
+
+\step{Find each $x$ from $x = -2y$.}
+\begin{gather*}
+y = 2: \quad x = -2(2) = \chg{-4} \\
+y = -2: \quad x = -2(-2) = \chg{4}
+\end{gather*}
+
+\step{Check the top of $\dfrac{dy}{dx}$, which is $2x + y$, is not $0$ at these points.}
+\begin{gather*}
+(-4,2): \quad 2x + y = -8 + 2 = -6, \ \text{not } 0 \ \checkmark \\
+(4,-2): \quad 2x + y = 8 - 2 = 6, \ \text{not } 0 \ \checkmark
+\end{gather*}
+
+\step{Flip the fraction to see what the curve does there.}
+\reason{$\dfrac{dx}{dy}$ is how fast $x$ changes as $y$ changes. It is $\dfrac{dy}{dx}$ upside down. At both points its top is $0$ and its bottom is not, so $\dfrac{dx}{dy} = 0$. So $x$ does not change while $y$ changes: the curve runs straight up and down.}
+\[ \frac{dx}{dy} = \chg{-\frac{x + 2y}{2x + y}} \]
+
+\step{Write each vertical tangent as $x = $ that point's $x$.}
+\reason{Every point on a vertical line has the same $x$.}
+\[ x = \chg{-4} \quad\text{and}\quad x = \chg{4} \]
 
 \seeit{$C$ is a tilted oval (an ellipse). The grey line $y = -2x$ (top of $\frac{dy}{dx}$ is $0$) crosses it exactly at the two horizontal-tangent points from (b). The grey line $x = -2y$ (bottom of $\frac{dy}{dx}$ is $0$) crosses it at the two vertical-tangent points from (c): the oval's far left and far right.}{%
 \begin{tikzpicture}

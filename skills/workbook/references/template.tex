@@ -12,8 +12,8 @@
 \usepackage{cancel}
 \usepackage{fontawesome5}
 
-% Worked steps: \chg{} marks what changed from the line above.
-\definecolor{chg}{HTML}{D81B60}
+% Worked steps: \chg{} marks what changed from the line above, in red.
+\definecolor{chg}{HTML}{FF0000}
 \newcommand{\chg}[1]{{\color{chg}#1}}
 
 % Graphs: curve blue, tangent orange, normal purple (dashed). Checked colour-blind safe.
@@ -53,18 +53,21 @@
 \newcommand{\src}[1]{\hfill{\small[#1]}}
 % Worked-solution helpers: numbered steps, side notes, the idea, the final answer.
 \newcommand{\idea}[1]{\textit{Idea:} #1}
-% Each question (or section) opens with its recipe box: everything in it can be memorised.
-% Inside it, \formulas lists results to memorise (F1, F2, ...), and \workflows lists fixed
-% workflows (A, B, ..., skipping F so moves never clash with formula IDs) whose moves are A1, A2, ...
-\newcommand{\rulebox}[1]{\par\noindent\fcolorbox{curve}{curve!6}{\parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule}{\textbf{\faReceipt\ Recipe --- memorise this}\par #1}}\par\medskip}
-\newcommand{\formulas}{\par\smallskip\textbf{Formulas to memorise.}\par}
-\newcommand{\workflows}{\par\smallskip\textbf{Workflows (same steps every time).}\par}
-% \recipe{B2}: opens a solution step that runs move B2 of the box, or uses formula F1.
-\newcommand{\recipe}[1]{\fcolorbox{curve}{curve!6}{\footnotesize\faReceipt\ Recipe #1}\ }
+% \recipe{name}{the formula or numbered moves, then one short example}: a box written out in
+% full inside the step that uses it, so the reader never scrolls back for it. A shortcut that
+% does several steps at once goes after them: \recipe{Name: Steps 1 to 4 in one go}{...}.
+\newcommand{\recipe}[2]{\par\smallskip\noindent\fcolorbox{curve}{curve!6}{\parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule}{\color{black}\textbf{\faReceipt\ Recipe --- memorise this: #1}\par #2}}\par\smallskip}
+% First half of a solution: recipes, then \fast{} (the recipe run on this question in 2-4 lines), then \ans{}.
+\newcommand{\fast}[1]{\par\smallskip\textbf{Fast route.}\par #1}
+% Second half: the full steps, for when there is time. Step numbers restart at 1.
+\newcommand{\whyworks}{\par\bigskip\setcounter{stepno}{0}\textbf{Why it works} {\small\textit{(skip if rushing, come back later)}}\par}
 % \choice: a fine-print note at the start of a step that needs a decision.
 \newcommand{\choice}{{\footnotesize\textit{(a choice, not a fixed recipe move)}}\ }
+% \reason{}: the move in words (what cancels, where it goes), with a bar on the left, before the full equation.
+\newcommand{\reason}[1]{\par\smallskip\noindent{\color{curve}\vrule width 2pt}\hspace{6pt}\parbox{\dimexpr\linewidth-8pt}{\color{black}#1}\par}
+% \side{}: a small side sum worked out before the full equation, in a grey box.
+\newcommand{\side}[1]{\par\smallskip\noindent\colorbox{gray!15}{\small\color{black}side sum: #1}\par}
 \newcommand{\step}[1]{\par\medskip\stepcounter{stepno}\textbf{Step \arabic{stepno}.} #1}
-\newcommand{\why}[1]{\qquad\text{\small(#1)}}
 \newcommand{\ans}[1]{\par\medskip\textbf{Answer:} #1}
 % A graph or diagram of the question: what to look at, then the picture.
 \newcommand{\seeit}[2]{\par\medskip\noindent\begin{minipage}{\linewidth}\textbf{See it.} #1\par\smallskip{\centering\color{black}#2\par}\end{minipage}}
