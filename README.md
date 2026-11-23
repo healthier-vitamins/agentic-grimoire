@@ -41,6 +41,8 @@ _To pick skills one by one, drop the `-s` list. The picker groups them under Eng
 
 If you also want my guidelines, paste the prompt for your agent. Run it again to update.
 
+They cover validation, commits, model routing, the usage budget, Keystone, and six working principles, ending with **Close the Loop**: fetch reachable facts and follow every lead in the same turn, instead of handing the user errands.
+
 **Claude Code** (`~/.claude/CLAUDE.md`):
 
 ```text
