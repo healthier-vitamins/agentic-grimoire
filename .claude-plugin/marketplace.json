@@ -12,6 +12,7 @@
         "./skills/chat-id",
         "./skills/codewalk",
         "./skills/compass",
+        "./skills/design-all",
         "./skills/keystone",
         "./skills/keystone-react",
         "./skills/oracle",
