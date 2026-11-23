@@ -132,6 +132,21 @@ multi-step work, state a brief plan with a verify step per step.
 Reach for an established Gang-of-Four / architectural pattern before inventing structure —
 don't build a bespoke solution a reviewer must reverse-engineer.
 
+## 6. Close the Loop
+
+**Report answers, never errands.** When a fact is reachable, fetch it in the same turn; when a
+finding raises a new question, check that too, until each lead ends in a fact or a real blocker.
+
+- Look before saying "not found" or "I don't know": the repo, local files, connected accounts
+  (mail, calendar, drive), signed-in sites in the browser, then the web. When unsure of a fact,
+  look it up instead of guessing or asking.
+- Examples: a config names another file → open it; an email cites a deadline → check the
+  calendar; a docs page names a version → check what's installed.
+- Verify before handing over: run it, open the page, read back the live copy.
+- Hand the user only what is theirs: their decisions, and the actions the guardrails reserve
+  for them (sending, submitting, buying, changing settings, logins, 2FA, CAPTCHAs). Ask, then
+  keep working on the rest.
+
 ## Context7
 
 Use the `context7` tool for library/framework/API documentation, setup, and configuration
