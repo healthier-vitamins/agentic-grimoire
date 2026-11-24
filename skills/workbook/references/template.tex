@@ -67,6 +67,8 @@
 \newcommand{\reason}[1]{\par\smallskip\noindent{\color{curve}\vrule width 2pt}\hspace{6pt}\parbox{\dimexpr\linewidth-8pt}{\color{black}#1}\par}
 % \side{}: a small side sum worked out before the full equation, in a grey box.
 \newcommand{\side}[1]{\par\smallskip\noindent\colorbox{gray!15}{\small\color{black}side sum: #1}\par}
+% \note{}: the 1-4 word reason for one line of an align* block, in its own right-hand column.
+\newcommand{\note}[1]{&&\text{\small #1}}
 \newcommand{\step}[1]{\par\medskip\stepcounter{stepno}\textbf{Step \arabic{stepno}.} #1}
 \newcommand{\ans}[1]{\par\medskip\textbf{Answer:} #1}
 % A graph or diagram of the question: what to look at, then the picture.

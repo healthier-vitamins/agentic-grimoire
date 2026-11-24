@@ -1,0 +1,30 @@
+% Putting a number into an equation: AY2526 Final Q3(c), partial fractions.
+% Copy the pattern, not the maths. \note{} is the right-hand column of an align* line.
+% Equation: x^2 + x + 1 = (Ax+B)(3x+1) + C(x^2+4).
+
+% ---- In \fast{}: the blocks without "Why this value?" or step titles.
+\textbf{$x = -\frac13$.} Left side:
+\begin{align*}
+x^2 + x + 1 &= \tfrac19 - \tfrac13 + 1 \note{put in $x = -\tfrac13$} \\
+&= \tfrac19 - \tfrac39 + \tfrac99 \note{same bottoms} \\
+&= \tfrac79 \note{add the tops}
+\end{align*}
+Right side:
+\begin{align*}
+(Ax+B)\cdot\chg{0} + C\left(\tfrac19 + 4\right) &= C\left(\tfrac19 + \tfrac{36}{9}\right) \note{first term is $0$} \\
+&= \tfrac{37}{9}C \note{add the tops}
+\end{align*}
+Make them equal:
+\begin{align*}
+\tfrac79 = \tfrac{37}{9}C \ \Rightarrow \ C &= \tfrac{7}{37} \note{divide by $\tfrac{37}{9}$}
+\end{align*}
+
+% ---- In \whyworks: the same blocks inside steps, each step opening with its reason.
+\step{\choice Find $B$ by putting in $x = 0$.}
+\reason{Why this value? Every term with an $x$ in it becomes $0$, so $A$ drops out.}
+\begin{align*}
+0 + 0 + 1 &= (A\cdot 0 + B)(3\cdot 0 + 1) + C(0 + 4) \note{put in $x = 0$} \\
+1 &= B + 4C \note{tidy up} \\
+1 &= B + \tfrac{28}{37} \note{$C = \tfrac{7}{37}$} \\
+B &= \tfrac{37}{37} - \tfrac{28}{37} = \tfrac{9}{37} \note{subtract}
+\end{align*}
