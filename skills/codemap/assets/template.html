@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>{{TITLE}} code map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Codewalk's tokens and type: IBM Plex Sans for prose, Plex Mono for code and counts. */
+:root {
+  --bg: #f3f6f5; --card: #ffffff; --fg: #17201f; --muted: #56625f; --line: #d7dfdd;
+  --accent: #0e6f68; --accent-soft: #e1f0ee; --code-bg: #eef2f1;
+  --ok: #1f7a3a; --ok-bg: #e3f3e7;
+  --f-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1514; --card: #172020; --fg: #e4ecea; --muted: #9aa9a5; --line: #2b3735;
+  --accent: #5cc4b9; --accent-soft: #1d3331; --code-bg: #1f2a29;
+  --ok: #7fd897; --ok-bg: #173323;
+  color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0f1514; --card: #172020; --fg: #e4ecea; --muted: #9aa9a5; --line: #2b3735;
+  --accent: #5cc4b9; --accent-soft: #1d3331; --code-bg: #1f2a29;
+  --ok: #7fd897; --ok-bg: #173323;
+  color-scheme: dark }
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--f-body); font-size: 16px; line-height: 1.5; overflow-x: hidden; }
+.page { max-width: 860px; margin: 0 auto; padding: calc(env(safe-area-inset-top, 0px) + 32px) max(16px, env(safe-area-inset-right, 0px)) 64px max(16px, env(safe-area-inset-left, 0px)); }
+h1, h2, h3, p { margin: 0; }
+a { color: var(--accent); }
+button { font: inherit; }
+code, .where, .size, .slug, .n { font-family: var(--f-mono); }
+
+/* Root of the map: the project, its counts, and the one page-wide action. */
+.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 20px; padding-bottom: 20px; }
+.top h1 { font-size: 1.9rem; line-height: 1.15; font-weight: 600; overflow-wrap: anywhere; }
+.top p { color: var(--muted); font-size: 0.9rem; margin-top: 6px; }
+.copy { color: var(--accent); background: none; border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; cursor: pointer; font-family: var(--f-mono); font-size: 0.82rem; min-height: 40px; }
+.copy:hover { background: var(--accent-soft); }
+.copy.done { color: var(--ok); border-color: var(--ok); background: var(--ok-bg); }
+.copy:focus-visible, summary:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* The mindmap: one rail from the root to each area, one rail from each area to its sections. */
+.map, .branch { list-style: none; margin: 0; padding: 0; }
+.map { border-left: 2px solid var(--line); margin-left: 4px; }
+.area { position: relative; padding: 0 0 22px 20px; }
+.area::before { content: ""; position: absolute; left: 0; top: 0.8em; width: 14px; border-top: 2px solid var(--line); }
+.area:last-child { background: linear-gradient(var(--bg), var(--bg)) 0 calc(0.8em + 2px) / 2px 100% no-repeat; margin-left: -2px; padding-left: 22px; }
+.area h2 { font-size: 1.05rem; font-weight: 600; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+.size { color: var(--muted); font-size: 0.75rem; font-weight: 400; white-space: nowrap; }
+.branch { border-left: 1px solid var(--line); margin: 8px 0 0 4px; }
+.node { position: relative; padding: 4px 0 4px 16px; scroll-margin-top: 16px; }
+.node::before { content: ""; position: absolute; left: 0; top: 26px; width: 12px; border-top: 1px solid var(--line); }
+.node:last-child { background: linear-gradient(var(--bg), var(--bg)) 0 27px / 1px 100% no-repeat; margin-left: -1px; padding-left: 17px; }
+
+/* A section: summary is the node; opening it shows what a codewalk of it would start from. */
+details { background: var(--card); border: 1px solid var(--line); border-radius: 10px; min-width: 0; }
+details[open] { border-color: var(--accent); }
+summary { list-style: none; cursor: pointer; padding: 10px 14px; display: flex; flex-direction: column; gap: 2px; border-radius: 10px; }
+summary::-webkit-details-marker { display: none; }
+summary:hover .slug { color: var(--accent); }
+.head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 2px 12px; }
+.head .size { padding-left: 1.1em; }
+.slug { font-weight: 500; font-size: 0.92rem; overflow-wrap: anywhere; }
+.slug::before { content: "▸"; display: inline-block; width: 1.1em; color: var(--muted); transition: transform .15s; }
+details[open] .slug::before { transform: rotate(90deg); }
+.job { color: var(--muted); font-size: 0.92rem; padding-left: 1.1em; text-wrap: pretty; }
+.badges { display: flex; flex-wrap: wrap; gap: 6px; padding: 4px 0 0 1.1em; }
+.badge { font-family: var(--f-mono); font-size: 0.75rem; padding: 1px 9px; border-radius: 99px; color: var(--muted); background: var(--code-bg); text-decoration: none; }
+.badge.walked { color: var(--ok); background: var(--ok-bg); }
+.badge.walked:hover { text-decoration: underline; }
+
+.body { padding: 4px 14px 14px; display: flex; flex-direction: column; gap: 14px; border-top: 1px solid var(--line); margin: 0 0 0; padding-top: 12px; }
+.body h3 { font-size: 0.75rem; font-weight: 500; color: var(--muted); font-family: var(--f-mono); margin-bottom: 4px; }
+.refs { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.refs li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 12px; min-width: 0; }
+.refs code { font-size: 0.85rem; overflow-wrap: anywhere; }
+.where { font-size: 0.75rem; color: var(--muted); overflow-wrap: anywhere; min-width: 0; }
+.files .where { color: var(--fg); font-size: 0.8rem; }
+.n { font-size: 0.75rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.more { color: var(--muted); font-size: 0.8rem; }
+.links p { display: flex; flex-wrap: wrap; gap: 6px; }
+.links a { font-family: var(--f-mono); font-size: 0.78rem; padding: 2px 9px; border-radius: 6px; background: var(--accent-soft); text-decoration: none; }
+.links a:hover { text-decoration: underline; }
+.walked-line { font-size: 0.9rem; }
+.body .copy { align-self: flex-start; }
+
+/* A statechart: boxes from the scanned enum or column, arrows from the cited moves. */
+.statechart { margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.statechart figcaption { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 12px; }
+.statechart figcaption h3 { margin: 0; }
+.chart { max-width: 100%; height: auto; align-self: center; }
+.chart rect.state { fill: var(--code-bg); stroke: var(--muted); stroke-width: 1; }
+.chart rect.final { stroke-width: 2.2; }
+.chart text { font-family: var(--f-mono); font-size: 12px; fill: var(--fg); text-anchor: middle; dominant-baseline: central; }
+.chart path { fill: none; stroke: var(--muted); stroke-width: 1.2; }
+.chart marker path { fill: var(--muted); stroke: none; }
+.chart .start { fill: var(--fg); }
+.moves { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.moves li { display: grid; grid-template-columns: minmax(0, 13em) minmax(0, 1fr); gap: 0 12px; padding: 5px 0; border-top: 1px solid var(--line); font-size: 0.85rem; }
+.move { font-family: var(--f-mono); font-size: 0.8rem; overflow-wrap: anywhere; white-space: nowrap; }
+@media (max-width: 600px) { .move { white-space: normal; } }
+.moves .where { grid-column: 2; }
+@media (max-width: 600px) {
+  .top h1 { font-size: 1.5rem; }
+  .moves li { grid-template-columns: minmax(0, 1fr); }
+  .moves .where { grid-column: 1; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .slug::before { transition: none; } }
+</style>
+</head>
+<body>
+<div class="page">
+<header class="top">
+  <div><h1>{{TITLE}}</h1><p>{{META}}</p></div>
+  <button class="copy" type="button" id="copy-all">Copy map as text</button>
+</header>
+<nav aria-label="Code map"><ul class="map">{{AREAS}}</ul></nav>
+</div>
+<script>
+var MAP_TEXT = {{TEXT_JSON}};
+
+// Clipboard API first; a hidden textarea where the page has no clipboard permission.
+function copyText(text, button) {
+  var label = button.textContent;
+  function done() {
+    button.textContent = 'Copied';
+    button.classList.add('done');
+    setTimeout(function () { button.textContent = label; button.classList.remove('done'); }, 2000);
+  }
+  function fallback() {
+    var area = document.createElement('textarea');
+    area.value = text;
+    area.style.position = 'fixed';
+    area.style.opacity = '0';
+    document.body.appendChild(area);
+    area.select();
+    document.execCommand('copy');
+    area.remove();
+    done();
+  }
+  if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, fallback);
+  else fallback();
+}
+
+document.getElementById('copy-all').addEventListener('click', function (event) {
+  copyText(MAP_TEXT, event.currentTarget);
+});
+document.querySelectorAll('button[data-prompt]').forEach(function (button) {
+  button.addEventListener('click', function () { copyText(button.dataset.prompt, button); });
+});
+
+// A "Uses" link opens the section it names before the page scrolls to it.
+function openFromHash() {
+  var node = location.hash && document.getElementById(decodeURIComponent(location.hash.slice(1)));
+  if (node) node.querySelector('details').open = true;
+}
+window.addEventListener('hashchange', openFromHash);
+openFromHash();
+</script>
+</body>
+</html>

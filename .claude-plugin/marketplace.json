@@ -10,6 +10,7 @@
       "strict": false,
       "skills": [
         "./skills/chat-id",
+        "./skills/codemap",
         "./skills/codewalk",
         "./skills/compass",
         "./skills/design-all",
