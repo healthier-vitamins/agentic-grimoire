@@ -1,6 +1,6 @@
 ---
 name: sketchbook
-description: Turn any situation (a trip plan, a wedding admin board, a CRM, a timetable) into clickable UI drafts to compare, each built on the interaction pattern the workflow fits, routed to the design skill best at that kind of work.
+description: Brainstorm and research the best UI/UX for any scenario (a trip plan, a wedding admin board, a CRM, a timetable). Ranks well-known interaction patterns against the workflow, studies real products when none fits, and hands back clickable drafts to compare, each checked against UX rules in a real browser.
 argument-hint: "[the situation | files or a chat export | an existing plan folder plus new material | a repo or page to redesign]"
 disable-model-invocation: true
 ---
