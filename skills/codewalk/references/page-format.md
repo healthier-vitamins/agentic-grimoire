@@ -44,8 +44,8 @@ project root, with `/` separators. Lines are 1-based.
   step's values and `run`; `where`, `what` and `why` open with one tap.
 - `call` — optional. Anchors the step to the Nth call (1-based) of the function around `from`.
   Without it, the step anchors to the first call that runs its lines. Set it when that first
-  call is not the one the step is about: a function that runs for the owner and then for a
-  stranger needs `"call": 2` on the stranger's step.
+  call is not the one the step is about: a function that fails once and then succeeds on a
+  retry needs `"call": 2` on the step about the retry.
 - `came_in`, `went_out` — optional names from the step's values. The workflow's first and last
   screens show them as what came in and what went out, with their values. The build fails on a
   name the step's values lack.

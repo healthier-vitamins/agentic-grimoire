@@ -13,7 +13,7 @@ make sense alone.
 - `title` — at most 6 words. It names what this code does: "The route checks the request".
   The bar at the top names the chapter; the title names the step.
 - `gist` — one sentence of at most 20 words, shown bold: what this step does in this run, with
-  one real value. "The owner's 'hello' finds its live session; it is not a command."
+  one real value. "The second try of chunk 2 succeeds after the first timed out."
 - `where` — **Where you are.** What ran just before this step, which function this is, and
   its job in the whole workflow. Name the previous step's result that this code receives.
 - `what` — **What the code does.** The lines in order, one sentence each for the important

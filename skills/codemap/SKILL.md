@@ -18,7 +18,7 @@ it never runs a codewalk itself.
 
 ## Vocabulary
 
-- **Area**: a top-level branch of the map, a group of sections (Turn path, Delivery).
+- **Area**: a top-level branch of the map, a group of sections (Checkout, Payments).
 - **Section**: one unit a single codewalk can cover: a job, entry points, files. Its
   **slug** is the codewalk's folder name.
 - **Facts**: what `scan.py` computes: files, line counts, symbols with lines, imports,

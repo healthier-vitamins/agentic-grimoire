@@ -136,8 +136,8 @@ uv run <skill>/scripts/build.py --root <project> --title "<title>" --section <sl
 
 The build checks Step 7's walkthroughs and prints each step's anchor: its function, which
 call of how many, the stop, and that call's arguments. Read each anchor against the step's
-`run` text. When a step anchored to the wrong call (the owner's message where the step is about
-a stranger's tap), add `"call": N` to the step and build again. It also hides secrets (secret-named variables and fields, key-shaped
+`run` text. When a step anchored to the wrong call (the first try where the step is about
+the retry), add `"call": N` to the step and build again. It also hides secrets (secret-named variables and fields, key-shaped
 strings, secret environment values), and writes `.codewalk/<section>/page.html`. The page shows the
 first 20,000 characters of each value; every value in full goes to `.codewalk/<section>/texts.json`,
 and each variable's "ask" link copies a question naming its place there. It fails over

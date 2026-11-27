@@ -6,25 +6,25 @@ each citation below against the code. One problem → one line on stderr, exit 1
 
 ```json
 {
-  "title": "familiar",
+  "title": "shop",
   "areas": [
     {
-      "name": "Turn path",
+      "name": "Checkout",
       "sections": [
         {
-          "slug": "gateway-turn",
-          "job": "Stores each owner message once, queues it as a turn, runs it and queues the reply",
-          "files": ["src/familiar/gateway.py", "src/familiar/mcp_bridge/"],
-          "entry_points": ["src/familiar/gateway.py::Gateway.tick"],
+          "slug": "place-order",
+          "job": "Turns a cart into an order, holds the stock and asks for payment",
+          "files": ["src/shop/checkout.py", "src/shop/orders/"],
+          "entry_points": ["src/shop/checkout.py::Checkout.place"],
           "statecharts": [
             {
-              "name": "a turn",
-              "states_from": "src/familiar/session_store.py:44",
+              "name": "an order",
+              "states_from": "src/shop/orders/model.py:12",
               "transitions": [
-                {"from": "*", "to": "queued", "at": "src/familiar/session_store.py:444",
-                 "when": "an owner message starts a turn"},
-                {"from": "queued", "to": "running", "at": "src/familiar/session_store.py:254",
-                 "when": "no other turn of the session is running"}
+                {"from": "*", "to": "pending", "at": "src/shop/orders/store.py:40",
+                 "when": "the cart is placed"},
+                {"from": "pending", "to": "paid", "at": "src/shop/orders/store.py:71",
+                 "when": "the payment succeeds"}
               ]
             }
           ]

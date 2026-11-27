@@ -147,7 +147,7 @@ def python_module_index(paths: list[str]) -> dict[str, str]:
     """Dotted module name -> file. A leading folder that is not a package (no `__init__.py`,
     like `src`) is dropped, the way it is dropped from `sys.path` imports.
 
-    Example: `src/familiar/gateway.py` -> {"src.familiar.gateway", "familiar.gateway"}.
+    Example: `src/shop/checkout.py` -> {"src.shop.checkout", "shop.checkout"}.
     """
     packages = {
         str(Path(path).parent) for path in paths if path.endswith("__init__.py")
@@ -258,8 +258,8 @@ def _package_of(path: str, modules: dict[str, str]) -> str:
 def _imported_names(tree: ast.Module, package: str) -> list[str]:
     """Each import as the most specific module name that could hold it.
 
-    Example: in package `familiar`, `from .memory import Memory` yields `familiar.memory.Memory`
-    and `familiar.memory`; the caller keeps whichever is a project file.
+    Example: in package `shop`, `from .cart import Cart` yields `shop.cart.Cart`
+    and `shop.cart`; the caller keeps whichever is a project file.
     """
     names = []
     for node in ast.walk(tree):
