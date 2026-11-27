@@ -1,13 +1,13 @@
 ---
 name: design-all
 description: Turn any situation (a trip plan, a wedding admin board, a CRM, a timetable) into clickable UI drafts to compare, each built on the interaction pattern the workflow fits, routed to the design skill best at that kind of work.
-argument-hint: "[the situation | files or a chat export | a repo or page to redesign]"
+argument-hint: "[the situation | files or a chat export | an existing plan folder plus new material | a repo or page to redesign]"
 disable-model-invocation: true
 ---
 
 Goal: drafts the user can click through and compare. Each draft is built on the **pattern** that fits the work. Style comes second.
 
-A **pattern** is the arrangement the user acts through: a table, a kanban, a week grid, a map. Say *pattern*. *Board* means one of corkboard's boards. The catalog is [`references/patterns.md`](references/patterns.md).
+A **pattern** is the arrangement the user acts through: a table, a kanban, a week grid, a map. Say *pattern*. *Board* means one of the plan-board route's boards. The catalog is [`references/patterns.md`](references/patterns.md).
 
 ## 1. Brief
 
@@ -35,7 +35,7 @@ If the situation is a new idea with nothing to look up, suggest the user run `/g
 
 | The situation | Route |
 |---|---|
-| A plan built from a pile of material (chat export, sheets, notes) | `corkboard`. It ranks its own boards and enforces provenance. Its hand-off is the report. Stop here. |
+| A plan built from a pile of material (chat export, sheets, notes) | The plan-board route in [`references/plan-boards.md`](references/plan-boards.md), formerly `corkboard`. It ranks its own boards and enforces provenance. Its hand-off is the report. Stop here. |
 | Places to go near where someone stays, or an itinerary | `travel-field-guide`. Its hand-off is the report. Stop here. |
 | A marketing, company or landing site | `design-taste-frontend`, given the brief. Stop here. |
 | Anything else: an app, a throwaway template, a tool | Step 3. |

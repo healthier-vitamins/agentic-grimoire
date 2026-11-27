@@ -26,10 +26,10 @@
     },
     {
       "name": "personal",
-      "description": "Optional skills for life outside code: revision sheets and plan boards.",
+      "description": "Optional skills for life outside code: revision sheets.",
       "source": "./",
       "strict": false,
-      "skills": ["./skills/corkboard", "./skills/workbook"]
+      "skills": ["./skills/workbook"]
     }
   ]
 }

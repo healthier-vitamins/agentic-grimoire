@@ -1,11 +1,8 @@
----
-name: corkboard
-description: Pin a pile of planning material (a chat export, spreadsheets, notes) to interactive boards (overview, timeline, decisions, kanban, moodboard) chosen to fit the data, with a Notion-style page per item. Every pin is evidence from the sources.
-argument-hint: "[corpus files or links | an existing plan folder plus new material]"
-disable-model-invocation: true
----
+# Plan-board route
 
-Goal: a **corkboard**, one page where a plan's items are pinned as cards, its numbers are drawn as charts, and each card opens into its own page (popup, then Expand to a full page, or New tab). The plan is shown on the boards its data earns, picked from a catalog of well-known formats in [`references/boards.md`](references/boards.md):
+Step 2 of `SKILL.md` sends a plan built from a pile of material here. This route was the `corkboard` skill; its code lives in this skill's `assets/` and `scripts/`, and `<design-all-dir>` is the folder holding `SKILL.md`.
+
+Goal: a **corkboard**, one page where a plan's items are pinned as cards, its numbers are drawn as charts, and each card opens into its own page (popup, then Expand to a full page, or New tab). The plan is shown on the boards its data earns, picked from a catalog of well-known formats in [`references/boards.md`](boards.md):
 
 - **Overview**: the whole plan for whoever runs it. Headline numbers, a milestone strip, one tile per group with progress, next date and what's stuck.
 - **Timeline**: a Gantt chart on a true date axis, empty stretches folded into marked breaks.
@@ -16,7 +13,7 @@ Goal: a **corkboard**, one page where a plan's items are pinned as cards, its nu
 
 Every board zooms: far out it shows summaries, and a click on one zooms into it.
 
-The code is fixed: `assets/` holds the boards, the item page and the charts; `scripts/build.py` combines them with the plan. Each run writes only data: `plan.json` and the evidence in `media/`. Scripts run from the folder holding `<plan-slug>/`, as `<skill-dir>/scripts/<name>.py`.
+The code is fixed: `assets/` holds the boards, the item page and the charts; `scripts/build.py` combines them with the plan. Each run writes only data: `plan.json` and the evidence in `media/`. Scripts run from the folder holding `<plan-slug>/`, as `<design-all-dir>/scripts/<name>.py`.
 
 ## Ground rule: provenance
 
@@ -41,7 +38,7 @@ The two misses this rule exists for, both from a trip board: generic photos pinn
 
    **Done when:** every source has been read end to end and is listed in `plan.sources` with the date it was read.
 
-2. **Write `plan.json`** in `<plan-slug>/` under the current working directory, to the contract in [`references/plan-schema.md`](references/plan-schema.md). Every decision, booking, task and open question becomes an item. Copy facts as the source writes them (dates, prices, names); quotes are verbatim with who and when. Groups, icons, links between items and `onDay` mappings are your reading; keep a list of them for the hand-off.
+2. **Write `plan.json`** in `<plan-slug>/` under the current working directory, to the contract in [`references/plan-schema.md`](plan-schema.md). Every decision, booking, task and open question becomes an item. Copy facts as the source writes them (dates, prices, names); quotes are verbatim with who and when. Groups, icons, links between items and `onDay` mappings are your reading; keep a list of them for the hand-off.
 
    Mark the dates the plan turns on `milestone: true`, and every choice still being argued, or settled after argument, as a `decision` with its options and who backs each. These feed the Overview, Timeline and Decisions boards; an unmarked plan gets none of them.
 
@@ -49,7 +46,7 @@ The two misses this rule exists for, both from a trip board: generic photos pinn
 
 3. **Collect evidence** into `media/`, one `media/media.json` entry per file (fields in the schema reference):
    - Photos and videos in the corpus: `kind: "photo"` / `"video"`.
-   - The item's own web page: `uv run --with playwright python -I <skill-dir>/scripts/capture.py <url> <plan-slug>/media/<key>.png [--selector CSS]`. It prints the entry's source fields. A page behind a login, a script wall or a bot check: screenshot it in a real browser (the Neko browser MCP where available).
+   - The item's own web page: `uv run --with playwright python -I <design-all-dir>/scripts/capture.py <url> <plan-slug>/media/<key>.png [--selector CSS]`. It prints the entry's source fields. A page behind a login, a script wall or a bot check: screenshot it in a real browser (the Neko browser MCP where available).
    - A named landmark or place: a Commons photo, `kind: "commons"`, with credit, licence and the file page URL.
 
    Open every image. A cookie wall, an error page, a "no article by this name" page, or a different place is not evidence: recapture or drop it.
@@ -63,8 +60,8 @@ The two misses this rule exists for, both from a trip board: generic photos pinn
 5. **Build and look.**
 
    ```sh
-   uv run --with pillow python -I <skill-dir>/scripts/build.py <plan-slug>
-   uv run --with playwright python -I <skill-dir>/scripts/check.py <plan-slug>
+   uv run --with pillow python -I <design-all-dir>/scripts/build.py <plan-slug>
+   uv run --with playwright python -I <design-all-dir>/scripts/check.py <plan-slug>
    ```
 
    `build.py` prints every rule break at once; fix them all and rebuild. It then prints the board ranking with each board's reason and builds the top four. Set `plan.boards` only to overrule the ranking, and say why in the hand-off. `check.py` shoots every built board, a popup and a full page at desktop (light) and phone (dark) into `<plan-slug>/check/`.
