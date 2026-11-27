@@ -21,7 +21,13 @@ Look up the facts before asking anything: the files, the repo, the chat export, 
 - **Data shape**: each noun with a rough count, and which of these it carries: dates, states, places, people, money, a parent, a picture.
 - **Who and how often**: the users, how often they use it, and on which device.
 
-Ask only what the sources can't answer and what would change the pattern. That is at most 4 questions, in one round, each with your recommended answer. Zero questions is the target. If you skip a question, write its answer into the brief as an assumption.
+Ask only what the sources can't answer and what would change the pattern, the density or the medium. That is at most 4 questions, in one round, each with your recommended answer. Zero questions is the target. If you skip a question, write its answer into the brief as an assumption. Beyond the brief's four fields, the questions worth asking are:
+
+- what the user must read at a glance on the landing view;
+- whether a brand or design system already exists;
+- accessibility needs (screen reader, low vision, one-handed phone use).
+
+If the situation is a new idea with nothing to look up, suggest the user run `/grilling` (or `/grill-with-docs` inside a codebase with a glossary) first, then come back.
 
 **Done when:** the brief is one paragraph naming the kind, core job, nouns with counts, frequency and device. Every fact names its source or is marked *assumed*.
 
@@ -39,6 +45,8 @@ Ask only what the sources can't answer and what would change the pattern. That i
 ## 3. Rank the patterns
 
 Score every pattern in the catalog against the brief, using the catalog's scoring rule. Print the ranking as a table with columns for pattern, score, and a reason that quotes the brief. Pick the **primary** pattern, the one that carries the core job. Add up to two **secondary** patterns for the next-most-frequent jobs. An app almost always pairs its primary pattern with a record page.
+
+If no pattern scores 7 or more, the catalog fits badly. Before drafting, look at 2 or 3 real products that do the core job, and note the arrangement each uses for it. Score that arrangement as an extra row, citing the products.
 
 **Done when:** every catalog row has a score or a "ruled out by" reason, and the core job maps to exactly one primary pattern.
 
@@ -68,7 +76,9 @@ Every draft:
 
 Open every draft in a real browser (Playwright, or the Neko browser MCP) at 1280 px and at 390 px. Do the core job by clicking, then screenshot each width and view each shot.
 
-**Done when:** for every draft at both widths, the core job completed and the shot was viewed, with no clipped text, overlaps, horizontal scroll or dead controls. Fix any failure and recheck it.
+Then review each shot as a UX reviewer would. Go back through the `ui-ux-pro-max` rules from step 4 as a checklist, and check WCAG AA text contrast (4.5:1, 3:1 for large text) and tap targets of at least 44 px at 390 px.
+
+**Done when:** for every draft at both widths, the core job completed and the shot was viewed, with no clipped text, overlaps, horizontal scroll or dead controls, and no failed UX rule, contrast or tap target. Fix any failure and recheck it.
 
 ## 6. Hand off
 
