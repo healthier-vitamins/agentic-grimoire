@@ -5,12 +5,13 @@
 """Build the codewalk page: every workflow's walkthrough beside its recording, and the source
 of every file they touch, inlined into one HTML file.
 
-    uv run build.py --root <project> --title "Upload retry"
+    uv run build.py --root <project> --title "Upload retry" [--section <slug>]
 
-Reads  <root>/.codewalk/walkthrough/<workflow>.json   (the agent writes it)
-       <root>/.codewalk/recordings/<workflow>.json    (a recorder writes it)
-Writes <root>/.codewalk/page.html, and prints every variable it hid.
-Both inputs are specified in `references/page-format.md`.
+Reads  <out>/walkthrough/<workflow>.json   (the agent writes it)
+       <out>/recordings/<workflow>.json    (a recorder writes it)
+Writes <out>/page.html and <out>/texts.json, where <out> is <root>/.codewalk/<slug>, or
+<root>/.codewalk without --section. Prints where each walkthrough step anchored, and every
+variable it hid. Both inputs are specified in `references/page-format.md`.
 """
 
 from __future__ import annotations
@@ -35,14 +36,25 @@ TEMPLATE = Path(__file__).resolve().parent.parent / "assets" / "template.html"
 STEP_KINDS = ["call", "line", "await", "yield", "resume", "return", "raise", "unwind"]
 GONE = -1
 HIDDEN = "<hidden>"
+_CHAPTER_STEPS = 7  # most steps one chapter may hold
+_STEP_TEXTS = (
+    "title",
+    "gist",
+    "where",
+    "what",
+    "run",
+)  # every step needs these; `why` is optional
 _SIZE_LIMIT = 14 * 1024 * 1024  # bytes; an artifact holds 16 MB
 # Characters of one value the page shows; the rest stays in .codewalk/texts.json, which the
 # page's "ask" link names, so a Claude Code session in the project can read the exact value.
 _PAGE_TEXT_LIMIT = 20_000
-# Name parts that mark a secret. `key` alone is a loop variable far more often than a secret,
-# so it counts only as a suffix: `api_key`, `privateKey`.
+# Name parts that mark a secret.
 _SECRET_PARTS = {"token", "secret", "password", "passwd", "pwd", "auth", "authorization",
                  "credential", "credentials", "cookie", "apikey", "jwt", "bearer"}  # fmt: skip
+# `key` marks a secret only after one of these words (`api_key`, `privateKey`): most names that
+# end in `key` (`cache_key`, `idempotency_key`, `session_key`) are lookup keys, not secrets.
+_SECRET_KEY_KINDS = {"api", "private", "secret", "access", "signing", "encryption", "client",
+                     "master", "license", "service", "account", "ssh", "hmac", "app"}  # fmt: skip
 # A quoted value printed after a name, inside a bigger value: `api_key='…'`, `"token": "…"`.
 _QUOTED_FIELD = re.compile(r"""(\w+)(['"]?\s*[=:]\s*)('[^'\n]+'|"[^"\n]+")""")
 # Credentials recognisable by shape alone, whatever holds them.
@@ -59,32 +71,37 @@ class BuildError(Exception):
 def main(argv: list[str] | None = None) -> int:
     args = _parse_args(argv)
     root = Path(args.root).resolve()
+    out_dir = root / ".codewalk" / (args.section or "")
+    texts_path = out_dir.relative_to(root).as_posix() + "/texts.json"
     try:
-        workflows = _load_workflows(root / ".codewalk")
+        workflows = _load_workflows(out_dir)
         files = _source_files(root, workflows)
         problems = [
             problem
             for workflow in workflows
-            for problem in _range_problems(files, workflow)
+            for problem in _walkthrough_problems(files, workflow)
         ]
         if problems:
             raise BuildError("\n".join(problems))
+        hidden = _hide_secrets(workflows)
+        for workflow in workflows:
+            _anchor_steps(workflow)
     except BuildError as error:
         print(f"build failed:\n{error}", file=sys.stderr)
         return 1
-    hidden = _hide_secrets(workflows)
     data = _page_data(files, workflows)
     texts = data["texts"]
-    data["texts"] = [_page_text(text) for text in texts]
+    data["texts"] = [_page_text(text, texts_path) for text in texts]
+    data["texts_path"] = texts_path
     page = _render(args.title, data)
     size = len(page.encode())
     if size > _SIZE_LIMIT:
         print(f"build failed: page is {size / 1e6:.1f} MB, over 14 MB. Narrow --watch and re-record.",
               file=sys.stderr)  # fmt: skip
         return 1
-    out = root / ".codewalk" / "page.html"
+    out = out_dir / "page.html"
     out.write_text(page)
-    (root / ".codewalk" / "texts.json").write_text(json.dumps(texts))
+    (out_dir / "texts.json").write_text(json.dumps(texts))
     print(f"{out}: {len(workflows)} workflow(s), {size / 1e6:.1f} MB")
     print("hidden: " + (", ".join(sorted(hidden)) if hidden else "nothing"))
     return 0
@@ -96,6 +113,10 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
         "--root", required=True, help="the project root holding .codewalk/"
     )
     parser.add_argument("--title", required=True, help="the page title")
+    parser.add_argument(
+        "--section",
+        help="the codemap section slug: read and write .codewalk/<slug>/ instead of .codewalk/",
+    )
     return parser.parse_args(argv)
 
 
@@ -143,7 +164,7 @@ def _source_files(root: Path, workflows: list[dict[str, Any]]) -> dict[str, Path
         staged = set(recording.get("staged", []))
         paths = (
             *(frame["path"] for frame in recording["frames"]),
-            *(step["path"] for step in walkthrough.get("steps", [])),
+            *(step["path"] for step in _steps(walkthrough)),
             *(function["path"] for function in walkthrough.get("functions", [])),
         )
         for path in paths:
@@ -156,9 +177,20 @@ def _source_files(root: Path, workflows: list[dict[str, Any]]) -> dict[str, Path
     return files
 
 
-def _range_problems(files: dict[str, Path], workflow: dict[str, Any]) -> list[str]:
-    """Every walkthrough range lies inside a file the recording ran, and every function and
-    breakpoint names real code."""
+def _steps(walkthrough: dict[str, Any]) -> list[dict[str, Any]]:
+    """Every walkthrough step in reading order, across its chapters."""
+    return [
+        step
+        for chapter in walkthrough.get("chapters", [])
+        for step in chapter.get("steps", [])
+    ]
+
+
+def _walkthrough_problems(
+    files: dict[str, Path], workflow: dict[str, Any]
+) -> list[str]:
+    """Every chapter holds 1 to 7 steps, every step has its texts and a range inside a file the
+    recording ran, and every function and breakpoint names real code."""
     key, walkthrough, recording = (
         workflow["key"],
         workflow["walkthrough"],
@@ -166,13 +198,38 @@ def _range_problems(files: dict[str, Path], workflow: dict[str, Any]) -> list[st
     )
     ran = {frame["path"] for frame in recording["frames"]}
     called = {frame["function"] for frame in recording["frames"]}
+    chapters = walkthrough.get("chapters")
+    if not isinstance(chapters, list) or not chapters:
+        return [f"{key}: needs `chapters`, a list of {{title, steps}}"]
     problems = []
-    for number, step in enumerate(walkthrough.get("steps", []), start=1):
-        where = f"{key} step {number} ({step['path']}:{step['from']}-{step['to']})"
-        if step["path"] not in ran:
-            problems.append(f"{where}: the recording never ran this file")
-        elif not 1 <= step["from"] <= step["to"] <= _line_count(files[step["path"]]):
-            problems.append(f"{where}: the range is outside the file")
+    for chapter_number, chapter in enumerate(chapters, start=1):
+        steps = chapter.get("steps", [])
+        if not chapter.get("title"):
+            problems.append(f"{key} chapter {chapter_number}: needs a title")
+        if not 1 <= len(steps) <= _CHAPTER_STEPS:
+            problems.append(
+                f"{key} chapter {chapter_number}: has {len(steps)} steps; give it 1 to "
+                f"{_CHAPTER_STEPS}, and split a longer one into two chapters"
+            )
+        for step_number, step in enumerate(steps, start=1):
+            where = f"{key} step {chapter_number}.{step_number} ({step['path']}:{step['from']}-{step['to']})"
+            missing = [name for name in _STEP_TEXTS if not step.get(name)]
+            if missing:
+                problems.append(f"{where}: needs {', '.join(missing)}")
+            if "caption" in step:
+                problems.append(
+                    f"{where}: `caption` is replaced by `where`, `what`, `run`, `why`"
+                )
+            if "call" in step and not (
+                isinstance(step["call"], int) and step["call"] >= 1
+            ):
+                problems.append(f"{where}: `call` must be a whole number from 1")
+            if step["path"] not in ran:
+                problems.append(f"{where}: the recording never ran this file")
+            elif (
+                not 1 <= step["from"] <= step["to"] <= _line_count(files[step["path"]])
+            ):
+                problems.append(f"{where}: the range is outside the file")
     for function in walkthrough.get("functions", []):
         if not files[function["path"]].is_file():
             problems.append(
@@ -186,6 +243,141 @@ def _range_problems(files: dict[str, Path], workflow: dict[str, Any]) -> list[st
 
 def _line_count(path: Path) -> int:
     return len(path.read_text().splitlines())
+
+
+# ---- anchor each walkthrough step to one call -------------------------------------------------
+
+
+def _anchor_steps(workflow: dict[str, Any]) -> None:
+    """Give each walkthrough step its stop (`anchor`, a recording step index, or None when its
+    lines never ran) and its `values`, then print which call it anchored to, with that call's
+    arguments, so the walkthrough's author can check the step shows the call they meant.
+
+    A step's call is the `call`-th call (1-based) of the function around `from`; without
+    `call`, the first call that runs the step's lines. The stop is that call's first step on
+    the step's lines. The values are that call's variables once it has run the step's last
+    line it reaches, plus its return value unless that is None.
+    """
+    key, recording = workflow["key"], workflow["recording"]
+    frames, steps, values = recording["frames"], recording["steps"], recording["values"]
+    problems = []
+    for chapter_number, chapter in enumerate(
+        workflow["walkthrough"]["chapters"], start=1
+    ):
+        for step_number, step in enumerate(chapter["steps"], start=1):
+            label = f'{key} {chapter_number}.{step_number} "{step["title"]}"'
+            calls = _calls_of_owner(frames, steps, step)
+            hits = {
+                frame: [
+                    index
+                    for index in indexes
+                    if step["from"] <= steps[index][1] <= step["to"]
+                ]
+                for frame, indexes in calls.items()
+            }
+            ran = [frame for frame in calls if hits[frame]]
+            if "call" in step:
+                if step["call"] > len(calls):
+                    problems.append(
+                        f"{label}: `call` is {step['call']}, but the function around line "
+                        f"{step['from']} was called {len(calls)} time(s)"
+                    )
+                    continue
+                frame = list(calls)[step["call"] - 1]
+                if not hits[frame]:
+                    problems.append(
+                        f"{label}: call {step['call']} never ran lines {step['from']}-{step['to']}"
+                    )
+                    continue
+            elif ran:
+                frame = ran[0]
+            else:
+                step["anchor"], step["values"] = None, []
+                print(
+                    f"{label}: lines {step['from']}-{step['to']} never ran; no stop, no values"
+                )
+                continue
+            step["anchor"] = hits[frame][0]
+            step["values"] = _values_after(steps, values, calls[frame], hits[frame][-1])
+            shown = {name for name, _value in step["values"]}
+            for name in (*step.get("came_in", []), *step.get("went_out", [])):
+                if name not in shown:
+                    problems.append(
+                        f"{label}: `{name}` in came_in/went_out is not among its values: "
+                        f"{', '.join(sorted(shown)) or 'none'}"
+                    )
+            number = list(calls).index(frame) + 1
+            print(
+                f"{label}: {frames[frame]['function']} call {number} of {len(calls)}, "
+                f"stop at recording step {step['anchor'] + 1}; arguments: "
+                f"{_arguments(steps[calls[frame][0]], values)}"
+            )
+    if problems:
+        raise BuildError("\n".join(problems))
+
+
+def _calls_of_owner(
+    frames: list[dict[str, Any]], steps: list[list[Any]], step: dict[str, Any]
+) -> dict[int, list[int]]:
+    """Each call of the innermost recorded function around the step's `from` line, in call
+    order, with the indexes of its recording steps. A range that starts on a nested `def` is
+    about that nested function: its enclosing function runs the `def` line when it only makes
+    the closure. With no recorded function around `from`, every call in the file counts."""
+    around = [
+        frame
+        for frame in frames
+        if frame["path"] == step["path"]
+        and frame["start"] <= step["from"] <= frame["end"]
+    ]
+    owner = min(around, key=lambda frame: frame["end"] - frame["start"], default=None)
+    calls: dict[int, list[int]] = {}
+    for index, (frame_index, *_rest) in enumerate(steps):
+        frame = frames[frame_index]
+        if frame["path"] != step["path"]:
+            continue
+        if owner and (frame["start"], frame["end"]) != (owner["start"], owner["end"]):
+            continue
+        calls.setdefault(frame_index, []).append(index)
+    return calls
+
+
+def _values_after(
+    steps: list[list[Any]], values: list[str], call: list[int], last_hit: int
+) -> list[tuple[str, str]]:
+    """The call's variables once its line `last_hit` has run, as (name, printed value): its own
+    next step records what that line changed. The receiver's attributes are left out."""
+    later = [index for index in call if index > last_hit]
+    state: dict[str, str] = {}
+    returned = None
+    for index in call:
+        for name, value in steps[index][3].items():
+            if name == "(return value)":
+                returned = values[value] if value != GONE else None
+            elif index <= (later[0] if later else last_hit) and not name.startswith(
+                "("
+            ):
+                if value == GONE:
+                    state.pop(name, None)
+                elif not re.match(r"(self|this)(\.|$)", name):
+                    state[name] = values[value]
+    if returned is not None and returned != "None":
+        state["(return value)"] = returned
+    return list(state.items())
+
+
+def _arguments(call_step: list[Any], values: list[str]) -> str:
+    """A call's arguments on one line, each cut to 80 characters."""
+    parts = []
+    for name, value in call_step[3].items():
+        if (
+            value == GONE
+            or re.match(r"(self|this)(\.|$)", name)
+            or name.startswith("(")
+        ):
+            continue
+        text = " ".join(values[value].split())
+        parts.append(f"{name}={text[:80]}{'…' if len(text) > 80 else ''}")
+    return ", ".join(parts) or "none"
 
 
 # ---- hide secrets -------------------------------------------------------------------------------
@@ -239,24 +431,29 @@ def _hide_secrets_inside(text: str, hidden: set[str]) -> str:
 
 
 def _is_secret_name(name: str) -> bool:
+    """Whether a variable or field name marks a secret.
+
+    >>> [_is_secret_name(n) for n in ("api_key", "privateKey", "OPENAI_API_KEY", "auth_token")]
+    [True, True, True, True]
+    >>> [_is_secret_name(n) for n in ("key", "cache_key", "idempotency_key", "session_key")]
+    [False, False, False, False]
+    """
     parts = [
         part.lower() for part in re.findall(r"[A-Z]?[a-z0-9]+|[A-Z]+(?![a-z])", name)
     ]
     return any(part in _SECRET_PARTS for part in parts) or (
-        len(parts) > 1 and parts[-1] == "key"
+        len(parts) > 1 and parts[-1] == "key" and parts[-2] in _SECRET_KEY_KINDS
     )
 
 
 # ---- page data ----------------------------------------------------------------------------------
 
 
-def _page_text(text: str) -> str:
+def _page_text(text: str, texts_path: str) -> str:
     if len(text) <= _PAGE_TEXT_LIMIT:
         return text
     rest = len(text) - _PAGE_TEXT_LIMIT
-    return (
-        f"{text[:_PAGE_TEXT_LIMIT]}\n… ({rest} more characters in .codewalk/texts.json)"
-    )
+    return f"{text[:_PAGE_TEXT_LIMIT]}\n… ({rest} more characters in {texts_path})"
 
 
 def _page_data(
@@ -276,14 +473,32 @@ def _page_data(
 def _workflow_json(workflow: dict[str, Any], texts: _TextTable) -> dict[str, Any]:
     walkthrough, recording = workflow["walkthrough"], workflow["recording"]
     steps = recording["steps"]
+    chapters = [
+        {
+            "title": chapter["title"],
+            "steps": [
+                {
+                    **{name: step[name] for name in ("path", "from", "to", "anchor")},
+                    **{name: step.get(name) or "" for name in (*_STEP_TEXTS, "why")},
+                    "came_in": step.get("came_in", []),
+                    "went_out": step.get("went_out", []),
+                    "values": [
+                        [texts.index(name), texts.index(value)]
+                        for name, value in step["values"]
+                    ],
+                }
+                for step in chapter["steps"]
+            ],
+        }
+        for chapter in walkthrough["chapters"]
+    ]
     return {
         "key": workflow["key"],
         "title": walkthrough.get("title", workflow["key"]),
         "summary": walkthrough.get("summary", ""),
-        "functions": walkthrough.get("functions", []),
         "fakes": walkthrough.get("fakes", []),
         "breakpoints": walkthrough.get("breakpoints", []),
-        "walkthrough": walkthrough.get("steps", []),
+        "chapters": chapters,
         "language": recording["language"],
         "entry": recording["entry"],
         "exit": recording["exit"],

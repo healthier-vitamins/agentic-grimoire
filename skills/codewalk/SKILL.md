@@ -1,17 +1,20 @@
 ---
 name: codewalk
-description: Record a real run of a workflow — existing code, a diff, or a prototype not written yet — and publish it as a time-travel debugger page.
-argument-hint: "[path | diff-ref | idea to prototype]"
+description: Record real runs of one section's workflows — existing code, a diff, or a prototype not written yet — and publish them as a chapter-stories page with a time-travel debugger.
+argument-hint: "[codemap section prompt | path | diff-ref | idea to prototype]"
 disable-model-invocation: true
 ---
 
-The user wants to *see* code run: the workflows it holds, a captioned walkthrough, and a
-**time-travel debugger** — step into, over, out, back, or to the next stop, with every
-variable's value at every step. The page replays a **recording** of one real run, so what
-the user steps through is what actually happened.
+The user wants to *see* one section of code run, deeply. The page tells each workflow as
+**chapter stories**: one step per screen, with its code, the real values the run held there,
+and one line on what happened. Any step opens the **time-travel debugger** at that point —
+step into, over, out, back, or to the next stop, with every variable's value at every step.
+The page replays a **recording** of one real run, so what the user reads is what actually
+happened.
 
 **Iron rule: project files change only at Step 10, on the user's "apply".** Everything
-before writes to `<project>/.codewalk/`, added to `.git/info/exclude` on first use.
+before writes to `<project>/.codewalk/<section>/`; `.codewalk/` is added to
+`.git/info/exclude` on first use.
 
 Scripts live in this skill's `scripts/` folder; `<skill>` below is this skill's directory.
 
@@ -20,34 +23,43 @@ Scripts live in this skill's `scripts/` folder; `<skill>` below is this skill's 
 - **Workflow** — one end-to-end path from an entry point until it leaves the target. Say
   *workflow*, not chain or flow.
 - **Recording** — the JSON one run produces: frames, steps, changed variables.
-- **Stop** — a step the debugger's "next stop" lands on: the first run of a walkthrough
-  step's lines by the function around its first line (making a closure is not running
-  it), or a breakpoint function's call.
-- **Staging** — `.codewalk/staging/<slug>/`, where prototype code lives before it is applied.
+- **Section** — the part of the codebase one page covers, named by a slug: one codemap
+  section, or the target the user named. Its files live in `.codewalk/<section>/`.
+- **Chapter** — one idea of a workflow, told in 1 to 7 walkthrough steps.
+- **Stop** — where a walkthrough step is anchored in the recording: its call's first run of
+  the step's lines ([page-format.md](references/page-format.md) has the rule). The debugger
+  opens there, and "next stop" lands on every stop and every breakpoint call.
+- **Staging** — `.codewalk/<section>/staging/<slug>/`, where prototype code lives before it is applied.
 
 Rejected framings: the old *walk* (quiz-first) and *sweep* (chat trace) gears — a recording
 shows real state, which neither could.
 
 ## Step 1 — Resolve the target
 
-Fix one target and its branch:
+Fix one target, its branch, and its section slug:
 
 | Branch | Argument | Code that runs |
 |---|---|---|
+| **section** | a codemap prompt: one section, its slug, entry points and files | the project as it is |
 | **existing** | a path or symbol | the project as it is |
 | **diff** | `HEAD`, a SHA, `A...B`, or nothing with a dirty tree | the project as it is |
 | **prototype** | an idea, or code not yet in the project | staging — read [staging.md](references/staging.md) |
 
+A codemap prompt fixes the target to that section alone: its entry points and its files.
+Walk only that section; code it calls in other sections runs unwatched. Take the slug from the
+prompt as given: codemap marks the section as walked by finding `.codewalk/<slug>/page.html`.
+For any other branch, make the slug from the target's name in kebab-case (`upload-retry`).
+
 Languages: Python, JavaScript, TypeScript. A target in any other language → tell the user
 codewalk cannot record it, and stop.
 
-**Done when:** one target, its branch, and every language it touches are named back to the
-user in one line.
+**Done when:** one target, its branch, its slug, and every language it touches are named back
+to the user in one line.
 
 ## Step 2 — Map the workflows
 
-From the target's entry points (exported functions, route handlers, CLI commands, changed
-lines of a diff), follow calls until they leave the target. Two entry points that never
+From the target's entry points (a section's listed entry points, exported functions, route
+handlers, CLI commands, changed lines of a diff), follow calls until they leave the target. Two entry points that never
 converge are two workflows.
 
 **Done when:** every entry point belongs to exactly one workflow, and each workflow lists its
@@ -65,7 +77,7 @@ Redo Step 2 on their edits and show the map again.
 
 1. A **test** that runs through the workflow: a pytest node id, or `<test file>::<test name>`
    for the project's vitest or jest.
-2. None → write a **driver** in `.codewalk/drivers/<workflow>.{py,ts,js}` that calls the
+2. None → write a **driver** in `.codewalk/<section>/drivers/<workflow>.{py,ts,js}` that calls the
    workflow's entry point with realistic inputs.
 
 **Done when:** every workflow has an entry, and its kind (test or driver) is noted for Step 9.
@@ -88,7 +100,7 @@ Run each entry with the project's own runtime, so its imports resolve:
 node <skill>/scripts/record_js.mjs <flags>              # JS/TS, Node 22+
 
 <flags> = --root <project> --watch <paths…> --entry <test | driver> \
-          --out .codewalk/recordings/<workflow>.json
+          --out .codewalk/<section>/recordings/<workflow>.json
 ```
 
 `--watch` is the target's files and folders: code outside them runs without being stepped
@@ -104,32 +116,39 @@ noted.
 
 ## Step 7 — Write the walkthrough
 
-Per workflow, write `.codewalk/walkthrough/<workflow>.json` in the shape of
+Per workflow, write `.codewalk/<section>/walkthrough/<workflow>.json` in the shape of
 [page-format.md](references/page-format.md): the confirmed map from Step 3, the fakes from
-Step 5, then one walkthrough step per idea — a line range, a title, and a caption written
-as [captions.md](references/captions.md) says: for a reader new to the code, in Simplified
-Technical English, with every term defined where it first appears.
+Step 5, then the walkthrough as chapters — one chapter per idea, 1 to 7 steps each. A
+section's workflows together take up to about 13 chapters. Each step is a line range with the
+layered texts [captions.md](references/captions.md) gives (`title`, `gist`, `where`, `what`,
+`run`, optional `why`), written for a reader new to the code, in Simplified Technical
+English, with every term defined where it first appears. Mark the values that came in and
+went out with `came_in` and `went_out`.
 
-**Done when:** every workflow has a walkthrough, every range in it lies inside a file its
-recording ran, and every step has a title and a caption in the shape captions.md gives.
+**Done when:** every workflow has a walkthrough, every chapter holds 1 to 7 steps, every range
+lies inside a file its recording ran, and every step has all the texts captions.md requires.
 
 ## Step 8 — Build
 
 ```sh
-uv run <skill>/scripts/build.py --root <project> --title "<title>"
+uv run <skill>/scripts/build.py --root <project> --title "<title>" --section <slug>
 ```
 
-The build checks Step 7's ranges, hides secrets (secret-named variables and fields, key-shaped
-strings, secret environment values), and writes `.codewalk/page.html`. The page shows the
-first 20,000 characters of each value; every value in full goes to `.codewalk/texts.json`,
+The build checks Step 7's walkthroughs and prints each step's anchor: its function, which
+call of how many, the stop, and that call's arguments. Read each anchor against the step's
+`run` text. When a step anchored to the wrong call (the owner's message where the step is about
+a stranger's tap), add `"call": N` to the step and build again. It also hides secrets (secret-named variables and fields, key-shaped
+strings, secret environment values), and writes `.codewalk/<section>/page.html`. The page shows the
+first 20,000 characters of each value; every value in full goes to `.codewalk/<section>/texts.json`,
 and each variable's "ask" link copies a question naming its place there. It fails over
 14 MB; then narrow `--watch` and re-record.
 
-**Done when:** the build exits 0.
+**Done when:** the build exits 0, and every step's printed anchor is the call its text
+describes.
 
 ## Step 9 — Publish
 
-Publish `.codewalk/page.html` as an artifact, then tell the user, in chat:
+Publish `.codewalk/<section>/page.html` as an artifact, then tell the user, in chat:
 
 - the link;
 - every hidden variable the build printed — they may want more hidden before sharing;

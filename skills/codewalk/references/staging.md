@@ -1,20 +1,20 @@
 # Staging
 
 The prototype branch: code that is not in the project yet runs from
-`.codewalk/staging/<slug>/` and reaches the project only at Step 10.
+`.codewalk/<section>/staging/<slug>/` and reaches the project only at Step 10.
 
 ## Write it
 
 - Write each prototype file at its **project path** under staging, whole:
   `staging/retry/src/upload.py` replaces `src/upload.py` for the run;
   `staging/retry/src/backoff.py` adds a file the project lacks.
-- The entry is a driver in `.codewalk/drivers/`. In Python, a project test also works when it
+- The entry is a driver in `.codewalk/<section>/drivers/`. In Python, a project test also works when it
   reaches the staged code — it then runs against the staged files. vitest and jest resolve
   modules themselves, so a JS/TS prototype always runs through a driver.
 
 ## Record it
 
-Add `--staging .codewalk/staging/<slug>` to Step 6's command. `--watch` names project paths, as
+Add `--staging .codewalk/<section>/staging/<slug>` to Step 6's command. `--watch` names project paths, as
 always. During the run:
 
 - a staged file is imported in place of the project's file at the same path;

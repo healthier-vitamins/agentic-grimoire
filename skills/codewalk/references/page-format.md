@@ -1,10 +1,10 @@
 # Page format
 
 The two files `build.py` joins into the page, one pair per workflow, paired by file name:
-`.codewalk/walkthrough/<workflow>.json` and `.codewalk/recordings/<workflow>.json`. The page
-lists workflows in file-name order, so name them `01-checkout`, `02-refund` to keep the
-confirmed map's order. Every path is relative to the project root, with `/` separators.
-Lines are 1-based.
+`walkthrough/<workflow>.json` and `recordings/<workflow>.json`, both in the section's folder
+`.codewalk/<section>/`. The page lists workflows in file-name order, so name them
+`01-checkout`, `02-refund` to keep the confirmed map's order. Every path is relative to the
+project root, with `/` separators. Lines are 1-based.
 
 ## Walkthrough — the agent writes it
 
@@ -17,9 +17,16 @@ Lines are 1-based.
     { "name": "upload._send_chunk", "path": "src/upload.py", "line": 40 }
   ],
   "fakes": ["s3.put_object: fake, the user's pick (writes to the shared bucket)"],
-  "steps": [
-    { "path": "src/upload.py", "from": 12, "to": 18, "title": "The upload starts",
-      "caption": "Where you are.\n\nWhat the code does.\n\nIn this run." }
+  "chapters": [
+    { "title": "The upload starts", "steps": [
+      { "path": "src/upload.py", "from": 12, "to": 18, "title": "The file is opened",
+        "gist": "The upload opens 'a.bin' and splits it into 3 chunks.",
+        "where": "…", "what": "…", "run": "…", "why": "…",
+        "came_in": ["path"] },
+      { "path": "src/upload.py", "from": 40, "to": 52, "title": "The second try succeeds",
+        "gist": "…", "where": "…", "what": "…", "run": "…",
+        "call": 2, "went_out": ["(return value)"] }
+    ] }
   ],
   "breakpoints": ["upload._send_chunk"]
 }
@@ -28,15 +35,37 @@ Lines are 1-based.
 - `functions` — the map the user confirmed, in call order. `name` is `module.qualname`, the
   same form a recording's frames use.
 - `fakes` — one line per faked call: what, and why. Empty when every call ran for real.
-- `steps` — the walkthrough, in reading order, written as [captions.md](captions.md) says:
-  `title` names the step in the rail, and `caption` holds paragraphs split by a blank line.
-  A step with no `title` shows its caption's first sentence. Each `path` must be a file the recording ran;
-  the build fails otherwise. The debugger's "next stop" lands on the first step that runs a
-  walkthrough step's lines inside the function they belong to — the innermost recorded
-  function around `from`. Start a range on a nested function's `def` to make it about that
-  function: the enclosing function runs that line when it makes the closure, and that step
-  is not a stop.
+- `chapters` — the walkthrough in reading order. A chapter is one idea of the workflow, with
+  a `title` and 1 to 7 `steps`; the build fails on a chapter with more. Split a longer idea
+  into two chapters.
+- A **step** is one range of code. `path`, `from`, `to`: the range; `path` must be a file the
+  recording ran. The texts, written as [captions.md](captions.md) says: `title`, `gist`,
+  `where`, `what`, `run`, and optional `why`. The page shows the title, the gist, the code, the
+  step's values and `run`; `where`, `what` and `why` open with one tap.
+- `call` — optional. Anchors the step to the Nth call (1-based) of the function around `from`.
+  Without it, the step anchors to the first call that runs its lines. Set it when that first
+  call is not the one the step is about: a function that runs for the owner and then for a
+  stranger needs `"call": 2` on the stranger's step.
+- `came_in`, `went_out` — optional names from the step's values. The workflow's first and last
+  screens show them as what came in and what went out, with their values. The build fails on a
+  name the step's values lack.
 - `breakpoints` — optional; functions whose every call is a stop.
+
+### The stop and the values
+
+The function around `from` is the innermost recorded function whose lines hold `from`. Start a
+range on a nested function's `def` to make it about that function: the enclosing function runs
+that line when it makes the closure, and that run does not count.
+
+- The step's **stop** is the first recording step of its call on the step's lines. "step
+  through this" opens the debugger there, and the debugger's "next stop" lands on every step's
+  stop and every breakpoint call.
+- The step's **values** are its call's variables once that call has run the step's last line
+  it reaches, plus the call's return value unless it is `None`. The receiver's attributes
+  (`self.*`, `this.*`) are left out.
+
+The build prints each step's anchor: the function, which call of how many, the stop, and the
+call's arguments. Read them against the step's text; a wrong call shows wrong values.
 
 ## Recording — a recorder writes it
 

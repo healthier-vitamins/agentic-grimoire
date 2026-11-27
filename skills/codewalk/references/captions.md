@@ -6,17 +6,25 @@ steps in order, and they must not need to leave the page to understand one.
 
 ## Shape of one step
 
+A step's caption comes in layers, one field each. The page shows `title`, `gist` and `run` with
+the code and the values; `where`, `what` and `why` open with one tap. So `gist` and `run` must
+make sense alone.
+
 - `title` — at most 6 words. It names what this code does: "The route checks the request".
-  The rail lists the titles, so a reader finds a step by its title.
-- `caption` — three or four paragraphs, with a blank line (`\n\n`) between them, in this order:
-  1. **Where you are.** What ran just before this step, which function this is, and its job
-     in the whole workflow. Name the previous step's result that this code receives.
-  2. **What the code does.** The lines in order, one sentence each for the important ones.
-     Name the line by what it does, not only by its number.
-  3. **In this run.** The real values the recording holds, as the page prints them, and the
-     variable to look at in the Variables pane to see each one.
-  4. **Why it is built this way** (only when it helps): the problem this code prevents, or a
-     result that surprised you. Say when the run shows a weakness.
+  The bar at the top names the chapter; the title names the step.
+- `gist` — one sentence of at most 20 words, shown bold: what this step does in this run, with
+  one real value. "The owner's 'hello' finds its live session; it is not a command."
+- `where` — **Where you are.** What ran just before this step, which function this is, and
+  its job in the whole workflow. Name the previous step's result that this code receives.
+- `what` — **What the code does.** The lines in order, one sentence each for the important
+  ones. Name the line by what it does, not only by its number.
+- `run` — **In this run.** The real values the recording holds, as the page prints them, naming
+  the variable that shows each one. Write it from the build's anchor line and the step's values,
+  so every value you name is on screen beside it.
+- `why` — optional. **Why it is built this way**: the problem this code prevents, or a result
+  that surprised you. Say when the run shows a weakness.
+
+Each of `where`, `what`, `run`, `why` is one paragraph.
 
 ## Words
 
