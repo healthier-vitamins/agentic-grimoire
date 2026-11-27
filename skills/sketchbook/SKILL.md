@@ -1,5 +1,5 @@
 ---
-name: design-all
+name: sketchbook
 description: Turn any situation (a trip plan, a wedding admin board, a CRM, a timetable) into clickable UI drafts to compare, each built on the interaction pattern the workflow fits, routed to the design skill best at that kind of work.
 argument-hint: "[the situation | files or a chat export | an existing plan folder plus new material | a repo or page to redesign]"
 disable-model-invocation: true

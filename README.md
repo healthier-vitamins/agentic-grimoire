@@ -26,7 +26,7 @@ Install the engineering skills into the central store and symlink them into Clau
 
 ```sh
 npx skills add healthier-vitamins/agentic-grimoire --global -a claude-code codex \
-  -s chat-id codemap codewalk compass design-all keystone keystone-react oracle playbook review-all scribe skillsmith ticketsmith watermark
+  -s chat-id codemap codewalk compass keystone keystone-react oracle playbook review-all scribe sketchbook skillsmith ticketsmith watermark
 ```
 
 Optional: add the personal skills too:
@@ -109,7 +109,7 @@ default_subagent_model from [agents] in ~/.codex/config.toml.
 | compass | **Goes wide instead of deep.** Lays out the alternatives to a chosen solution and recommends one. Use when you want options. |
 | codemap | Maps a whole codebase (Python, JavaScript or TypeScript) on one page: areas, then sections, each with its job, entry points, key files and size, plus a statechart wherever the code keeps real state. A script computes the files, line counts and links between sections, and checks every hand-written `file:line`. Each section has a button that copies a ready `/codewalk` prompt, so you record only the sections you choose. |
 | codewalk | Records a real run of one section (Python, JavaScript or TypeScript) and publishes it as chapter stories: swipe sideways through steps and down through chapters, each step with a one-line gist, its code and the real values it held. "Step through this" opens a time-travel debugger at that step, which steps into, over, out, back or to the next stop. Works on a `codemap` section, existing code, a diff, or a prototype staged before it is applied. |
-| design-all | Turns any situation (a trip template, a wedding admin board, a CRM, a timetable) into clickable UI drafts to compare. Ranks well-known patterns (table, kanban, week grid, itinerary, map...) against the workflow, then routes: a pile of planning material (a chat export, sheets, notes) to interactive plan boards (overview, Gantt timeline, decision log, kanban, moodboard) where every picture and chart traces to the sources, marketing sites to `design-taste-frontend`, apps to three `huashu-design` directions. Checks every draft in a real browser. |
+| sketchbook | Turns any situation (a trip template, a wedding admin board, a CRM, a timetable) into clickable UI drafts to compare. Ranks well-known patterns (table, kanban, week grid, itinerary, map...) against the workflow, then routes: a pile of planning material (a chat export, sheets, notes) to interactive plan boards (overview, Gantt timeline, decision log, kanban, moodboard) where every picture and chart traces to the sources, marketing sites to `design-taste-frontend`, apps to three `huashu-design` directions. Checks every draft in a real browser. |
 | keystone | Clean code pedagogy. GoF patterns, functions over inline code, OOP. To be applied for all types of code. |
 | keystone-react | Same idea as `keystone`, but for React only. Decomposed components, context over prop-drilling, co-located CSS. |
 | playbook | Audit changed code against your engineering conventions (race conditions, idempotency, etc) and flag what is missing. |
@@ -154,7 +154,7 @@ STORM is extremely heavy, but it provides the most detailed output compared to `
 
 **Personal**
 - Revision sheet with worked solutions and graphs: `workbook`
-- Plan board from a chat export or spreadsheets: `design-all`
+- Plan board from a chat export or spreadsheets: `sketchbook`
 
 **Writing code**
 - General: `keystone`

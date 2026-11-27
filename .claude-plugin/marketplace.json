@@ -13,12 +13,12 @@
         "./skills/codemap",
         "./skills/codewalk",
         "./skills/compass",
-        "./skills/design-all",
         "./skills/keystone",
         "./skills/keystone-react",
         "./skills/oracle",
         "./skills/playbook",
         "./skills/scribe",
+        "./skills/sketchbook",
         "./skills/skillsmith",
         "./skills/ticketsmith",
         "./skills/watermark"
